@@ -2,11 +2,11 @@
 import { useState } from 'react';
 import { db } from '../../lib/db';
 
-export default function WaterTracker({ onClose }: { onClose: () => void }) {
+export default function WaterTracker({ onClose, selectedDate }: { onClose: () => void, selectedDate: Date }) {
     const [glasses, setGlasses] = useState(1);
 
     const save = async () => {
-        await db.logs.add({ water: glasses, date: new Date() });
+        await db.logs.add({ water: glasses, date: selectedDate });
         onClose();
     };
 

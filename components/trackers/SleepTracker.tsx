@@ -2,11 +2,11 @@
 import { useState } from 'react';
 import { db } from '../../lib/db';
 
-export default function SleepTracker({ onClose }: { onClose: () => void }) {
+export default function SleepTracker({ onClose, selectedDate }: { onClose: () => void, selectedDate: Date }) {
     const [hours, setHours] = useState(7);
 
     const save = async () => {
-        await db.logs.add({ sleep: hours, date: new Date() });
+        await db.logs.add({ sleep: hours, date: selectedDate });
         onClose();
     };
 

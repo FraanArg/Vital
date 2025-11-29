@@ -2,12 +2,12 @@
 import { useState } from 'react';
 import { db } from '../../lib/db';
 
-export default function FoodTracker({ onClose }: { onClose: () => void }) {
+export default function FoodTracker({ onClose, selectedDate }: { onClose: () => void, selectedDate: Date }) {
     const [food, setFood] = useState('');
 
     const save = async () => {
         if (food.trim()) {
-            await db.logs.add({ food, date: new Date() });
+            await db.logs.add({ food, date: selectedDate });
             onClose();
         }
     };

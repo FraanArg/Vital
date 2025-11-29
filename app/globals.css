@@ -8,46 +8,25 @@
   --foreground: #1D1D1F;
   --card: #FFFFFF;
   --card-foreground: #1D1D1F;
-  
+
   --primary: #0071E3;
   --primary-foreground: #FFFFFF;
-  
+
   --secondary: #F5F5F7;
   --secondary-foreground: #1D1D1F;
-  
+
   --muted: #86868B;
   --border: #D2D2D7;
-  
+
   --radius: 24px;
-  
+
   /* Glassmorphism */
   --glass-bg: rgba(255, 255, 255, 0.65);
   --glass-border: rgba(255, 255, 255, 0.5);
   --shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.08);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Rich Charcoal Palette (Dark) - No more pitch black */
-    --background: #09090B; /* Zinc 950 - Rich Charcoal */
-    --foreground: #FAFAFA; /* Zinc 50 */
-    --card: #18181B; /* Zinc 900 */
-    --card-foreground: #FAFAFA;
-    
-    --primary: #3B82F6; /* Blue 500 */
-    --primary-foreground: #FFFFFF;
-    
-    --secondary: #27272A; /* Zinc 800 */
-    --secondary-foreground: #FAFAFA;
-    
-    --muted: #A1A1AA; /* Zinc 400 */
-    --border: #27272A; /* Zinc 800 */
-    
-    --glass-bg: rgba(24, 24, 27, 0.6);
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.6);
-  }
-}
+
 
 .dark {
   --background: #09090B;
@@ -92,22 +71,27 @@ body::before {
   width: 200%;
   height: 200%;
   background: radial-gradient(circle at center, transparent 30%, var(--background) 70%),
-              conic-gradient(from 0deg at 50% 50%, 
-                rgba(59, 130, 246, 0.03) 0deg, 
-                rgba(168, 85, 247, 0.03) 60deg, 
-                rgba(236, 72, 153, 0.03) 120deg, 
-                rgba(59, 130, 246, 0.03) 180deg, 
-                rgba(168, 85, 247, 0.03) 240deg, 
-                rgba(236, 72, 153, 0.03) 300deg, 
-                rgba(59, 130, 246, 0.03) 360deg);
+    conic-gradient(from 0deg at 50% 50%,
+      rgba(59, 130, 246, 0.03) 0deg,
+      rgba(168, 85, 247, 0.03) 60deg,
+      rgba(236, 72, 153, 0.03) 120deg,
+      rgba(59, 130, 246, 0.03) 180deg,
+      rgba(168, 85, 247, 0.03) 240deg,
+      rgba(236, 72, 153, 0.03) 300deg,
+      rgba(59, 130, 246, 0.03) 360deg);
   animation: aurora 60s linear infinite;
   z-index: -1;
   pointer-events: none;
 }
 
 @keyframes aurora {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 * {
@@ -134,7 +118,8 @@ a {
   max-width: 600px;
   margin: 0 auto;
   padding: 20px;
-  padding-bottom: 100px; /* Space for bottom sheets/nav */
+  padding-bottom: 100px;
+  /* Space for bottom sheets/nav */
 }
 
 button {
@@ -142,13 +127,21 @@ button {
   border: none;
   background: none;
   font-family: inherit;
-  -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+  -webkit-tap-highlight-color: transparent;
+  /* Remove tap highlight on mobile */
 }
 
 /* Animations */
 @keyframes slideUp {
-  from { transform: translateY(100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .animate-slide-up {
@@ -156,8 +149,13 @@ button {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .animate-fade-in {

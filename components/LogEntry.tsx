@@ -1,39 +1,47 @@
 'use client';
 
 import { useState } from 'react';
-import { Battery, Moon, Droplets, Utensils, X } from 'lucide-react';
-import MoodTracker from './trackers/MoodTracker';
+import { Briefcase, Moon, Droplets, Utensils, X, Book, Plus } from 'lucide-react';
+import WorkTracker from './trackers/WorkTracker';
 import SleepTracker from './trackers/SleepTracker';
 import WaterTracker from './trackers/WaterTracker';
 import FoodTracker from './trackers/FoodTracker';
+import JournalTracker from './trackers/JournalTracker';
+import CustomTracker from './trackers/CustomTracker';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function LogEntry() {
+interface LogEntryProps {
+    selectedDate: Date;
+}
+
+export default function LogEntry({ selectedDate }: LogEntryProps) {
     const [activeTracker, setActiveTracker] = useState<string | null>(null);
     const isDesktop = useMediaQuery("(min-width: 768px)");
 
     const renderTracker = () => {
         switch (activeTracker) {
-            case 'mood': return <MoodTracker onClose={() => setActiveTracker(null)} />;
-            case 'sleep': return <SleepTracker onClose={() => setActiveTracker(null)} />;
-            case 'water': return <WaterTracker onClose={() => setActiveTracker(null)} />;
-            case 'food': return <FoodTracker onClose={() => setActiveTracker(null)} />;
+            case 'work': return <WorkTracker selectedDate={selectedDate} onClose={() => setActiveTracker(null)} />;
+            case 'sleep': return <SleepTracker selectedDate={selectedDate} onClose={() => setActiveTracker(null)} />;
+            case 'water': return <WaterTracker selectedDate={selectedDate} onClose={() => setActiveTracker(null)} />;
+            case 'food': return <FoodTracker selectedDate={selectedDate} onClose={() => setActiveTracker(null)} />;
+            case 'journal': return <JournalTracker selectedDate={selectedDate} onClose={() => setActiveTracker(null)} />;
+            case 'custom': return <CustomTracker selectedDate={selectedDate} onClose={() => setActiveTracker(null)} />;
             default: return null;
         }
     };
 
     return (
         <div className="mb-8">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 mb-8">
                 <button
-                    onClick={() => setActiveTracker('mood')}
+                    onClick={() => setActiveTracker('work')}
                     className="p-4 rounded-2xl bg-card text-card-foreground shadow-sm border border-border/50 flex flex-col items-center gap-3 hover:bg-secondary transition-all active:scale-95 group"
                 >
                     <div className="p-3 bg-green-100 dark:bg-green-500/20 rounded-full group-hover:scale-110 transition-transform">
-                        <Battery className="w-6 h-6 text-green-600 dark:text-green-300" />
+                        <Briefcase className="w-6 h-6 text-green-600 dark:text-green-300" />
                     </div>
-                    <span className="font-semibold text-sm">Mood</span>
+                    <span className="font-semibold text-sm">Work</span>
                 </button>
 
                 <button
@@ -64,6 +72,26 @@ export default function LogEntry() {
                         <Utensils className="w-6 h-6 text-orange-600 dark:text-orange-300" />
                     </div>
                     <span className="font-semibold text-sm">Food</span>
+                </button>
+
+                <button
+                    onClick={() => setActiveTracker('journal')}
+                    className="p-4 rounded-2xl bg-card text-card-foreground shadow-sm border border-border/50 flex flex-col items-center gap-3 hover:bg-secondary transition-all active:scale-95 group"
+                >
+                    <div className="p-3 bg-pink-100 dark:bg-pink-500/20 rounded-full group-hover:scale-110 transition-transform">
+                        <Book className="w-6 h-6 text-pink-600 dark:text-pink-300" />
+                    </div>
+                    <span className="font-semibold text-sm">Journal</span>
+                </button>
+
+                <button
+                    onClick={() => setActiveTracker('custom')}
+                    className="p-4 rounded-2xl bg-card text-card-foreground shadow-sm border border-border/50 flex flex-col items-center gap-3 hover:bg-secondary transition-all active:scale-95 group"
+                >
+                    <div className="p-3 bg-gray-100 dark:bg-gray-500/20 rounded-full group-hover:scale-110 transition-transform">
+                        <Plus className="w-6 h-6 text-gray-600 dark:text-gray-300" />
+                    </div>
+                    <span className="font-semibold text-sm">Custom</span>
                 </button>
             </div>
 
