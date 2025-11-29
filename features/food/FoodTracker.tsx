@@ -33,6 +33,7 @@ export default function FoodTracker({ onClose, selectedDate }: { onClose: () => 
     const [selectedHour, setSelectedHour] = useState("12");
     const [selectedMinute, setSelectedMinute] = useState("00");
     const [items, setItems] = useState<string[]>([]);
+    const [isSaving, setIsSaving] = useState(false);
 
     const createLog = useMutation(api.logs.createLog);
 
