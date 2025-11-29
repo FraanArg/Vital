@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { useMutation } from "convex/react";
+import { useMutation, useConvexAuth } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Loader2 } from "lucide-react";
 
@@ -10,6 +10,8 @@ export default function SleepTracker({ onClose, selectedDate }: { onClose: () =>
     const [duration, setDuration] = useState(8);
     const [isSaving, setIsSaving] = useState(false);
     const createLog = useMutation(api.logs.createLog);
+
+    const { isAuthenticated } = useConvexAuth();
 
     useEffect(() => {
         if (start && end) {
@@ -29,6 +31,11 @@ export default function SleepTracker({ onClose, selectedDate }: { onClose: () =>
     }, [start, end]);
 
     const save = async () => {
+        if (!isAuthenticated) {
+            alert("Please sign in to save your sleep log.");
+            return;
+        }
+
         setIsSaving(true);
         try {
             // Construct the date object using the Wake Time (end)
@@ -85,6 +92,12 @@ export default function SleepTracker({ onClose, selectedDate }: { onClose: () =>
                 {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
                 {isSaving ? "Saving..." : "Save Sleep"}
             </button>
+
+            {!isAuthenticated && (
+                <p className="text-xs text-center text-red-500">
+                    You must be signed in to save data.
+                </p>
+            )}
         </div>
     );
 }
