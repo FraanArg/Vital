@@ -50,7 +50,7 @@ export default function ProfilePage() {
 
             <div className="bg-card border border-border/50 rounded-2xl overflow-hidden">
                 <button
-                    onClick={() => openUserProfile({ routing: "hash" })}
+                    onClick={() => openUserProfile()}
                     className="w-full p-4 flex items-center justify-between hover:bg-secondary/50 transition-colors border-b border-border/50 last:border-0"
                 >
                     <div className="flex items-center gap-3">
@@ -66,7 +66,7 @@ export default function ProfilePage() {
                 </button>
 
                 <button
-                    onClick={() => openUserProfile({ routing: "hash" })}
+                    onClick={() => openUserProfile()}
                     className="w-full p-4 flex items-center justify-between hover:bg-secondary/50 transition-colors"
                 >
                     <div className="flex items-center gap-3">
