@@ -1,6 +1,5 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
 import SyncData from "../../components/SyncData";
 
 export default function ProfilePage() {
