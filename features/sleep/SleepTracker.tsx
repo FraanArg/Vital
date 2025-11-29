@@ -11,7 +11,7 @@ export default function SleepTracker({ onClose, selectedDate }: { onClose: () =>
     const [isSaving, setIsSaving] = useState(false);
     const createLog = useMutation(api.logs.createLog);
 
-    const { isAuthenticated } = useConvexAuth();
+    const { isAuthenticated, isLoading: isAuthLoading } = useConvexAuth();
 
     useEffect(() => {
         if (start && end) {
@@ -86,14 +86,14 @@ export default function SleepTracker({ onClose, selectedDate }: { onClose: () =>
 
             <button
                 onClick={save}
-                disabled={isSaving}
+                disabled={isSaving || isAuthLoading}
                 className="w-full p-3 bg-primary text-primary-foreground rounded-xl font-medium shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
-                {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
-                {isSaving ? "Saving..." : "Save Sleep"}
+                {isSaving || isAuthLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+                {isSaving ? "Saving..." : isAuthLoading ? "Verifying..." : "Save Sleep"}
             </button>
 
-            {!isAuthenticated && (
+            {!isAuthenticated && !isAuthLoading && (
                 <p className="text-xs text-center text-red-500">
                     You must be signed in to save data.
                 </p>
