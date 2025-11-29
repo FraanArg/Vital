@@ -1,3 +1,5 @@
+"use client";
+
 import { useUser, useClerk } from "@clerk/nextjs";
 import SyncData from "../../components/SyncData";
 import { Settings, Shield, Mail, User as UserIcon } from "lucide-react";
