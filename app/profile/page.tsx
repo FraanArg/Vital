@@ -1,5 +1,6 @@
 "use client";
 
+import { UserProfile } from "@clerk/nextjs";
 import SyncData from "../../components/SyncData";
 
 export default function ProfilePage() {
@@ -12,7 +13,9 @@ export default function ProfilePage() {
 
             <SyncData />
 
-            {/* ... rest of profile ... */}
+            <div className="flex justify-center">
+                <UserProfile routing="hash" />
+            </div>
         </div>
     );
 }
