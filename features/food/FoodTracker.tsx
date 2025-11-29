@@ -65,13 +65,13 @@ export default function FoodTracker({ onClose, selectedDate }: { onClose: () => 
 
     const save = async () => {
         if (mealType && items.length > 0) {
-            await db.logs.add({
+            await createLog({
                 meal: {
                     type: mealType,
                     items: items,
                     time: `${selectedHour}:${selectedMinute}`
                 },
-                date: selectedDate
+                date: selectedDate.toISOString()
             });
             onClose();
         }
