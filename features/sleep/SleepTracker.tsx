@@ -31,11 +31,16 @@ export default function SleepTracker({ onClose, selectedDate }: { onClose: () =>
     const save = async () => {
         setIsSaving(true);
         try {
+            // Construct the date object using the Wake Time (end)
+            const [endH, endM] = end.split(':').map(Number);
+            const logDate = new Date(selectedDate);
+            logDate.setHours(endH, endM, 0, 0);
+
             await createLog({
                 sleep: duration,
                 sleep_start: start,
                 sleep_end: end,
-                date: selectedDate.toISOString()
+                date: logDate.toISOString()
             });
             onClose();
         } catch (error) {
