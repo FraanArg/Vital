@@ -5,18 +5,24 @@ import { ThemeProvider } from "../components/ThemeProvider";
 import Sidebar from "../components/Sidebar";
 import BottomNav from "../components/BottomNav";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  display: 'swap',
+  variable: '--font-inter',
+});
 
 export const metadata: Metadata = {
-  title: "Personal Tracker",
-  description: "Private, local-first tracking app",
+  title: "Vital",
+  description: "Track your life's essentials.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Personal Tracker",
+    title: "Vital",
   },
 };
+
+import ConvexClientProvider from "../components/ConvexClientProvider";
 
 export default function RootLayout({
   children,
@@ -25,21 +31,26 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="flex min-h-screen bg-background">
-            <Sidebar />
-            <main className="flex-1 md:pl-64 pb-safe transition-all duration-300">
-              {children}
-            </main>
-            <BottomNav />
-          </div>
-        </ThemeProvider>
+      <body
+        className={`${inter.variable} font-sans antialiased`}
+        suppressHydrationWarning
+      >
+        <ConvexClientProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <div className="flex h-screen bg-background">
+              <Sidebar />
+              <main className="flex-1 overflow-y-auto pb-20 sm:pb-0">
+                {children}
+              </main>
+              <BottomNav />
+            </div>
+          </ThemeProvider>
+        </ConvexClientProvider>
       </body>
     </html>
   );

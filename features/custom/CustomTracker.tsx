@@ -1,20 +1,19 @@
 "use client";
 import { useState } from 'react';
-import { db } from '../../lib/db';
+import { useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 export default function CustomTracker({ onClose, selectedDate }: { onClose: () => void, selectedDate: Date }) {
     const [name, setName] = useState('');
     const [value, setValue] = useState('');
     const [unit, setUnit] = useState('');
+    const createLog = useMutation(api.logs.createLog);
 
     const save = async () => {
         if (name && value) {
-            // We need to fetch existing log for this date or create a new one if we want to merge custom fields
-            // For simplicity in this version, we'll just add a new log entry with the custom field
-            // In a real app, you might want to upsert
-            await db.logs.add({
+            await createLog({
                 custom: [{ name, value: Number(value), unit }],
-                date: selectedDate
+                date: selectedDate.toISOString()
             });
             onClose();
         }

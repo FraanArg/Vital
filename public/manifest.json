@@ -1,7 +1,7 @@
 {
-  "name": "Personal Tracker",
-  "short_name": "Tracker",
-  "description": "Private, Offline-first Personal Tracker",
+  "name": "Vital",
+  "short_name": "Vital",
+  "description": "Track your life's essentials.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

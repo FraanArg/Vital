@@ -1,50 +1,63 @@
-"use client";
-
-import { useState } from "react";
-import { ThemeToggle } from "../components/ThemeToggle";
+import { useState, useEffect } from "react";
+import { useQuery } from "convex/react";
+import { api } from "../convex/_generated/api";
+import { format, startOfDay, endOfDay } from "date-fns";
 import LogEntry from "../components/LogEntry";
 import LogList from "../components/LogList";
-import StatsOverview from "../components/StatsOverview";
+import dynamic from "next/dynamic";
+
+const StatsOverview = dynamic(() => import("../components/StatsOverview"), {
+  loading: () => (
+    <div className="grid grid-cols-3 gap-4 mb-8">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="p-4 rounded-2xl bg-card border border-border/50 shadow-sm flex flex-col items-center justify-center text-center h-[106px] animate-pulse bg-muted/20" />
+      ))}
+    </div>
+  ),
+  ssr: false
+});
 import DateSelector from "../components/DateSelector";
-import StatsCharts from "../components/StatsCharts";
-import DataExport from "../components/DataExport";
 import SmartSuggestions from "../components/SmartSuggestions";
 import OfflineIndicator from "../components/OfflineIndicator";
 
 export default function Home() {
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [isMounted, setIsMounted] = useState(false);
 
-  return (
-    <div className="min-h-screen p-4 sm:p-8 pb-24 flex flex-col items-center justify-center">
-      <div className="w-full max-w-2xl animate-fade-in">
-        <header className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-br from-foreground to-muted bg-clip-text text-transparent">
-              Personal Tracker
-            </h1>
-            <p className="text-muted text-base mt-2 font-medium">Your private, local-first journal.</p>
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+
+    return (
+      <div className="flex flex-col h-full bg-background">
+        <div className="flex-1 overflow-y-auto pb-24 sm:pb-8">
+          <div className="container max-w-md mx-auto p-4 space-y-6">
+            <header className="flex items-center justify-between py-2">
+              <h1 className="text-2xl font-bold tracking-tight">Vital</h1>
+              <OfflineIndicator />
+            </header>
+
+            <DateSelector selectedDate={selectedDate} onSelect={setSelectedDate} />
+            <SmartSuggestions selectedDate={selectedDate} />
+
+            <StatsOverview selectedDate={selectedDate} />
+
+            <LogEntry selectedDate={selectedDate} />
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold">History</h2>
+                <span className="text-xs text-muted-foreground">
+                  {format(selectedDate, "MMMM d, yyyy")}
+                </span>
+              </div>
+              <LogList selectedDate={selectedDate} />
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <DataExport />
-            <ThemeToggle />
-          </div>
-        </header>
-
-        <SmartSuggestions />
-        <DateSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
-
-        <StatsOverview />
-        <StatsCharts />
-        <LogEntry selectedDate={selectedDate} />
-
-        <div className="space-y-6">
-          <h2 className="text-lg font-semibold text-muted uppercase tracking-wider pl-1">
-            Logs for {selectedDate.toLocaleDateString()}
-          </h2>
-          <LogList selectedDate={selectedDate} />
         </div>
+        <PrefetchDays date={selectedDate} />
       </div>
-      <OfflineIndicator />
-    </div>
-  );
-}
+    );
+  }

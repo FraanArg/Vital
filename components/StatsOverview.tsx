@@ -1,29 +1,44 @@
 "use client";
 
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "../lib/db";
+import { useMemo } from "react";
+import { useQuery } from "convex/react";
+import { api } from "../convex/_generated/api";
 import { motion } from "framer-motion";
-import { Battery, Moon, Droplets } from "lucide-react";
+import { Briefcase, Moon, Droplets } from "lucide-react";
+import { startOfDay, endOfDay } from "date-fns";
+import { Skeleton } from "./ui/Skeleton";
 
-export default function StatsOverview() {
-    const stats = useLiveQuery(async () => {
-        const logs = await db.logs.toArray();
-        const moodLogs = logs.filter(l => l.mood);
-        const sleepLogs = logs.filter(l => l.sleep);
-        const waterLogs = logs.filter(l => l.water);
+interface StatsOverviewProps {
+    selectedDate?: Date;
+}
 
-        const avgMood = moodLogs.length ? (moodLogs.reduce((a, b) => a + (b.mood || 0), 0) / moodLogs.length).toFixed(1) : "-";
-        const avgSleep = sleepLogs.length ? (sleepLogs.reduce((a, b) => a + (b.sleep || 0), 0) / sleepLogs.length).toFixed(1) : "-";
-        const totalWater = waterLogs.reduce((a, b) => a + (b.water || 0), 0);
+export default function StatsOverview({ selectedDate = new Date() }: StatsOverviewProps) {
+    const start = startOfDay(selectedDate);
+    const end = endOfDay(selectedDate);
 
-        return { avgMood, avgSleep, totalWater };
+    const logs = useQuery(api.logs.getStats, {
+        from: start.toISOString(),
+        to: end.toISOString()
     });
+
+    const stats = useMemo(() => {
+        if (!logs) return null;
+        return {
+            work: logs.reduce((acc, log) => acc + (log.work || 0), 0),
+            sleep: logs.reduce((acc, log) => acc + (log.sleep || 0), 0),
+            water: logs.reduce((acc, log) => acc + (log.water || 0), 0),
+        };
+    }, [logs]);
 
     if (!stats) {
         return (
-            <div className="grid grid-cols-3 gap-4 mb-8 animate-pulse">
+            <div className="grid grid-cols-3 gap-4 mb-8">
                 {[1, 2, 3].map((i) => (
-                    <div key={i} className="h-24 rounded-2xl bg-card/50 border border-border/50" />
+                    <div key={i} className="p-4 rounded-2xl bg-card border border-border/50 shadow-sm flex flex-col items-center justify-center text-center h-[106px]">
+                        <Skeleton className="w-10 h-10 rounded-full mb-2" />
+                        <Skeleton className="w-16 h-8 mb-1" />
+                        <Skeleton className="w-10 h-3" />
+                    </div>
                 ))}
             </div>
         );
@@ -52,27 +67,27 @@ export default function StatsOverview() {
             className="grid grid-cols-3 gap-4 mb-8"
         >
             <motion.div variants={item} className="p-4 rounded-2xl bg-card border border-border/50 shadow-sm flex flex-col items-center justify-center text-center">
-                <div className="mb-2 p-2 bg-purple-100 dark:bg-purple-500/20 rounded-full">
-                    <Moon className="w-5 h-5 text-purple-600 dark:text-purple-300" />
+                <div className="mb-2 p-2 bg-green-100 dark:bg-green-500/20 rounded-full">
+                    <Briefcase className="w-5 h-5 text-green-600 dark:text-green-300" />
                 </div>
-                <div className="text-2xl font-bold">{stats.avgSleep}h</div>
-                <div className="text-xs text-muted">Avg Sleep</div>
+                <div className="text-2xl font-bold">{stats.work}h</div>
+                <div className="text-xs text-muted">Work</div>
             </motion.div>
 
             <motion.div variants={item} className="p-4 rounded-2xl bg-card border border-border/50 shadow-sm flex flex-col items-center justify-center text-center">
-                <div className="mb-2 p-2 bg-green-100 dark:bg-green-500/20 rounded-full">
-                    <Battery className="w-5 h-5 text-green-600 dark:text-green-300" />
+                <div className="mb-2 p-2 bg-purple-100 dark:bg-purple-500/20 rounded-full">
+                    <Moon className="w-5 h-5 text-purple-600 dark:text-purple-300" />
                 </div>
-                <div className="text-2xl font-bold">{stats.avgMood}/5</div>
-                <div className="text-xs text-muted">Avg Mood</div>
+                <div className="text-2xl font-bold">{stats.sleep}h</div>
+                <div className="text-xs text-muted">Sleep</div>
             </motion.div>
 
             <motion.div variants={item} className="p-4 rounded-2xl bg-card border border-border/50 shadow-sm flex flex-col items-center justify-center text-center">
                 <div className="mb-2 p-2 bg-blue-100 dark:bg-blue-500/20 rounded-full">
                     <Droplets className="w-5 h-5 text-blue-600 dark:text-blue-300" />
                 </div>
-                <div className="text-2xl font-bold">{stats.totalWater}</div>
-                <div className="text-xs text-muted">Total Water</div>
+                <div className="text-2xl font-bold">{stats.water}</div>
+                <div className="text-xs text-muted">Water</div>
             </motion.div>
         </motion.div>
     );

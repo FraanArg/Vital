@@ -1,13 +1,15 @@
 "use client";
 import { useState } from 'react';
-import { db } from '../../lib/db';
+import { useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 export default function JournalTracker({ onClose, selectedDate }: { onClose: () => void, selectedDate: Date }) {
     const [entry, setEntry] = useState('');
+    const createLog = useMutation(api.logs.createLog);
 
     const save = async () => {
         if (entry.trim()) {
-            await db.logs.add({ journal: entry, date: selectedDate });
+            await createLog({ journal: entry, date: selectedDate.toISOString() });
             onClose();
         }
     };

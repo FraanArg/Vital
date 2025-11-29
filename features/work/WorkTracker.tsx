@@ -1,12 +1,14 @@
 "use client";
 import { useState } from 'react';
-import { db } from '../../lib/db';
+import { useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 export default function WorkTracker({ onClose, selectedDate }: { onClose: () => void, selectedDate: Date }) {
     const [hours, setHours] = useState(8);
+    const createLog = useMutation(api.logs.createLog);
 
     const save = async () => {
-        await db.logs.add({ work: hours, date: selectedDate });
+        await createLog({ work: hours, date: selectedDate.toISOString() });
         onClose();
     };
 

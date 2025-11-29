@@ -1,5 +1,5 @@
 {
-    "name": "personal-tracker",
+    "name": "vital",
     "version": "0.1.0",
     "private": true,
     "scripts": {
@@ -9,7 +9,9 @@
         "lint": "next lint"
     },
     "dependencies": {
+        "@clerk/nextjs": "^6.35.5",
         "clsx": "^2.1.1",
+        "convex": "^1.29.3",
         "date-fns": "^4.1.0",
         "dexie": "^4.2.1",
         "dexie-react-hooks": "^4.2.0",
