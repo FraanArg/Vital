@@ -2,7 +2,7 @@
 
 import DataExport from "../../components/DataExport";
 import { ThemeToggle } from "../../components/ThemeToggle";
-import { Trash2, Database } from "lucide-react";
+import { Moon, Sun, Monitor, Bell, Shield, LogOut, Trash2 } from "lucide-react";
 import { db } from "../../lib/db";
 
 export default function SettingsPage() {

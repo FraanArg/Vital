@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { format, addDays, subDays, isSameDay, startOfDay } from "date-fns";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 import { motion } from "framer-motion";
@@ -13,7 +13,6 @@ interface DateSelectorProps {
 }
 
 export default function DateSelector({ selectedDate, onDateChange }: DateSelectorProps) {
-    const [dates, setDates] = useState<Date[]>([]);
     const scrollRef = useRef<HTMLDivElement>(null);
 
     // Query logs to find days with any activity (streaks)
@@ -32,13 +31,10 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
     );
 
     // Generate a sliding window of dates centered around the selected date
-    useEffect(() => {
-        const newDates = [];
-        for (let i = -3; i <= 3; i++) {
-            newDates.push(addDays(selectedDate, i));
-        }
-        setDates(newDates);
-    }, [selectedDate]);
+    const dates = [];
+    for (let i = -3; i <= 3; i++) {
+        dates.push(addDays(selectedDate, i));
+    }
 
     const handlePrevDay = () => {
         onDateChange(subDays(selectedDate, 1));

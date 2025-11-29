@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
-import { Id } from "../convex/_generated/dataModel";
+import { Id, Doc } from "../convex/_generated/dataModel";
 import { Check, Plus, X } from "lucide-react";
 
 interface FoodComboboxProps {
@@ -21,10 +21,10 @@ export default function FoodCombobox({ selectedItems, onItemsChange }: FoodCombo
     const incrementUsage = useMutation(api.foodItems.incrementUsage);
 
     // Filter and sort items
-    const suggestions = allItems?.filter((item: any) => {
+    const suggestions = allItems?.filter((item: Doc<"foodItems">) => {
         if (!query) return true;
         return item.name.toLowerCase().includes(query.toLowerCase());
-    }).sort((a: any, b: any) => (b.usage_count || 0) - (a.usage_count || 0))
+    }).sort((a: Doc<"foodItems">, b: Doc<"foodItems">) => (b.usage_count || 0) - (a.usage_count || 0))
         .slice(0, 5);
 
     const addItem = async (name: string) => {
@@ -38,7 +38,7 @@ export default function FoodCombobox({ selectedItems, onItemsChange }: FoodCombo
 
             // Update or create food item in DB
             try {
-                const existing = allItems?.find((i: any) => i.name.toLowerCase() === name.toLowerCase());
+                const existing = allItems?.find((i: Doc<"foodItems">) => i.name.toLowerCase() === name.toLowerCase());
                 if (existing) {
                     await incrementUsage({ id: existing._id });
                 } else {
@@ -92,7 +92,7 @@ export default function FoodCombobox({ selectedItems, onItemsChange }: FoodCombo
 
                 {isOpen && (suggestions?.length || query) && (
                     <div className="absolute w-full mt-1 bg-popover border border-border rounded-xl shadow-lg z-50 overflow-hidden">
-                        {suggestions?.map((item: any) => (
+                        {suggestions?.map((item: Doc<"foodItems">) => (
                             <button
                                 key={item._id}
                                 onClick={() => addItem(item.name)}
@@ -102,13 +102,13 @@ export default function FoodCombobox({ selectedItems, onItemsChange }: FoodCombo
                                 {selectedItems.includes(item.name) && <Check className="w-4 h-4 text-primary" />}
                             </button>
                         ))}
-                        {query && !suggestions?.some((s: any) => s.name.toLowerCase() === query.toLowerCase()) && (
+                        {query && !suggestions?.some((s: Doc<"foodItems">) => s.name.toLowerCase() === query.toLowerCase()) && (
                             <button
                                 onClick={() => addItem(query)}
                                 className="w-full text-left px-4 py-2 hover:bg-secondary transition-colors text-primary font-medium flex items-center gap-2"
                             >
                                 <Plus className="w-4 h-4" />
-                                Add "{query}"
+                                Add &quot;{query}&quot;
                             </button>
                         )}
                     </div>

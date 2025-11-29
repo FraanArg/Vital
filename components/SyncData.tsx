@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
-import { db } from "../lib/db";
 import { Loader2, UploadCloud } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 
@@ -18,7 +17,7 @@ export default function SyncData() {
         setSyncing(true);
         try {
             // Use native IndexedDB to bypass Dexie version/schema errors
-            const logs = await new Promise<any[]>((resolve, reject) => {
+            const logs = await new Promise<unknown[]>((resolve, reject) => {
                 const request = indexedDB.open("PersonalTrackerDB");
                 request.onerror = () => reject(request.error);
                 request.onsuccess = () => {
@@ -37,7 +36,8 @@ export default function SyncData() {
 
             console.log("Found logs:", logs.length);
 
-            for (const log of logs) {
+            for (const logItem of logs) {
+                const log = logItem as any;
                 // Convert Date to ISO string for Convex
                 const { id, ...logData } = log;
 
@@ -60,7 +60,7 @@ export default function SyncData() {
             setSynced(true);
         } catch (error) {
             console.error("Sync failed:", error);
-            alert("Sync failed: " + (error as any).message);
+            alert("Sync failed: " + (error instanceof Error ? error.message : "Unknown error"));
         } finally {
             setSyncing(false);
         }

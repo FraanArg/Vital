@@ -11,7 +11,7 @@ export default function OfflineIndicator() {
     useEffect(() => {
         // Initial check (client-side only)
         if (typeof window !== 'undefined') {
-            setIsOnline(navigator.onLine);
+            setTimeout(() => setIsOnline(navigator.onLine), 0);
         }
 
         const handleOnline = () => {

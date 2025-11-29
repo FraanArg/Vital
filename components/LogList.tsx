@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
-import { Id } from "../convex/_generated/dataModel";
+import { Id, Doc } from "../convex/_generated/dataModel";
 import { motion, AnimatePresence } from "framer-motion";
 import { Briefcase, Moon, Droplets, Utensils, Trash2, Book, Star, Search } from "lucide-react";
 import { Skeleton } from "./ui/Skeleton";
@@ -79,7 +79,7 @@ export default function LogList({ selectedDate }: LogListProps) {
         );
     }
 
-    const getIcon = (log: any) => {
+    const getIcon = (log: Doc<"logs">) => {
         if (log.work) return (
             <div className="p-2 rounded-full bg-green-100 dark:bg-green-900/30">
                 <Briefcase className="w-5 h-5 text-green-600 dark:text-green-400" />
@@ -124,7 +124,7 @@ export default function LogList({ selectedDate }: LogListProps) {
         return null;
     };
 
-    const getText = (log: any) => {
+    const getText = (log: Doc<"logs">) => {
         if (log.work) return `Work: ${log.work}h`;
         if (log.sleep) {
             return (

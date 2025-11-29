@@ -31,7 +31,7 @@ export default function SmartSuggestions() {
         const randomSuggestion =
             relevantSuggestions[Math.floor(Math.random() * relevantSuggestions.length)];
 
-        setSuggestion(randomSuggestion.text);
+        setTimeout(() => setSuggestion(randomSuggestion.text), 0);
     }, []);
 
     if (!isVisible || !suggestion) return null;

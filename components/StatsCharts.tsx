@@ -8,14 +8,13 @@ import {
     BarChart,
     Bar,
     XAxis,
-    YAxis,
     CartesianGrid,
     Tooltip,
     ResponsiveContainer,
     AreaChart,
     Area,
 } from "recharts";
-import { format, subDays, startOfDay, isSameDay } from "date-fns";
+import { format, subDays, isSameDay } from "date-fns";
 import { useState } from "react";
 
 export default function StatsCharts() {
@@ -61,8 +60,8 @@ export default function StatsCharts() {
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${activeTab === tab
-                                    ? "bg-background text-foreground shadow-sm"
-                                    : "text-muted hover:text-foreground"
+                                ? "bg-background text-foreground shadow-sm"
+                                : "text-muted hover:text-foreground"
                                 }`}
                         >
                             {tab.charAt(0).toUpperCase() + tab.slice(1)}

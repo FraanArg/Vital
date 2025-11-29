@@ -41,6 +41,7 @@ export default function Home() {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     setIsMounted(true);
   }, []);
 
@@ -57,8 +58,8 @@ export default function Home() {
             <OfflineIndicator />
           </header>
 
-          <DateSelector selectedDate={selectedDate} onSelect={setSelectedDate} />
-          <SmartSuggestions selectedDate={selectedDate} />
+          <DateSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
+          <SmartSuggestions />
 
           <StatsOverview selectedDate={selectedDate} />
 
