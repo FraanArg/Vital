@@ -5,8 +5,21 @@ import SyncData from "../../components/SyncData";
 import { Settings, Shield, Mail, User as UserIcon } from "lucide-react";
 
 export default function ProfilePage() {
-    const { user } = useUser();
+    const { user, isLoaded } = useUser();
     const { openUserProfile } = useClerk();
+
+    if (!isLoaded) {
+        return (
+            <div className="p-4 sm:p-6 max-w-2xl mx-auto space-y-8 pb-24 sm:pb-8 animate-pulse">
+                <div className="space-y-2">
+                    <div className="h-8 w-32 bg-muted rounded-lg" />
+                    <div className="h-4 w-48 bg-muted rounded-lg" />
+                </div>
+                <div className="bg-card border border-border/50 rounded-2xl p-6 h-40" />
+                <div className="h-20 bg-card border border-border/50 rounded-2xl" />
+            </div>
+        );
+    }
 
     if (!user) return null;
 
