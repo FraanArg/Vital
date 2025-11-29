@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
-import { Id, Doc } from "../convex/_generated/dataModel";
+import { Doc } from "../convex/_generated/dataModel";
 import { Check, Plus, X } from "lucide-react";
 
 interface FoodComboboxProps {

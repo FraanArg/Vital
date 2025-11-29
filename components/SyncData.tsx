@@ -37,9 +37,11 @@ export default function SyncData() {
             console.log("Found logs:", logs.length);
 
             for (const logItem of logs) {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const log = logItem as any;
                 // Convert Date to ISO string for Convex
-                const { id, ...logData } = log;
+                const { ...logData } = log;
+                delete logData.id; // Remove id if it exists
 
                 // Ensure date is a string if it's a Date object
                 let dateStr = log.date;

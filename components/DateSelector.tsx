@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import { format, addDays, subDays, isSameDay, startOfDay } from "date-fns";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 import { motion } from "framer-motion";
@@ -101,7 +101,6 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
                 >
                     {dates.map((date) => {
                         const isSelected = isSameDay(date, selectedDate);
-                        const isCurrentDay = isToday(date);
                         const hasStreak = streakDates.has(startOfDay(date).toISOString());
 
                         return (
