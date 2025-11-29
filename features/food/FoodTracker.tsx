@@ -65,15 +65,21 @@ export default function FoodTracker({ onClose, selectedDate }: { onClose: () => 
 
     const save = async () => {
         if (mealType && items.length > 0) {
-            await createLog({
-                meal: {
-                    type: mealType,
-                    items: items,
-                    time: `${selectedHour}:${selectedMinute}`
-                },
-                date: selectedDate.toISOString()
-            });
-            onClose();
+            setIsSaving(true);
+            try {
+                await createLog({
+                    meal: {
+                        type: mealType,
+                        items: items,
+                        time: `${selectedHour}:${selectedMinute}`
+                    },
+                    date: selectedDate.toISOString()
+                });
+                onClose();
+            } catch (error) {
+                console.error("Failed to save meal:", error);
+                setIsSaving(false);
+            }
         }
     };
 

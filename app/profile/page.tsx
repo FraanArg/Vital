@@ -1,12 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import { useUser, useClerk } from "@clerk/nextjs";
 import SyncData from "../../components/SyncData";
-import { Settings, Shield, Mail, User as UserIcon } from "lucide-react";
+import { Settings, Shield, Mail, User as UserIcon, Loader2 } from "lucide-react";
 
 export default function ProfilePage() {
     const { user, isLoaded } = useUser();
-    const { openUserProfile } = useClerk();
+    const { openUserProfile, openSignIn } = useClerk();
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleSignIn = () => {
+        setIsLoading(true);
+        openSignIn();
+        // Reset loading after a delay in case the modal is closed without signing in
+        setTimeout(() => setIsLoading(false), 2000);
+    };
 
     if (!isLoaded) {
         return (
@@ -32,10 +41,12 @@ export default function ProfilePage() {
                     <p className="text-muted-foreground">Please sign in to view your profile and manage your data.</p>
                 </div>
                 <button
-                    onClick={() => openUserProfile()}
-                    className="px-8 py-3 bg-primary text-primary-foreground rounded-xl font-bold shadow-lg hover:opacity-90 transition-opacity"
+                    onClick={handleSignIn}
+                    disabled={isLoading}
+                    className="px-8 py-3 bg-primary text-primary-foreground rounded-xl font-bold shadow-lg hover:opacity-90 transition-opacity flex items-center gap-2 disabled:opacity-50"
                 >
-                    Sign In
+                    {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+                    {isLoading ? "Signing in..." : "Sign In"}
                 </button>
             </div>
         );
