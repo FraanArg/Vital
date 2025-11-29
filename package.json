@@ -10,6 +10,7 @@
     },
     "dependencies": {
         "@clerk/nextjs": "^6.35.5",
+        "@ducanh2912/next-pwa": "^10.2.9",
         "clsx": "^2.1.1",
         "convex": "^1.29.3",
         "date-fns": "^4.1.0",
