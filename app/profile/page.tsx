@@ -21,7 +21,25 @@ export default function ProfilePage() {
         );
     }
 
-    if (!user) return null;
+    if (!user) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center space-y-6">
+                <div className="p-4 bg-primary/10 rounded-full">
+                    <Shield className="w-12 h-12 text-primary" />
+                </div>
+                <div className="space-y-2">
+                    <h1 className="text-2xl font-bold">Sign In Required</h1>
+                    <p className="text-muted-foreground">Please sign in to view your profile and manage your data.</p>
+                </div>
+                <button
+                    onClick={() => openUserProfile()}
+                    className="px-8 py-3 bg-primary text-primary-foreground rounded-xl font-bold shadow-lg hover:opacity-90 transition-opacity"
+                >
+                    Sign In
+                </button>
+            </div>
+        );
+    }
 
     return (
         <div className="p-4 sm:p-6 max-w-2xl mx-auto space-y-8 pb-24 sm:pb-8">
