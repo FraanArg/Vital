@@ -26,7 +26,8 @@ export default defineSchema({
                     reps: v.number(),
                     weight: v.number(),
                 }))
-            })))
+            }))),
+            notes: v.optional(v.string()),
         })),
         journal: v.optional(v.string()),
         custom: v.optional(v.array(v.object({
