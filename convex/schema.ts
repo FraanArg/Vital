@@ -36,7 +36,7 @@ export default defineSchema({
             unit: v.string(),
         }))),
         date: v.string(), // ISO string for easier querying
-    }).index("by_user_date", ["userId", "date"]),
+    }).index("by_userId_date", ["userId", "date"]),
 
     foodItems: defineTable({
         userId: v.string(),
