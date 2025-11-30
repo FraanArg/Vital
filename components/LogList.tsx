@@ -5,7 +5,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { Id, Doc } from "../convex/_generated/dataModel";
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, Moon, Droplets, Utensils, Trash2, Book, Star, Search, Trophy, Activity, Dumbbell, Timer, Footprints } from "lucide-react";
+import { Briefcase, Moon, Droplets, Utensils, Trash2, Book, Star, Search, Trophy, Activity, Dumbbell, Timer, Footprints, LucideIcon } from "lucide-react";
 import { Skeleton } from "./ui/Skeleton";
 
 interface LogListProps {
@@ -117,7 +117,7 @@ export default function LogList({ selectedDate }: LogListProps) {
             </div>
         );
         if (log.exercise) {
-            const icons: Record<string, { icon: any, color: string, bg: string }> = {
+            const icons: Record<string, { icon: LucideIcon, color: string, bg: string }> = {
                 padel: { icon: Trophy, color: "text-yellow-600 dark:text-yellow-400", bg: "bg-yellow-100 dark:bg-yellow-900/30" },
                 football: { icon: Activity, color: "text-green-600 dark:text-green-400", bg: "bg-green-100 dark:bg-green-900/30" },
                 gym: { icon: Dumbbell, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-900/30" },
