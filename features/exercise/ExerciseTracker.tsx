@@ -1,0 +1,234 @@
+"use client";
+
+import { useState } from "react";
+import { useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { Dumbbell, Trophy, Activity, Footprints, Timer, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import RoutineManager from "./RoutineManager";
+
+const ACTIVITIES = [
+    { id: "padel", label: "Padel", icon: Trophy, color: "text-yellow-500", bg: "bg-yellow-500/10" },
+    { id: "football", label: "Football", icon: Activity, color: "text-green-500", bg: "bg-green-500/10" },
+    { id: "gym", label: "Gym", icon: Dumbbell, color: "text-blue-500", bg: "bg-blue-500/10" },
+    { id: "run", label: "Running", icon: Timer, color: "text-orange-500", bg: "bg-orange-500/10" },
+    { id: "walk", label: "Walking", icon: Footprints, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+];
+
+export default function ExerciseTracker({ onClose, selectedDate }: { onClose: () => void, selectedDate: Date }) {
+    const [activity, setActivity] = useState<string | null>(null);
+    const [duration, setDuration] = useState(60);
+    const [distance, setDistance] = useState<number | "">("");
+
+    // Gym State
+    const [gymMode, setGymMode] = useState<"select" | "log">("select");
+    const [workout, setWorkout] = useState<{ name: string; sets: { reps: number; weight: number }[] }[]>([]);
+
+    const createLog = useMutation(api.logs.createLog);
+
+    const handleSave = async () => {
+        if (!activity) return;
+
+        const exerciseData: any = {
+            type: activity,
+            duration: duration,
+        };
+
+        if ((activity === "run" || activity === "walk") && distance) {
+            exerciseData.distance = Number(distance);
+        }
+
+        if (activity === "gym") {
+            exerciseData.workout = workout;
+        }
+
+        await createLog({
+            exercise: exerciseData,
+            date: selectedDate.toISOString()
+        });
+        onClose();
+    };
+
+    const handleRoutineSelect = (routine: any) => {
+        setWorkout(routine.exercises.map((e: any) => ({
+            name: e.name,
+            sets: Array(e.defaultSets).fill({ reps: 0, weight: 0 })
+        })));
+        setGymMode("log");
+    };
+
+    const updateSet = (exerciseIndex: number, setIndex: number, field: "reps" | "weight", value: number) => {
+        const newWorkout = [...workout];
+        newWorkout[exerciseIndex].sets[setIndex] = {
+            ...newWorkout[exerciseIndex].sets[setIndex],
+            [field]: value
+        };
+        setWorkout(newWorkout);
+    };
+
+    const addSet = (exerciseIndex: number) => {
+        const newWorkout = [...workout];
+        const lastSet = newWorkout[exerciseIndex].sets[newWorkout[exerciseIndex].sets.length - 1] || { reps: 0, weight: 0 };
+        newWorkout[exerciseIndex].sets.push({ ...lastSet });
+        setWorkout(newWorkout);
+    };
+
+    const removeSet = (exerciseIndex: number, setIndex: number) => {
+        const newWorkout = [...workout];
+        newWorkout[exerciseIndex].sets = newWorkout[exerciseIndex].sets.filter((_, i) => i !== setIndex);
+        setWorkout(newWorkout);
+    };
+
+    // Activity Selection View
+    if (!activity) {
+        return (
+            <div className="grid grid-cols-2 gap-3">
+                {ACTIVITIES.map((act) => (
+                    <button
+                        key={act.id}
+                        onClick={() => setActivity(act.id)}
+                        className={`p-4 rounded-2xl border border-border/50 flex flex-col items-center gap-2 transition-all hover:scale-105 active:scale-95 ${act.bg}`}
+                    >
+                        <act.icon className={`w-8 h-8 ${act.color}`} />
+                        <span className="font-medium">{act.label}</span>
+                    </button>
+                ))}
+            </div>
+        );
+    }
+
+    // Gym Routine Selection View
+    if (activity === "gym" && gymMode === "select") {
+        return (
+            <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-4">
+                    <button onClick={() => setActivity(null)} className="text-sm text-muted-foreground hover:text-foreground">
+                        ← Back
+                    </button>
+                    <h3 className="font-semibold">Gym Workout</h3>
+                </div>
+
+                <RoutineManager onSelect={handleRoutineSelect} onClose={onClose} />
+
+                <div className="relative py-2">
+                    <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border/50"></span></div>
+                    <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">Or</span></div>
+                </div>
+
+                <button
+                    onClick={() => { setWorkout([]); setGymMode("log"); }}
+                    className="w-full p-3 border border-border rounded-xl font-medium hover:bg-secondary transition-colors"
+                >
+                    Start Empty Workout
+                </button>
+            </div>
+        );
+    }
+
+    // Main Logging View
+    return (
+        <div className="space-y-6">
+            <div className="flex items-center justify-between">
+                <button onClick={() => activity === "gym" ? setGymMode("select") : setActivity(null)} className="text-sm text-muted-foreground hover:text-foreground">
+                    ← Back
+                </button>
+                <h3 className="font-semibold capitalize">{activity}</h3>
+                <div className="w-8" /> {/* Spacer */}
+            </div>
+
+            {/* Duration Input */}
+            <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Duration (minutes)</label>
+                <div className="flex items-center gap-4">
+                    <input
+                        type="range"
+                        min="10"
+                        max="180"
+                        step="5"
+                        value={duration}
+                        onChange={(e) => setDuration(parseInt(e.target.value))}
+                        className="flex-1 accent-primary"
+                    />
+                    <span className="text-xl font-bold w-16 text-right">{duration}m</span>
+                </div>
+            </div>
+
+            {/* Distance Input (Run/Walk) */}
+            {(activity === "run" || activity === "walk") && (
+                <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Distance (km)</label>
+                    <input
+                        type="number"
+                        value={distance}
+                        onChange={(e) => setDistance(parseFloat(e.target.value))}
+                        placeholder="0.0"
+                        className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary text-lg font-semibold"
+                    />
+                </div>
+            )}
+
+            {/* Gym Logger */}
+            {activity === "gym" && (
+                <div className="space-y-6">
+                    {workout.map((exercise, i) => (
+                        <div key={i} className="space-y-3 p-4 rounded-2xl bg-secondary/20 border border-border/50">
+                            <div className="flex justify-between items-center">
+                                <h4 className="font-bold">{exercise.name}</h4>
+                            </div>
+
+                            <div className="space-y-2">
+                                <div className="grid grid-cols-[auto_1fr_1fr_auto] gap-2 text-xs text-muted-foreground font-medium px-1">
+                                    <span className="w-6 text-center">#</span>
+                                    <span>kg</span>
+                                    <span>reps</span>
+                                    <span className="w-8"></span>
+                                </div>
+                                {exercise.sets.map((set, j) => (
+                                    <div key={j} className="grid grid-cols-[auto_1fr_1fr_auto] gap-2 items-center">
+                                        <span className="w-6 text-center text-sm font-medium text-muted-foreground">{j + 1}</span>
+                                        <input
+                                            type="number"
+                                            value={set.weight || ""}
+                                            onChange={(e) => updateSet(i, j, "weight", parseFloat(e.target.value))}
+                                            placeholder="0"
+                                            className="p-2 rounded-lg bg-background border border-border/50 text-center"
+                                        />
+                                        <input
+                                            type="number"
+                                            value={set.reps || ""}
+                                            onChange={(e) => updateSet(i, j, "reps", parseFloat(e.target.value))}
+                                            placeholder="0"
+                                            className="p-2 rounded-lg bg-background border border-border/50 text-center"
+                                        />
+                                        <button onClick={() => removeSet(i, j)} className="p-2 text-muted hover:text-destructive">
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                ))}
+                                <button onClick={() => addSet(i)} className="text-xs text-primary font-medium flex items-center gap-1 mt-2">
+                                    <Plus className="w-3 h-3" /> Add Set
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+
+                    <button
+                        onClick={() => {
+                            const name = prompt("Exercise Name:");
+                            if (name) setWorkout([...workout, { name, sets: [{ reps: 0, weight: 0 }] }]);
+                        }}
+                        className="w-full p-3 border border-dashed border-border rounded-xl text-muted-foreground hover:bg-secondary/50 transition-colors"
+                    >
+                        + Add Exercise
+                    </button>
+                </div>
+            )}
+
+            <button
+                onClick={handleSave}
+                className="w-full p-4 bg-primary text-primary-foreground rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all active:scale-95"
+            >
+                Save Activity
+            </button>
+        </div>
+    );
+}
