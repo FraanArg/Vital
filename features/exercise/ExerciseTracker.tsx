@@ -3,19 +3,23 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { Dumbbell, Trophy, Activity, Footprints, Timer, Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { Dumbbell, Trophy, Activity, Footprints, Timer, Plus, Trash2, ChevronDown, ChevronUp, Circle, Waves, Swords, Target } from "lucide-react";
 import RoutineManager from "./RoutineManager";
 
 const ACTIVITIES = [
-    { id: "sports", label: "Sports", icon: Trophy, color: "text-orange-500", bg: "bg-orange-500/10" },
-    { id: "gym", label: "Gym", icon: Dumbbell, color: "text-foreground", bg: "bg-secondary" },
-    { id: "run", label: "Running", icon: Timer, color: "text-blue-500", bg: "bg-blue-500/10" },
-    { id: "walk", label: "Walking", icon: Footprints, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+    { id: "sports", label: "Sports", icon: Trophy },
+    { id: "gym", label: "Gym", icon: Dumbbell },
+    { id: "run", label: "Running", icon: Timer },
+    { id: "walk", label: "Walking", icon: Footprints },
 ];
 
 const SPORTS = [
-    { id: "padel", label: "Padel", icon: Trophy },
-    { id: "football", label: "Football", icon: Activity },
+    { id: "padel", label: "Padel", icon: Swords }, // Competition/Rackets
+    { id: "football", label: "Football", icon: Circle }, // Ball
+    { id: "tennis", label: "Tennis", icon: Target }, // Accuracy/Ball
+    { id: "basketball", label: "Basketball", icon: Circle }, // Ball
+    { id: "swimming", label: "Swimming", icon: Waves },
+    { id: "volleyball", label: "Volleyball", icon: Circle },
 ];
 
 export default function ExerciseTracker({ onClose, selectedDate }: { onClose: () => void, selectedDate: Date }) {
@@ -117,9 +121,9 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
                     <button
                         key={act.id}
                         onClick={() => setActivity(act.id)}
-                        className={`p-4 rounded-2xl border border-border/50 flex flex-col items-center gap-2 transition-all hover:scale-105 active:scale-95 ${act.bg}`}
+                        className="p-4 rounded-2xl border border-border/50 flex flex-col items-center gap-2 transition-all hover:scale-105 active:scale-95 bg-secondary/50 hover:bg-secondary"
                     >
-                        <act.icon className={`w-8 h-8 ${act.color}`} />
+                        <act.icon className="w-8 h-8 text-foreground" />
                         <span className="font-medium">{act.label}</span>
                     </button>
                 ))}
