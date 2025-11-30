@@ -87,7 +87,7 @@ export default function StatsOverview({ selectedDate = new Date() }: StatsOvervi
                 <div className="mb-2 p-2 bg-blue-100 dark:bg-blue-500/20 rounded-full">
                     <Droplets className="w-5 h-5 text-blue-600 dark:text-blue-300" />
                 </div>
-                <div className="text-2xl font-bold">{stats.water}</div>
+                <div className="text-2xl font-bold">{stats.water}L</div>
                 <div className="text-xs text-muted">Water</div>
             </motion.div>
 
