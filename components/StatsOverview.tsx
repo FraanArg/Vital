@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { motion } from "framer-motion";
-import { Briefcase, Moon, Droplets } from "lucide-react";
+import { Briefcase, Moon, Droplets, Trophy } from "lucide-react";
 import { startOfDay, endOfDay } from "date-fns";
 import { Skeleton } from "./ui/Skeleton";
 
@@ -27,6 +27,7 @@ export default function StatsOverview({ selectedDate = new Date() }: StatsOvervi
             work: logs.reduce((acc, log) => acc + (log.work || 0), 0),
             sleep: logs.reduce((acc, log) => acc + (log.sleep || 0), 0),
             water: logs.reduce((acc, log) => acc + (log.water || 0), 0),
+            exercise: logs.reduce((acc, log) => acc + (log.exercise?.duration || 0), 0),
         };
     }, [logs]);
 
@@ -88,6 +89,14 @@ export default function StatsOverview({ selectedDate = new Date() }: StatsOvervi
                 </div>
                 <div className="text-2xl font-bold">{stats.water}</div>
                 <div className="text-xs text-muted">Water</div>
+            </motion.div>
+
+            <motion.div variants={item} className="p-4 rounded-2xl bg-card border border-border/50 shadow-sm flex flex-col items-center justify-center text-center">
+                <div className="mb-2 p-2 bg-red-100 dark:bg-red-500/20 rounded-full">
+                    <Trophy className="w-5 h-5 text-red-600 dark:text-red-300" />
+                </div>
+                <div className="text-2xl font-bold">{Math.round(stats.exercise / 60 * 10) / 10}h</div>
+                <div className="text-xs text-muted">Exercise</div>
             </motion.div>
         </motion.div>
     );
