@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { Dumbbell, Trophy, Activity, Footprints, Timer, Plus, Trash2, ChevronDown, ChevronUp, Circle, Waves, Swords, Target } from "lucide-react";
+import { Dumbbell, Trophy, Activity, Footprints, Timer, Plus, Trash2, ChevronDown, ChevronUp, Circle, Waves, Swords, Target, Settings } from "lucide-react";
 import RoutineManager from "./RoutineManager";
+import IconPicker from "../../components/IconPicker";
+import { ICON_LIBRARY } from "../../lib/icon-library";
 
 const ACTIVITIES = [
     { id: "sports", label: "Sports", icon: Trophy },
@@ -131,6 +133,26 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
         );
     }
 
+    // Icon Customization
+    const [showIconPicker, setShowIconPicker] = useState<{ type: "sport", id: string } | null>(null);
+    const saveIconMapping = useMutation(api.icons.saveIconMapping);
+    const iconMappings = useQuery(api.icons.getIconMappings);
+
+    const getCustomIcon = (key: string, defaultIcon: any) => {
+        const mapping = iconMappings?.find(m => m.type === "sport" && m.key === key);
+        return mapping && ICON_LIBRARY[mapping.icon] ? ICON_LIBRARY[mapping.icon] : defaultIcon;
+    };
+
+    const handleIconSelect = async (iconName: string) => {
+        if (!showIconPicker) return;
+        await saveIconMapping({
+            type: "sport",
+            key: showIconPicker.id,
+            icon: iconName
+        });
+        setShowIconPicker(null);
+    };
+
     // Sports Sub-selection
     if (activity === "sports" && !subActivity) {
         return (
@@ -142,17 +164,37 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
                     <h3 className="font-semibold">Select Sport</h3>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                    {SPORTS.map((sport) => (
-                        <button
-                            key={sport.id}
-                            onClick={() => setSubActivity(sport.id)}
-                            className="p-4 rounded-2xl border border-border/50 flex flex-col items-center gap-2 transition-all hover:scale-105 active:scale-95 bg-secondary/50 hover:bg-secondary"
-                        >
-                            <sport.icon className="w-8 h-8 text-foreground" />
-                            <span className="font-medium">{sport.label}</span>
-                        </button>
-                    ))}
+                    {SPORTS.map((sport) => {
+                        const Icon = getCustomIcon(sport.id, sport.icon);
+                        return (
+                            <div key={sport.id} className="relative group">
+                                <button
+                                    onClick={() => setSubActivity(sport.id)}
+                                    className="w-full p-4 rounded-2xl border border-border/50 flex flex-col items-center gap-2 transition-all hover:scale-105 active:scale-95 bg-secondary/50 hover:bg-secondary"
+                                >
+                                    <Icon className="w-8 h-8 text-foreground" />
+                                    <span className="font-medium">{sport.label}</span>
+                                </button>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowIconPicker({ type: "sport", id: sport.id });
+                                    }}
+                                    className="absolute top-2 right-2 p-1.5 rounded-full bg-background/80 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-primary hover:bg-background transition-all"
+                                    title="Customize Icon"
+                                >
+                                    <Settings className="w-3 h-3" />
+                                </button>
+                            </div>
+                        );
+                    })}
                 </div>
+                {showIconPicker && (
+                    <IconPicker
+                        onSelect={handleIconSelect}
+                        onClose={() => setShowIconPicker(null)}
+                    />
+                )}
             </div>
         );
     }
