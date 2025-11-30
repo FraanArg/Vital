@@ -14,6 +14,8 @@ interface LogListProps {
 
 export default function LogList({ selectedDate }: LogListProps) {
     const [searchQuery, setSearchQuery] = useState("");
+    const iconMappings = useQuery(api.icons.getIconMappings);
+    const { ICON_LIBRARY } = require("../lib/icon-library");
 
     // Calculate start and end of day
     const start = new Date(selectedDate);
@@ -79,8 +81,7 @@ export default function LogList({ selectedDate }: LogListProps) {
         );
     }
 
-    const iconMappings = useQuery(api.icons.getIconMappings);
-    const { ICON_LIBRARY } = require("../lib/icon-library"); // Dynamic import to avoid circular dep issues if any, or just standard import
+
 
     const getIcon = (log: Doc<"logs">) => {
         // ... (other log types)
