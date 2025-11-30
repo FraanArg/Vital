@@ -10,6 +10,7 @@
 
 import type * as foodItems from "../foodItems.js";
 import type * as logs from "../logs.js";
+import type * as routines from "../routines.js";
 
 import type {
   ApiFromModules,
@@ -20,6 +21,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   foodItems: typeof foodItems;
   logs: typeof logs;
+  routines: typeof routines;
 }>;
 
 /**
