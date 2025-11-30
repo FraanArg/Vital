@@ -36,10 +36,29 @@ export default function WaterTracker({ onClose, selectedDate }: { onClose: () =>
     return (
         <div className="space-y-4">
             <h3 className="text-xl font-semibold">Water Intake</h3>
-            <div className="flex items-center justify-center gap-4">
-                <button onClick={() => setLiters(l => Math.max(0, l - 0.25))} className="p-2 bg-secondary rounded-full">-</button>
-                <span className="text-2xl font-bold">{liters} L</span>
-                <button onClick={() => setLiters(l => l + 0.25)} className="p-2 bg-secondary rounded-full">+</button>
+            <div className="flex items-center justify-between bg-secondary/30 rounded-2xl p-2">
+                <button
+                    onClick={() => setLiters(l => Math.max(0, Number((l - 0.25).toFixed(2))))}
+                    className="w-12 h-12 bg-background shadow-sm rounded-xl flex items-center justify-center text-xl font-bold hover:scale-105 transition-transform"
+                >
+                    -
+                </button>
+                <div className="flex items-center justify-center gap-1">
+                    <input
+                        type="number"
+                        value={liters}
+                        onChange={(e) => setLiters(parseFloat(e.target.value) || 0)}
+                        className="w-24 text-center text-3xl font-bold bg-transparent border-none focus:outline-none focus:ring-0 p-0"
+                        step="0.25"
+                    />
+                    <span className="text-xl font-medium text-muted-foreground">L</span>
+                </div>
+                <button
+                    onClick={() => setLiters(l => Number((l + 0.25).toFixed(2)))}
+                    className="w-12 h-12 bg-background shadow-sm rounded-xl flex items-center justify-center text-xl font-bold hover:scale-105 transition-transform"
+                >
+                    +
+                </button>
             </div>
             <button onClick={save} className="w-full p-3 bg-primary text-primary-foreground rounded-xl">
                 Save Water
