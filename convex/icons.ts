@@ -8,8 +8,9 @@ export const saveIconMapping = mutation({
         icon: v.string(),
     },
     handler: async (ctx, args) => {
-        const userId = ctx.auth.getUserIdentity()?.token.claims.sub;
-        if (!userId) throw new Error("User not authenticated");
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("User not authenticated");
+        const userId = identity.subject;
 
         const existing = await ctx.db
             .query("icon_mappings")
@@ -26,8 +27,9 @@ export const saveIconMapping = mutation({
 
 export const getIconMappings = query({
     handler: async (ctx) => {
-        const userId = ctx.auth.getUserIdentity()?.token.claims.sub;
-        if (!userId) return [];
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) return [];
+        const userId = identity.subject;
 
         return await ctx.db
             .query("icon_mappings")
