@@ -1,8 +1,9 @@
-import { LucideIcon, Briefcase, Moon, Droplets, Utensils, Book, Plus } from "lucide-react";
+import { LucideIcon, Briefcase, Moon, Droplets, Utensils, Book, Plus, Dumbbell } from "lucide-react";
 import WorkTracker from "../features/work/WorkTracker";
 import SleepTracker from "../features/sleep/SleepTracker";
 import WaterTracker from "../features/water/WaterTracker";
 import FoodTracker from "../features/food/FoodTracker";
+import ExerciseTracker from "../features/exercise/ExerciseTracker";
 import JournalTracker from "../features/journal/JournalTracker";
 import CustomTracker from "../features/custom/CustomTracker";
 
@@ -55,6 +56,14 @@ export const TRACKERS: TrackerConfig[] = [
         color: "text-pink-600 dark:text-pink-400",
         bgColor: "bg-pink-100 dark:bg-pink-900/30",
         component: JournalTracker
+    },
+    {
+        id: "exercise",
+        label: "Exercise",
+        icon: Dumbbell,
+        color: "text-red-600 dark:text-red-400",
+        bgColor: "bg-red-100 dark:bg-red-900/30",
+        component: ExerciseTracker
     },
     {
         id: "custom",
