@@ -178,6 +178,9 @@ export default function LogList({ selectedDate }: LogListProps) {
                         <span className="text-xs text-muted-foreground">
                             {exerciseCount} exercises: {exerciseNames.substring(0, 30)}{exerciseNames.length > 30 ? '...' : ''}
                         </span>
+                        {log.exercise.notes && (
+                            <span className="text-xs text-muted-foreground italic mt-1">"{log.exercise.notes}"</span>
+                        )}
                     </div>
                 );
             }
@@ -188,6 +191,9 @@ export default function LogList({ selectedDate }: LogListProps) {
                     </span>
                     {log.exercise.distance && (
                         <span className="text-xs text-muted-foreground">{log.exercise.distance} km</span>
+                    )}
+                    {log.exercise.notes && (
+                        <span className="text-xs text-muted-foreground italic mt-1">"{log.exercise.notes}"</span>
                     )}
                 </div>
             );
