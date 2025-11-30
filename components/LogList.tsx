@@ -10,26 +10,6 @@ import { Skeleton } from "./ui/Skeleton";
 
 // ... (rest of the file)
 
-if (log.exercise) {
-    const icons: Record<string, { icon: LucideIcon }> = {
-        padel: { icon: Swords },
-        football: { icon: Circle },
-        tennis: { icon: Target },
-        basketball: { icon: Circle },
-        swimming: { icon: Waves },
-        volleyball: { icon: Circle },
-        gym: { icon: Dumbbell },
-        run: { icon: Timer },
-        walk: { icon: Footprints },
-    };
-    const config = icons[log.exercise.type] || { icon: Trophy };
-    const Icon = config.icon;
-    return (
-        <div className="p-2 rounded-full bg-secondary text-foreground">
-            <Icon className="w-5 h-5" />
-        </div>
-    );
-}
 if (log.custom) return (
     <div className="p-2 rounded-full bg-gray-100 dark:bg-gray-800">
         <Star className="w-5 h-5 text-gray-600 dark:text-gray-400" />
