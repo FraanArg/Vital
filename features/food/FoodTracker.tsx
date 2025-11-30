@@ -35,7 +35,28 @@ export default function FoodTracker({ onClose, selectedDate }: { onClose: () => 
     const [items, setItems] = useState<string[]>([]);
     const [isSaving, setIsSaving] = useState(false);
 
-    const createLog = useMutation(api.logs.createLog);
+    const createLog = useMutation(api.logs.createLog).withOptimisticUpdate((localStore, args) => {
+        const { date, ...logData } = args;
+        const logDate = new Date(date);
+        const start = new Date(logDate);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(logDate);
+        end.setHours(23, 59, 59, 999);
+
+        const queryArgs = { from: start.toISOString(), to: end.toISOString() };
+        const existingLogs = localStore.getQuery(api.logs.getLogs, queryArgs);
+
+        if (existingLogs) {
+            const newLog: any = {
+                _id: crypto.randomUUID(),
+                _creationTime: Date.now(),
+                userId: "temp-optimistic-id",
+                date: date,
+                ...logData
+            };
+            localStore.setQuery(api.logs.getLogs, queryArgs, [...existingLogs, newLog]);
+        }
+    });
 
     // Auto-select meal and time based on current time
     useEffect(() => {
