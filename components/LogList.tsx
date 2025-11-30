@@ -5,7 +5,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { Id, Doc } from "../convex/_generated/dataModel";
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, Moon, Droplets, Utensils, Trash2, Book, Star, Search } from "lucide-react";
+import { Briefcase, Moon, Droplets, Utensils, Trash2, Book, Star, Search, Trophy, Activity, Dumbbell, Timer, Footprints } from "lucide-react";
 import { Skeleton } from "./ui/Skeleton";
 
 interface LogListProps {
@@ -116,6 +116,22 @@ export default function LogList({ selectedDate }: LogListProps) {
                 <Book className="w-5 h-5 text-pink-600 dark:text-pink-400" />
             </div>
         );
+        if (log.exercise) {
+            const icons: Record<string, any> = {
+                padel: { icon: Trophy, color: "text-yellow-600 dark:text-yellow-400", bg: "bg-yellow-100 dark:bg-yellow-900/30" },
+                football: { icon: Activity, color: "text-green-600 dark:text-green-400", bg: "bg-green-100 dark:bg-green-900/30" },
+                gym: { icon: Dumbbell, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-900/30" },
+                run: { icon: Timer, color: "text-orange-600 dark:text-orange-400", bg: "bg-orange-100 dark:bg-orange-900/30" },
+                walk: { icon: Footprints, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-100 dark:bg-emerald-900/30" },
+            };
+            const config = icons[log.exercise.type] || icons.gym;
+            const Icon = config.icon;
+            return (
+                <div className={`p-2 rounded-full ${config.bg}`}>
+                    <Icon className={`w-5 h-5 ${config.color}`} />
+                </div>
+            );
+        }
         if (log.custom) return (
             <div className="p-2 rounded-full bg-gray-100 dark:bg-gray-800">
                 <Star className="w-5 h-5 text-gray-600 dark:text-gray-400" />
@@ -149,6 +165,33 @@ export default function LogList({ selectedDate }: LogListProps) {
             );
         }
         if (log.food) return `Food: ${log.food}`;
+        if (log.exercise) {
+            const typeName = log.exercise.type.charAt(0).toUpperCase() + log.exercise.type.slice(1);
+            if (log.exercise.type === "gym" && log.exercise.workout) {
+                const exerciseCount = log.exercise.workout.length;
+                const exerciseNames = log.exercise.workout.map(w => w.name).join(", ");
+                return (
+                    <div className="flex flex-col">
+                        <span className="font-semibold text-sm flex items-center gap-2">
+                            {typeName} <span className="text-xs text-muted font-normal">{log.exercise.duration}m</span>
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                            {exerciseCount} exercises: {exerciseNames.substring(0, 30)}{exerciseNames.length > 30 ? '...' : ''}
+                        </span>
+                    </div>
+                );
+            }
+            return (
+                <div className="flex flex-col">
+                    <span className="font-semibold text-sm flex items-center gap-2">
+                        {typeName} <span className="text-xs text-muted font-normal">{log.exercise.duration}m</span>
+                    </span>
+                    {log.exercise.distance && (
+                        <span className="text-xs text-muted-foreground">{log.exercise.distance} km</span>
+                    )}
+                </div>
+            );
+        }
         if (log.journal) return `Journal: ${log.journal.substring(0, 30)}${log.journal.length > 30 ? '...' : ''}`;
         if (log.custom) return `${log.custom[0].name}: ${log.custom[0].value} ${log.custom[0].unit}`;
         return "Unknown Log";
