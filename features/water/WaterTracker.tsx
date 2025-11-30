@@ -48,7 +48,7 @@ export default function WaterTracker({ onClose, selectedDate }: { onClose: () =>
                         type="number"
                         value={liters}
                         onChange={(e) => setLiters(parseFloat(e.target.value) || 0)}
-                        className="w-24 text-center text-3xl font-bold bg-transparent border-none focus:outline-none focus:ring-0 p-0"
+                        className="w-24 text-center text-3xl font-bold bg-transparent border-none focus:outline-none focus:ring-0 p-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         step="0.25"
                     />
                     <span className="text-xl font-medium text-muted-foreground">L</span>
