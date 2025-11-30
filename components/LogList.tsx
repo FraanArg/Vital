@@ -117,7 +117,7 @@ export default function LogList({ selectedDate }: LogListProps) {
             </div>
         );
         if (log.exercise) {
-            const icons: Record<string, any> = {
+            const icons: Record<string, { icon: any, color: string, bg: string }> = {
                 padel: { icon: Trophy, color: "text-yellow-600 dark:text-yellow-400", bg: "bg-yellow-100 dark:bg-yellow-900/30" },
                 football: { icon: Activity, color: "text-green-600 dark:text-green-400", bg: "bg-green-100 dark:bg-green-900/30" },
                 gym: { icon: Dumbbell, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100 dark:bg-blue-900/30" },
@@ -179,7 +179,7 @@ export default function LogList({ selectedDate }: LogListProps) {
                             {exerciseCount} exercises: {exerciseNames.substring(0, 30)}{exerciseNames.length > 30 ? '...' : ''}
                         </span>
                         {log.exercise.notes && (
-                            <span className="text-xs text-muted-foreground italic mt-1">"{log.exercise.notes}"</span>
+                            <span className="text-xs text-muted-foreground italic mt-1">&quot;{log.exercise.notes}&quot;</span>
                         )}
                     </div>
                 );
@@ -193,7 +193,7 @@ export default function LogList({ selectedDate }: LogListProps) {
                         <span className="text-xs text-muted-foreground">{log.exercise.distance} km</span>
                     )}
                     {log.exercise.notes && (
-                        <span className="text-xs text-muted-foreground italic mt-1">"{log.exercise.notes}"</span>
+                        <span className="text-xs text-muted-foreground italic mt-1">&quot;{log.exercise.notes}&quot;</span>
                     )}
                 </div>
             );
