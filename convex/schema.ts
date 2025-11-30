@@ -16,6 +16,18 @@ export default defineSchema({
             items: v.array(v.string()),
             time: v.string(),
         })),
+        exercise: v.optional(v.object({
+            type: v.string(),
+            duration: v.number(),
+            distance: v.optional(v.number()),
+            workout: v.optional(v.array(v.object({
+                name: v.string(),
+                sets: v.array(v.object({
+                    reps: v.number(),
+                    weight: v.number(),
+                }))
+            })))
+        })),
         journal: v.optional(v.string()),
         custom: v.optional(v.array(v.object({
             name: v.string(),
@@ -30,4 +42,13 @@ export default defineSchema({
         name: v.string(),
         usage_count: v.number(),
     }).index("by_user_name", ["userId", "name"]),
+
+    routines: defineTable({
+        userId: v.string(),
+        name: v.string(),
+        exercises: v.array(v.object({
+            name: v.string(),
+            defaultSets: v.number(),
+        }))
+    }).index("by_user", ["userId"]),
 });
