@@ -7,17 +7,23 @@ import { Dumbbell, Trophy, Activity, Footprints, Timer, Plus, Trash2, ChevronDow
 import RoutineManager from "./RoutineManager";
 
 const ACTIVITIES = [
-    { id: "padel", label: "Padel", icon: Trophy, color: "text-yellow-500", bg: "bg-yellow-500/10" },
-    { id: "football", label: "Football", icon: Activity, color: "text-green-500", bg: "bg-green-500/10" },
-    { id: "gym", label: "Gym", icon: Dumbbell, color: "text-blue-500", bg: "bg-blue-500/10" },
-    { id: "run", label: "Running", icon: Timer, color: "text-orange-500", bg: "bg-orange-500/10" },
+    { id: "sports", label: "Sports", icon: Trophy, color: "text-orange-500", bg: "bg-orange-500/10" },
+    { id: "gym", label: "Gym", icon: Dumbbell, color: "text-foreground", bg: "bg-secondary" },
+    { id: "run", label: "Running", icon: Timer, color: "text-blue-500", bg: "bg-blue-500/10" },
     { id: "walk", label: "Walking", icon: Footprints, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+];
+
+const SPORTS = [
+    { id: "padel", label: "Padel", icon: Trophy },
+    { id: "football", label: "Football", icon: Activity },
 ];
 
 export default function ExerciseTracker({ onClose, selectedDate }: { onClose: () => void, selectedDate: Date }) {
     const [activity, setActivity] = useState<string | null>(null);
+    const [subActivity, setSubActivity] = useState<string | null>(null); // For Sports
     const [duration, setDuration] = useState(60);
     const [distance, setDistance] = useState<number | "">("");
+    const [notes, setNotes] = useState("");
 
     // Gym State
     const [gymMode, setGymMode] = useState<"select" | "log">("select");
@@ -28,16 +34,20 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
     const handleSave = async () => {
         if (!activity) return;
 
+        const finalType = activity === "sports" ? subActivity : activity;
+        if (!finalType) return;
+
         const exerciseData: any = {
-            type: activity,
+            type: finalType,
             duration: duration,
+            notes: notes.trim() || undefined,
         };
 
-        if ((activity === "run" || activity === "walk") && distance) {
+        if ((finalType === "run" || finalType === "walk") && distance) {
             exerciseData.distance = Number(distance);
         }
 
-        if (activity === "gym") {
+        if (finalType === "gym") {
             exerciseData.workout = workout;
         }
 
@@ -96,6 +106,32 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
         );
     }
 
+    // Sports Sub-selection
+    if (activity === "sports" && !subActivity) {
+        return (
+            <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-4">
+                    <button onClick={() => setActivity(null)} className="text-sm text-muted-foreground hover:text-foreground">
+                        ← Back
+                    </button>
+                    <h3 className="font-semibold">Select Sport</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                    {SPORTS.map((sport) => (
+                        <button
+                            key={sport.id}
+                            onClick={() => setSubActivity(sport.id)}
+                            className="p-4 rounded-2xl border border-border/50 flex flex-col items-center gap-2 transition-all hover:scale-105 active:scale-95 bg-secondary/50 hover:bg-secondary"
+                        >
+                            <sport.icon className="w-8 h-8 text-foreground" />
+                            <span className="font-medium">{sport.label}</span>
+                        </button>
+                    ))}
+                </div>
+            </div>
+        );
+    }
+
     // Gym Routine Selection View
     if (activity === "gym" && gymMode === "select") {
         return (
@@ -128,10 +164,21 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
     return (
         <div className="space-y-6">
             <div className="flex items-center justify-between">
-                <button onClick={() => activity === "gym" ? setGymMode("select") : setActivity(null)} className="text-sm text-muted-foreground hover:text-foreground">
+                <button
+                    onClick={() => {
+                        if (activity === "gym" && gymMode === "log") {
+                            setGymMode("select");
+                        } else if (activity === "sports") {
+                            setSubActivity(null);
+                        } else {
+                            setActivity(null);
+                        }
+                    }}
+                    className="text-sm text-muted-foreground hover:text-foreground"
+                >
                     ← Back
                 </button>
-                <h3 className="font-semibold capitalize">{activity}</h3>
+                <h3 className="font-semibold capitalize">{activity === "sports" ? subActivity : activity}</h3>
                 <div className="w-8" /> {/* Spacer */}
             </div>
 
@@ -222,6 +269,17 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
                     </button>
                 </div>
             )}
+
+            {/* Notes Input */}
+            <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Notes (Optional)</label>
+                <textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="How did it go?"
+                    className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary min-h-[80px] resize-none"
+                />
+            </div>
 
             <button
                 onClick={handleSave}
