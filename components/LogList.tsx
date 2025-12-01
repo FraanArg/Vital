@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { Id, Doc } from "../convex/_generated/dataModel";
+import { motion, AnimatePresence } from "framer-motion";
 import { Briefcase, Moon, Droplets, Utensils, Trash2, Book, Star, Search, Trophy, Activity, Dumbbell, Timer, Footprints, LucideIcon, Circle, Waves, Swords, Target } from "lucide-react";
 import { Skeleton } from "./ui/Skeleton";
 import { ICON_LIBRARY } from "../lib/icon-library";

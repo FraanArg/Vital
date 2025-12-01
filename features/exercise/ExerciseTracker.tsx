@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Dumbbell, Trophy, Activity, Footprints, Timer, Plus, Trash2, ChevronDown, ChevronUp, Circle, Waves, Swords, Target, Settings } from "lucide-react";
 import RoutineManager from "./RoutineManager";
