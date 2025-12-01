@@ -50,3 +50,13 @@ export const incrementUsage = mutation({
         });
     },
 });
+
+export const remove = mutation({
+    args: { id: v.id("foodItems") },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Unauthenticated");
+
+        await ctx.db.delete(args.id);
+    },
+});
