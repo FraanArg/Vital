@@ -183,3 +183,38 @@ button {
 .animate-fade-in {
   animation: fadeIn 0.2s ease-out forwards;
 }
+
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+
+  /* Hide UI elements */
+  aside,
+  nav,
+  button,
+  header,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Ensure content is visible */
+  .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Reset layout for printing */
+  .min-h-screen {
+    min-height: auto !important;
+  }
+
+  /* Ensure text is black */
+  * {
+    color: black !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+  }
+}
