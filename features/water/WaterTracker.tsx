@@ -2,9 +2,11 @@
 import { useState } from 'react';
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { useHaptic } from "../../hooks/useHaptic";
 
 export default function WaterTracker({ onClose, selectedDate }: { onClose: () => void, selectedDate: Date }) {
     const [liters, setLiters] = useState(0.5);
+    const { trigger } = useHaptic();
     const createLog = useMutation(api.logs.createLog).withOptimisticUpdate((localStore, args) => {
         const { date, ...logData } = args;
         const logDate = new Date(date);
@@ -38,13 +40,17 @@ export default function WaterTracker({ onClose, selectedDate }: { onClose: () =>
             <h3 className="text-xl font-semibold">Water Intake</h3>
             <div className="flex items-center justify-between bg-secondary/30 rounded-2xl p-2">
                 <button
-                    onClick={() => setLiters(l => Math.max(0, Number((l - 0.25).toFixed(2))))}
+                    onClick={() => {
+                        trigger("light");
+                        setLiters(l => Math.max(0, Number((l - 0.25).toFixed(2))));
+                    }}
                     className="w-12 h-12 bg-background shadow-sm rounded-xl flex items-center justify-center text-xl font-bold hover:scale-105 transition-transform"
                 >
                     -
                 </button>
                 <div className="flex items-center justify-center gap-1">
                     <input
+                        autoFocus
                         type="number"
                         value={liters}
                         onChange={(e) => setLiters(parseFloat(e.target.value) || 0)}
@@ -54,13 +60,19 @@ export default function WaterTracker({ onClose, selectedDate }: { onClose: () =>
                     <span className="text-xl font-medium text-muted-foreground">L</span>
                 </div>
                 <button
-                    onClick={() => setLiters(l => Number((l + 0.25).toFixed(2)))}
+                    onClick={() => {
+                        trigger("light");
+                        setLiters(l => Number((l + 0.25).toFixed(2)));
+                    }}
                     className="w-12 h-12 bg-background shadow-sm rounded-xl flex items-center justify-center text-xl font-bold hover:scale-105 transition-transform"
                 >
                     +
                 </button>
             </div>
-            <button onClick={save} className="w-full p-3 bg-primary text-primary-foreground rounded-xl">
+            <button onClick={() => {
+                trigger("success");
+                save();
+            }} className="w-full p-3 bg-primary text-primary-foreground rounded-xl">
                 Save Water
             </button>
         </div>

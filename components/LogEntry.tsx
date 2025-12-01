@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { TRACKERS } from '../lib/tracker-registry';
+import { useHaptic } from '../hooks/useHaptic';
 
 interface LogEntryProps {
     selectedDate: Date;
@@ -11,6 +12,7 @@ interface LogEntryProps {
 
 export default function LogEntry({ selectedDate }: LogEntryProps) {
     const [activeTracker, setActiveTracker] = useState<string | null>(null);
+    const { trigger } = useHaptic();
 
     const handleClose = () => setActiveTracker(null);
 
@@ -35,7 +37,10 @@ export default function LogEntry({ selectedDate }: LogEntryProps) {
                         <button
                             key={tracker.id}
                             type="button"
-                            onClick={() => setActiveTracker(tracker.id)}
+                            onClick={() => {
+                                trigger("light");
+                                setActiveTracker(tracker.id);
+                            }}
                             className="flex flex-col items-center justify-center p-4 rounded-2xl bg-card border border-border/50 shadow-sm hover:shadow-md hover:scale-105 active:scale-95 transition-all group"
                         >
                             <div className="p-3 rounded-xl mb-2 transition-colors bg-secondary text-foreground group-hover:bg-primary/10 group-hover:text-primary">
@@ -77,7 +82,10 @@ export default function LogEntry({ selectedDate }: LogEntryProps) {
                                         <h2 className="text-xl font-bold">{activeTrackerConfig.label}</h2>
                                     </div>
                                     <button
-                                        onClick={handleClose}
+                                        onClick={() => {
+                                            trigger("light");
+                                            handleClose();
+                                        }}
                                         className="p-2 rounded-full hover:bg-secondary transition-colors"
                                         aria-label="Close"
                                     >

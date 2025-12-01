@@ -4,11 +4,16 @@ import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { Flame } from "lucide-react";
 import { motion } from "framer-motion";
+import { Skeleton } from "./ui/Skeleton";
 
 export default function StreakCounter() {
     const streakData = useQuery(api.gamification.getStreak);
 
-    if (!streakData || streakData.currentStreak === 0) return null;
+    if (streakData === undefined) {
+        return <Skeleton className="w-12 h-7 rounded-full" />;
+    }
+
+    if (streakData.currentStreak === 0) return null;
 
     return (
         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20">

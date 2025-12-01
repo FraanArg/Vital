@@ -3,12 +3,14 @@ import { useState, useEffect } from 'react';
 import { useMutation, useConvexAuth } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Loader2 } from "lucide-react";
+import { useHaptic } from "../../hooks/useHaptic";
 
 export default function SleepTracker({ onClose, selectedDate }: { onClose: () => void, selectedDate: Date }) {
     const [start, setStart] = useState("23:00");
     const [end, setEnd] = useState("07:00");
     const [duration, setDuration] = useState(8);
     const [isSaving, setIsSaving] = useState(false);
+    const { trigger } = useHaptic();
     const createLog = useMutation(api.logs.createLog).withOptimisticUpdate((localStore, args) => {
         const { date, ...logData } = args;
         const logDate = new Date(date);
@@ -88,6 +90,7 @@ export default function SleepTracker({ onClose, selectedDate }: { onClose: () =>
                 <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Bedtime</label>
                     <input
+                        autoFocus
                         type="time"
                         value={start}
                         onChange={(e) => setStart(e.target.value)}
@@ -106,7 +109,10 @@ export default function SleepTracker({ onClose, selectedDate }: { onClose: () =>
             </div>
 
             <button
-                onClick={save}
+                onClick={() => {
+                    trigger("success");
+                    save();
+                }}
                 disabled={isSaving || isAuthLoading}
                 className="w-full p-3 bg-primary text-primary-foreground rounded-xl font-medium shadow-sm hover:shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >

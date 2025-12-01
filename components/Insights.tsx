@@ -5,6 +5,7 @@ import { api } from "../convex/_generated/api";
 import { TrendingUp, TrendingDown, Lightbulb, Smile, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
+import { Skeleton } from "./ui/Skeleton";
 
 const ICONS = {
     TrendingUp,
@@ -26,7 +27,21 @@ export default function Insights() {
         return () => clearInterval(interval);
     }, [insights]);
 
-    if (!insights || insights.length === 0) return null;
+    if (insights === undefined) {
+        return (
+            <div className="mb-6">
+                <div className="bg-card/50 backdrop-blur-sm border border-border/50 p-4 rounded-2xl flex items-center gap-4 shadow-sm">
+                    <Skeleton className="w-9 h-9 rounded-xl" />
+                    <div className="space-y-2 flex-1">
+                        <Skeleton className="w-3/4 h-4" />
+                        <Skeleton className="w-1/2 h-3" />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (insights.length === 0) return null;
 
     const currentInsight = insights[currentIndex];
     const Icon = ICONS[currentInsight.icon as keyof typeof ICONS] || Sparkles;
