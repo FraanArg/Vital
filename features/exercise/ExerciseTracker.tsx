@@ -8,6 +8,7 @@ import { Dumbbell, Trophy, Activity, Footprints, Timer, Plus, Trash2, ChevronDow
 import RoutineManager from "./RoutineManager";
 import IconPicker from "../../components/IconPicker";
 import { ICON_LIBRARY } from "../../lib/icon-library";
+import SuggestionRow from "../../components/SuggestionRow";
 
 const ACTIVITIES = [
     { id: "sports", label: "Sports", icon: Trophy },
@@ -121,20 +122,44 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
         setWorkout(newWorkout);
     };
 
+    // Fetch dynamic sports
+    const dynamicSports = useQuery(api.sports.getSports);
+    const suggestions = useQuery(api.suggestions.getSuggestions, { type: "exercise" });
+
+    interface SportItem {
+        id: string;
+        label: string;
+        icon: LucideIcon;
+        isCustom?: boolean;
+        _id?: string;
+    }
+
+    // ... (existing code)
+
     // Activity Selection View
     if (!activity) {
         return (
-            <div className="grid grid-cols-2 gap-3">
-                {ACTIVITIES.map((act) => (
-                    <button
-                        key={act.id}
-                        onClick={() => setActivity(act.id)}
-                        className="p-4 rounded-2xl border border-border/50 flex flex-col items-center gap-2 transition-all hover:scale-105 active:scale-95 bg-secondary/50 hover:bg-secondary"
-                    >
-                        <act.icon className="w-8 h-8 text-foreground" />
-                        <span className="font-medium">{act.label}</span>
-                    </button>
-                ))}
+            <div className="space-y-4">
+                <SuggestionRow
+                    suggestions={suggestions?.map(s => ({ name: s.name })) || []}
+                    onSelect={(name) => {
+                        // Map suggestion name back to ID
+                        const activityId = ACTIVITIES.find(a => a.id === name)?.id || name;
+                        setActivity(activityId);
+                    }}
+                />
+                <div className="grid grid-cols-2 gap-3">
+                    {ACTIVITIES.map((act) => (
+                        <button
+                            key={act.id}
+                            onClick={() => setActivity(act.id)}
+                            className="p-4 rounded-2xl border border-border/50 flex flex-col items-center gap-2 transition-all hover:scale-105 active:scale-95 bg-secondary/50 hover:bg-secondary"
+                        >
+                            <act.icon className="w-8 h-8 text-foreground" />
+                            <span className="font-medium">{act.label}</span>
+                        </button>
+                    ))}
+                </div>
             </div>
         );
     }

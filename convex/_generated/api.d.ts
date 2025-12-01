@@ -13,6 +13,7 @@ import type * as icons from "../icons.js";
 import type * as logs from "../logs.js";
 import type * as routines from "../routines.js";
 import type * as sports from "../sports.js";
+import type * as suggestions from "../suggestions.js";
 
 import type {
   ApiFromModules,
@@ -26,6 +27,7 @@ declare const fullApi: ApiFromModules<{
   logs: typeof logs;
   routines: typeof routines;
   sports: typeof sports;
+  suggestions: typeof suggestions;
 }>;
 
 /**
