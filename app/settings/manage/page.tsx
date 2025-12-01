@@ -6,8 +6,8 @@ import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import { ArrowLeft, Plus, Trash2, Settings } from "lucide-react";
 import Link from "next/link";
-import { ICON_LIBRARY } from "@/lib/icons";
-import IconPicker from "@/components/IconPicker";
+import { ICON_LIBRARY } from "../../../lib/icon-library";
+import IconPicker from "../../../components/IconPicker";
 
 export default function ManagePage() {
     const [isAdding, setIsAdding] = useState(false);
