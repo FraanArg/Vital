@@ -98,7 +98,7 @@ export default function ReportView({ logs, categories }: ReportViewProps) {
                                                         {log.meal?.time && ` • ${log.meal.time}`}
                                                     </span>
                                                     <div className="text-foreground print:text-black">
-                                                        {log.meal?.items?.join(", ") || log.food?.name}
+                                                        {log.meal?.items?.join(", ") || log.food}
                                                     </div>
                                                 </div>
                                             </div>
