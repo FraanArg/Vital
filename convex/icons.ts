@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+// Force sync
 export const saveIconMapping = mutation({
     args: {
         type: v.string(),
