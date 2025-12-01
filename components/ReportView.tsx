@@ -27,8 +27,59 @@ export default function ReportView({ logs, categories }: ReportViewProps) {
         );
     }
 
+    // Calculate Period Totals
+    const periodStats = logs.reduce((acc, log) => {
+        if (log.water) acc.water += log.water;
+        if (log.sleep) {
+            acc.sleep += log.sleep;
+            acc.sleepDays++;
+        }
+        if (log.exercise) {
+            acc.workouts++;
+            acc.exerciseMinutes += log.exercise.duration || 0;
+        }
+        if (log.mood) {
+            acc.mood += log.mood;
+            acc.moodDays++;
+        }
+        return acc;
+    }, { water: 0, sleep: 0, sleepDays: 0, workouts: 0, exerciseMinutes: 0, mood: 0, moodDays: 0 });
+
     return (
         <div className="space-y-8 print:space-y-6">
+            {/* Period Summary Card */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 print:grid-cols-4 print:gap-2 print:mb-6">
+                {categories.includes("water") && (
+                    <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 print:border print:border-gray-200 print:bg-white">
+                        <div className="text-xs text-cyan-500 font-bold uppercase tracking-wider mb-1 print:text-black">Total Water</div>
+                        <div className="text-2xl font-bold print:text-black">{periodStats.water} L</div>
+                    </div>
+                )}
+                {categories.includes("sleep") && (
+                    <div className="p-4 rounded-2xl bg-violet-500/10 border border-violet-500/20 print:border print:border-gray-200 print:bg-white">
+                        <div className="text-xs text-violet-500 font-bold uppercase tracking-wider mb-1 print:text-black">Avg Sleep</div>
+                        <div className="text-2xl font-bold print:text-black">
+                            {periodStats.sleepDays > 0 ? (periodStats.sleep / periodStats.sleepDays).toFixed(1) : 0} h
+                        </div>
+                    </div>
+                )}
+                {categories.includes("exercise") && (
+                    <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 print:border print:border-gray-200 print:bg-white">
+                        <div className="text-xs text-emerald-500 font-bold uppercase tracking-wider mb-1 print:text-black">Workouts</div>
+                        <div className="text-2xl font-bold print:text-black">
+                            {periodStats.workouts} <span className="text-sm font-normal text-muted-foreground print:text-gray-500">({Math.round(periodStats.exerciseMinutes / 60)}h)</span>
+                        </div>
+                    </div>
+                )}
+                {categories.includes("mood") && (
+                    <div className="p-4 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 print:border print:border-gray-200 print:bg-white">
+                        <div className="text-xs text-yellow-500 font-bold uppercase tracking-wider mb-1 print:text-black">Avg Mood</div>
+                        <div className="text-2xl font-bold print:text-black">
+                            {periodStats.moodDays > 0 ? (periodStats.mood / periodStats.moodDays).toFixed(1) : 0}/10
+                        </div>
+                    </div>
+                )}
+            </div>
             {sortedDates.map(date => {
                 const dayLogs = groupedLogs[date];
                 const dayDate = new Date(date + "T00:00:00"); // Fix timezone issues by appending time
