@@ -3,34 +3,32 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import { Id } from "../../../convex/_generated/dataModel";
 import { ArrowLeft, Plus, Trash2, Settings } from "lucide-react";
 import Link from "next/link";
-import { ICON_LIBRARY } from "../../../lib/icon-library";
-import IconPicker from "../../../components/IconPicker";
+import { ICON_LIBRARY } from "@/lib/icons";
+import IconPicker from "@/components/IconPicker";
 
 export default function ManagePage() {
+    const [isAdding, setIsAdding] = useState(false);
+    const [newSportName, setNewSportName] = useState("");
+    const [selectedIcon, setSelectedIcon] = useState("Trophy");
+    const [showIconPicker, setShowIconPicker] = useState(false);
+
     const sports = useQuery(api.sports.getSports);
     const createSport = useMutation(api.sports.createSport);
     const deleteSport = useMutation(api.sports.deleteSport);
 
-    const [isAdding, setIsAdding] = useState(false);
-    const [newSportName, setNewSportName] = useState("");
-    const [showIconPicker, setShowIconPicker] = useState(false);
-    const [selectedIcon, setSelectedIcon] = useState("Trophy");
-
     const handleCreate = async () => {
-        if (!newSportName) return;
-        await createSport({
-            name: newSportName,
-            icon: selectedIcon,
-            category: "Custom"
-        });
-        setNewSportName("");
-        setSelectedIcon("Trophy");
-        setIsAdding(false);
+        if (newSportName.trim()) {
+            await createSport({ name: newSportName, icon: selectedIcon });
+            setNewSportName("");
+            setSelectedIcon("Trophy");
+            setIsAdding(false);
+        }
     };
 
-    const handleDelete = async (id: any) => {
+    const handleDelete = async (id: Id<"sports">) => {
         if (confirm("Are you sure you want to delete this sport?")) {
             await deleteSport({ id });
         }
