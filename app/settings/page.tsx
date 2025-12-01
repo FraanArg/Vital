@@ -36,13 +36,22 @@ export default function SettingsPage() {
                     {/* Customization */}
                     <section className="bg-card p-6 rounded-2xl border border-border/50 shadow-sm">
                         <h2 className="text-lg font-semibold mb-4">Customization</h2>
-                        <Link href="/settings/manage" className="flex items-center justify-between group">
-                            <div>
-                                <p className="font-medium">Manage Items</p>
-                                <p className="text-sm text-muted-foreground">Add or remove sports and foods</p>
-                            </div>
-                            <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-                        </Link>
+                        <div className="space-y-1">
+                            <Link href="/settings/manage" className="flex items-center justify-between group p-2 -mx-2 hover:bg-secondary rounded-xl transition-colors">
+                                <div>
+                                    <p className="font-medium">Manage Items</p>
+                                    <p className="text-sm text-muted-foreground">Add or remove sports and foods</p>
+                                </div>
+                                <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                            </Link>
+                            <Link href="/report" className="flex items-center justify-between group p-2 -mx-2 hover:bg-secondary rounded-xl transition-colors">
+                                <div>
+                                    <p className="font-medium">Nutritionist Report</p>
+                                    <p className="text-sm text-muted-foreground">Export data for your appointments</p>
+                                </div>
+                                <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                            </Link>
+                        </div>
                     </section>
 
                     {/* Data Management */}
