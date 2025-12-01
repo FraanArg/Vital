@@ -57,7 +57,7 @@ export const getLogs = query({
 
         return await ctx.db
             .query("logs")
-            .withIndex("by_user_date", (q) =>
+            .withIndex("by_userId_date", (q) =>
                 q.eq("userId", userId)
                     .gte("date", args.from)
                     .lte("date", args.to)
@@ -79,7 +79,7 @@ export const getStats = query({
 
         return await ctx.db
             .query("logs")
-            .withIndex("by_user_date", (q) =>
+            .withIndex("by_userId_date", (q) =>
                 q.eq("userId", userId)
                     .gte("date", args.from)
                     .lte("date", args.to)
