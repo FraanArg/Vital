@@ -5,7 +5,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { Id, Doc } from "../convex/_generated/dataModel";
 import { motion, AnimatePresence } from "framer-motion";
-import { Briefcase, Moon, Droplets, Utensils, Trash2, Book, Star, Search, Trophy, Activity, Dumbbell, Timer, Footprints, LucideIcon, Circle, Waves, Swords, Target } from "lucide-react";
+import { Trash2, Star, Search, Trophy, Dumbbell, Timer, Footprints, LucideIcon, Circle, Waves, Swords, Target } from "lucide-react";
 import { Skeleton } from "./ui/Skeleton";
 import { ICON_LIBRARY } from "../lib/icon-library";
 
@@ -16,7 +16,6 @@ interface LogListProps {
 export default function LogList({ selectedDate }: LogListProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const iconMappings = useQuery(api.icons.getIconMappings);
-    const { ICON_LIBRARY } = require("../lib/icon-library");
 
     // Calculate start and end of day
     const start = new Date(selectedDate);
