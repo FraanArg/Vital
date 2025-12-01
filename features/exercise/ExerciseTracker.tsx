@@ -35,6 +35,11 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
     const [gymMode, setGymMode] = useState<"select" | "log">("select");
     const [workout, setWorkout] = useState<{ name: string; sets: { reps: number; weight: number }[] }[]>([]);
 
+    // Icon Customization State
+    const [showIconPicker, setShowIconPicker] = useState<{ type: "sport", id: string } | null>(null);
+    const saveIconMapping = useMutation(api.icons.saveIconMapping);
+    const iconMappings = useQuery(api.icons.getIconMappings);
+
     const createLog = useMutation(api.logs.createLog).withOptimisticUpdate((localStore, args) => {
         const { date, ...logData } = args;
         const logDate = new Date(date);
@@ -134,9 +139,7 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
     }
 
     // Icon Customization
-    const [showIconPicker, setShowIconPicker] = useState<{ type: "sport", id: string } | null>(null);
-    const saveIconMapping = useMutation(api.icons.saveIconMapping);
-    const iconMappings = useQuery(api.icons.getIconMappings);
+
 
     const getCustomIcon = (key: string, defaultIcon: any) => {
         const mapping = iconMappings?.find(m => m.type === "sport" && m.key === key);
