@@ -156,6 +156,23 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
         setShowIconPicker(null);
     };
 
+    // Fetch dynamic sports
+    const dynamicSports = useQuery(api.sports.getSports);
+
+    // Merge defaults with dynamic sports, avoiding duplicates by ID/Name
+    const allSports = [
+        ...SPORTS,
+        ...(dynamicSports || []).map(s => ({
+            id: s.name.toLowerCase(), // Use name as ID for simplicity
+            label: s.name,
+            icon: ICON_LIBRARY[s.icon] || Trophy,
+            isCustom: true,
+            _id: s._id
+        }))
+    ].filter((sport, index, self) =>
+        index === self.findIndex((t) => t.id === sport.id)
+    );
+
     // Sports Sub-selection
     if (activity === "sports" && !subActivity) {
         return (
@@ -167,27 +184,32 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
                     <h3 className="font-semibold">Select Sport</h3>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                    {SPORTS.map((sport) => {
-                        const Icon = getCustomIcon(sport.id, sport.icon);
+                    {allSports.map((sport) => {
+                        // For custom sports, the icon is already resolved. For defaults, we check for overrides.
+                        const Icon = sport.isCustom ? sport.icon : getCustomIcon(sport.id, sport.icon);
+
                         return (
                             <div key={sport.id} className="relative group">
                                 <button
                                     onClick={() => setSubActivity(sport.id)}
                                     className="w-full p-4 rounded-2xl border border-border/50 flex flex-col items-center gap-2 transition-all hover:scale-105 active:scale-95 bg-secondary/50 hover:bg-secondary"
                                 >
+                                    {/* @ts-ignore - Icon type compatibility */}
                                     <Icon className="w-8 h-8 text-foreground" />
                                     <span className="font-medium">{sport.label}</span>
                                 </button>
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setShowIconPicker({ type: "sport", id: sport.id });
-                                    }}
-                                    className="absolute top-2 right-2 p-1.5 rounded-full bg-background/80 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-primary hover:bg-background transition-all"
-                                    title="Customize Icon"
-                                >
-                                    <Settings className="w-3 h-3" />
-                                </button>
+                                {!sport.isCustom && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setShowIconPicker({ type: "sport", id: sport.id });
+                                        }}
+                                        className="absolute top-2 right-2 p-1.5 rounded-full bg-background/80 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-primary hover:bg-background transition-all"
+                                        title="Customize Icon"
+                                    >
+                                        <Settings className="w-3 h-3" />
+                                    </button>
+                                )}
                             </div>
                         );
                     })}
