@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
-import { Id, Doc } from "../convex/_generated/dataModel";
+import { Id } from "../convex/_generated/dataModel";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, Search } from "lucide-react";
 import { Skeleton } from "./ui/Skeleton";
