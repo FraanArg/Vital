@@ -80,6 +80,10 @@ export default function FoodCombobox({ selectedItems, onItemsChange }: FoodCombo
                         setIsOpen(true);
                     }}
                     onFocus={() => setIsOpen(true)}
+                    onBlur={() => {
+                        // Delay to allow item click to register
+                        setTimeout(() => setIsOpen(false), 200);
+                    }}
                     placeholder="Add food (e.g. 'Pancakes')"
                     className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary"
                     onKeyDown={(e) => {
@@ -91,7 +95,7 @@ export default function FoodCombobox({ selectedItems, onItemsChange }: FoodCombo
                 />
 
                 {isOpen && (suggestions?.length || query) && (
-                    <div className="absolute w-full mt-1 bg-popover border border-border rounded-xl shadow-lg z-[100] overflow-hidden">
+                    <div className="absolute w-full mt-1 bg-card border border-border rounded-xl shadow-lg z-[100] overflow-hidden">
                         {suggestions?.map((item: Doc<"foodItems">) => (
                             <button
                                 key={item._id}
