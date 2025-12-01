@@ -8,8 +8,10 @@ import { ArrowLeft, Plus, Trash2, Settings } from "lucide-react";
 import Link from "next/link";
 import { ICON_LIBRARY } from "../../../lib/icon-library";
 import IconPicker from "../../../components/IconPicker";
+import { useToast } from "../../../components/ui/ToastContext";
 
 export default function ManagePage() {
+    const { toast } = useToast();
     const [isAdding, setIsAdding] = useState(false);
     const [newSportName, setNewSportName] = useState("");
     const [selectedIcon, setSelectedIcon] = useState("Trophy");
@@ -22,6 +24,7 @@ export default function ManagePage() {
     const handleCreate = async () => {
         if (newSportName.trim()) {
             await createSport({ name: newSportName, icon: selectedIcon });
+            toast("Sport added successfully", "success");
             setNewSportName("");
             setSelectedIcon("Trophy");
             setIsAdding(false);
@@ -31,6 +34,7 @@ export default function ManagePage() {
     const handleDelete = async (id: Id<"sports">) => {
         if (confirm("Are you sure you want to delete this sport?")) {
             await deleteSport({ id });
+            toast("Sport deleted", "info");
         }
     };
 
