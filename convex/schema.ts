@@ -60,4 +60,11 @@ export default defineSchema({
         icon: v.string(), // "Apple", "Swords"
     }).index("by_user_type", ["userId", "type"])
         .index("by_user_key", ["userId", "key"]),
+
+    sports: defineTable({
+        userId: v.string(),
+        name: v.string(),
+        icon: v.string(),
+        category: v.optional(v.string()), // "Racket", "Team", "Water", etc.
+    }).index("by_user", ["userId"]),
 });

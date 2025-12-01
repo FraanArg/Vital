@@ -12,6 +12,7 @@ import type * as foodItems from "../foodItems.js";
 import type * as icons from "../icons.js";
 import type * as logs from "../logs.js";
 import type * as routines from "../routines.js";
+import type * as sports from "../sports.js";
 
 import type {
   ApiFromModules,
@@ -24,6 +25,7 @@ declare const fullApi: ApiFromModules<{
   icons: typeof icons;
   logs: typeof logs;
   routines: typeof routines;
+  sports: typeof sports;
 }>;
 
 /**
