@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { Dumbbell, Trophy, Activity, Footprints, Timer, Plus, Trash2, ChevronDown, ChevronUp, Circle, Waves, Swords, Target, Settings } from "lucide-react";
+import { Doc } from "../../convex/_generated/dataModel";
+import { Dumbbell, Trophy, Activity, Footprints, Timer, Plus, Trash2, ChevronDown, ChevronUp, Circle, Waves, Swords, Target, Settings, LucideIcon } from "lucide-react";
 import RoutineManager from "./RoutineManager";
 import IconPicker from "../../components/IconPicker";
 import { ICON_LIBRARY } from "../../lib/icon-library";
@@ -90,8 +91,8 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
         onClose();
     };
 
-    const handleRoutineSelect = (routine: any) => {
-        setWorkout(routine.exercises.map((e: any) => ({
+    const handleRoutineSelect = (routine: Doc<"routines">) => {
+        setWorkout(routine.exercises.map((e) => ({
             name: e.name,
             sets: Array(e.defaultSets).fill({ reps: 0, weight: 0 })
         })));
@@ -141,7 +142,7 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
     // Icon Customization
 
 
-    const getCustomIcon = (key: string, defaultIcon: any) => {
+    const getCustomIcon = (key: string, defaultIcon: LucideIcon) => {
         const mapping = iconMappings?.find(m => m.type === "sport" && m.key === key);
         return mapping && ICON_LIBRARY[mapping.icon] ? ICON_LIBRARY[mapping.icon] : defaultIcon;
     };

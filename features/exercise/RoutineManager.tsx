@@ -4,10 +4,10 @@ import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Plus, Trash2, Dumbbell, Save, X } from "lucide-react";
-import { Id } from "../../convex/_generated/dataModel";
+import { Id, Doc } from "../../convex/_generated/dataModel";
 
 interface RoutineManagerProps {
-    onSelect: (routine: any) => void;
+    onSelect: (routine: Doc<"routines">) => void;
     onClose: () => void;
 }
 

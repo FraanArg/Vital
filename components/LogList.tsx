@@ -201,9 +201,9 @@ export default function LogList({ selectedDate }: LogListProps) {
                     <motion.div
                         key={log._id}
                         layout
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
+                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
                         className="bg-card p-4 rounded-2xl shadow-sm border border-border/50 flex items-center justify-between group"
                     >
                         <div className="flex items-center gap-3">

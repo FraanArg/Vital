@@ -1,8 +1,9 @@
 "use client";
 
 import DataExport from "../../components/DataExport";
+import Link from "next/link";
 import { ThemeToggle } from "../../components/ThemeToggle";
-import { Trash2 } from "lucide-react";
+import { Trash2, ChevronRight } from "lucide-react";
 import { db } from "../../lib/db";
 
 export default function SettingsPage() {
@@ -30,6 +31,18 @@ export default function SettingsPage() {
                             <span className="text-muted-foreground">Theme</span>
                             <ThemeToggle />
                         </div>
+                    </section>
+
+                    {/* Customization */}
+                    <section className="bg-card p-6 rounded-2xl border border-border/50 shadow-sm">
+                        <h2 className="text-lg font-semibold mb-4">Customization</h2>
+                        <Link href="/settings/manage" className="flex items-center justify-between group">
+                            <div>
+                                <p className="font-medium">Manage Items</p>
+                                <p className="text-sm text-muted-foreground">Add or remove sports and foods</p>
+                            </div>
+                            <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                        </Link>
                     </section>
 
                     {/* Data Management */}

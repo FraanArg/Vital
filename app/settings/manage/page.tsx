@@ -9,6 +9,7 @@ import Link from "next/link";
 import { ICON_LIBRARY } from "../../../lib/icon-library";
 import IconPicker from "../../../components/IconPicker";
 import { useToast } from "../../../components/ui/ToastContext";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function ManagePage() {
     const { toast } = useToast();
@@ -110,25 +111,34 @@ export default function ManagePage() {
                     )}
 
                     <div className="grid gap-2">
-                        {sports?.map((sport) => {
-                            const Icon = ICON_LIBRARY[sport.icon] || ICON_LIBRARY["Trophy"];
-                            return (
-                                <div key={sport._id} className="flex items-center justify-between p-3 rounded-xl bg-secondary/30 border border-border/50">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 rounded-lg bg-background text-foreground">
-                                            <Icon className="w-5 h-5" />
-                                        </div>
-                                        <span className="font-medium">{sport.name}</span>
-                                    </div>
-                                    <button
-                                        onClick={() => handleDelete(sport._id)}
-                                        className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                        <AnimatePresence mode="popLayout">
+                            {sports?.map((sport) => {
+                                const Icon = ICON_LIBRARY[sport.icon] || ICON_LIBRARY["Trophy"];
+                                return (
+                                    <motion.div
+                                        key={sport._id}
+                                        layout
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.9 }}
+                                        className="flex items-center justify-between p-3 rounded-xl bg-secondary/30 border border-border/50"
                                     >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            );
-                        })}
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 rounded-lg bg-background text-foreground">
+                                                <Icon className="w-5 h-5" />
+                                            </div>
+                                            <span className="font-medium">{sport.name}</span>
+                                        </div>
+                                        <button
+                                            onClick={() => handleDelete(sport._id)}
+                                            className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </motion.div>
+                                );
+                            })}
+                        </AnimatePresence>
                         {sports?.length === 0 && !isAdding && (
                             <div className="text-center py-8 text-muted-foreground text-sm">
                                 No custom sports yet. Add one to get started!
