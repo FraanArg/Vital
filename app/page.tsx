@@ -11,10 +11,7 @@ import DateSelector from "../components/DateSelector";
 import SmartSuggestions from "../components/SmartSuggestions";
 import Insights from "../components/Insights";
 
-// ...
 
-          <SmartSuggestions />
-          <Insights />
 import OfflineIndicator from "../components/OfflineIndicator";
 import StreakCounter from "../components/StreakCounter";
 import DailyProgress from "../components/DailyProgress";
