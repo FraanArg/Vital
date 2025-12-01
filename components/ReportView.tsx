@@ -36,7 +36,6 @@ export default function ReportView({ logs, categories }: ReportViewProps) {
                 // Calculate daily summaries
                 const totalWater = dayLogs.reduce((acc, log) => acc + (log.water || 0), 0);
                 const totalSleep = dayLogs.reduce((acc, log) => acc + (log.sleep || 0), 0);
-                const totalWork = dayLogs.reduce((acc, log) => acc + (log.work || 0), 0);
 
                 return (
                     <div key={date} className="break-inside-avoid">
@@ -84,7 +83,7 @@ export default function ReportView({ logs, categories }: ReportViewProps) {
                                                 )}
                                                 {log.exercise.notes && (
                                                     <div className="text-xs italic text-muted-foreground print:text-black mt-1">
-                                                        "{log.exercise.notes}"
+                                                        &quot;{log.exercise.notes}&quot;
                                                     </div>
                                                 )}
                                             </div>
