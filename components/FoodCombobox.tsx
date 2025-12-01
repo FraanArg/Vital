@@ -91,7 +91,7 @@ export default function FoodCombobox({ selectedItems, onItemsChange }: FoodCombo
                 />
 
                 {isOpen && (suggestions?.length || query) && (
-                    <div className="absolute w-full mt-1 bg-popover border border-border rounded-xl shadow-lg z-50 overflow-hidden">
+                    <div className="absolute w-full mt-1 bg-popover border border-border rounded-xl shadow-lg z-[100] overflow-hidden">
                         {suggestions?.map((item: Doc<"foodItems">) => (
                             <button
                                 key={item._id}

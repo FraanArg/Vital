@@ -177,7 +177,7 @@ export default function FoodTracker({ onClose, selectedDate }: { onClose: () => 
             </div>
 
             {/* Food Selection */}
-            <div className="space-y-2">
+            <div className="space-y-2 relative z-10">
                 <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider pl-1">Items</label>
                 <FoodCombobox selectedItems={items} onItemsChange={setItems} />
             </div>
