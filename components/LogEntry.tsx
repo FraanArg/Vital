@@ -36,30 +36,12 @@ export default function LogEntry({ selectedDate }: LogEntryProps) {
                             key={tracker.id}
                             type="button"
                             onClick={() => setActiveTracker(tracker.id)}
-                            className={`flex flex-col items-center justify-center p-4 rounded-2xl border shadow-sm hover:shadow-lg hover:scale-105 active:scale-95 transition-all group relative overflow-hidden ${tracker.id === "food" ? "bg-orange-500/10 border-orange-500/20 hover:border-orange-500/50" :
-                                    tracker.id === "exercise" ? "bg-emerald-500/10 border-emerald-500/20 hover:border-emerald-500/50" :
-                                        tracker.id === "water" ? "bg-cyan-500/10 border-cyan-500/20 hover:border-cyan-500/50" :
-                                            tracker.id === "sleep" ? "bg-violet-500/10 border-violet-500/20 hover:border-violet-500/50" :
-                                                tracker.id === "mood" ? "bg-yellow-500/10 border-yellow-500/20 hover:border-yellow-500/50" :
-                                                    "bg-card border-border/50"
-                                }`}
+                            className="flex flex-col items-center justify-center p-4 rounded-2xl bg-card border border-border/50 shadow-sm hover:shadow-md hover:scale-105 active:scale-95 transition-all group"
                         >
-                            <div className={`p-3 rounded-xl mb-2 transition-colors ${tracker.id === "food" ? "bg-orange-500 text-white" :
-                                    tracker.id === "exercise" ? "bg-emerald-500 text-white" :
-                                        tracker.id === "water" ? "bg-cyan-500 text-white" :
-                                            tracker.id === "sleep" ? "bg-violet-500 text-white" :
-                                                tracker.id === "mood" ? "bg-yellow-500 text-white" :
-                                                    "bg-secondary text-foreground"
-                                }`}>
+                            <div className="p-3 rounded-xl mb-2 transition-colors bg-secondary text-foreground group-hover:bg-primary/10 group-hover:text-primary">
                                 <Icon className="w-6 h-6" />
                             </div>
-                            <span className={`text-xs font-bold ${tracker.id === "food" ? "text-orange-500" :
-                                    tracker.id === "exercise" ? "text-emerald-500" :
-                                        tracker.id === "water" ? "text-cyan-500" :
-                                            tracker.id === "sleep" ? "text-violet-500" :
-                                                tracker.id === "mood" ? "text-yellow-500" :
-                                                    "text-muted-foreground"
-                                }`}>
+                            <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground">
                                 {tracker.label}
                             </span>
                         </button>
