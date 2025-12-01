@@ -79,6 +79,7 @@ export default function LogEntry({ selectedDate }: LogEntryProps) {
                                     <button
                                         onClick={handleClose}
                                         className="p-2 rounded-full hover:bg-secondary transition-colors"
+                                        aria-label="Close"
                                     >
                                         <X className="w-5 h-5" />
                                     </button>

@@ -29,3 +29,7 @@ ts-debug.log*
 
 # vercel
 .vercel
+
+# playwright
+playwright-report/
+test-results/
