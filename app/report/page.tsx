@@ -64,21 +64,21 @@ export default function ReportPage() {
                         </div>
                         <div className="grid gap-3">
                             <div>
-                                <label className="text-xs font-medium ml-1 mb-1 block">From</label>
+                                <label className="text-xs font-medium ml-1 mb-1 block text-muted-foreground">From</label>
                                 <input
                                     type="date"
                                     value={startDate}
                                     onChange={(e) => setStartDate(e.target.value)}
-                                    className="w-full p-2 rounded-lg bg-secondary border-none focus:ring-2 focus:ring-primary"
+                                    className="w-full p-3 rounded-xl bg-secondary/50 border border-border/10 focus:bg-secondary focus:ring-2 focus:ring-primary transition-all"
                                 />
                             </div>
                             <div>
-                                <label className="text-xs font-medium ml-1 mb-1 block">To</label>
+                                <label className="text-xs font-medium ml-1 mb-1 block text-muted-foreground">To</label>
                                 <input
                                     type="date"
                                     value={endDate}
                                     onChange={(e) => setEndDate(e.target.value)}
-                                    className="w-full p-2 rounded-lg bg-secondary border-none focus:ring-2 focus:ring-primary"
+                                    className="w-full p-3 rounded-xl bg-secondary/50 border border-border/10 focus:bg-secondary focus:ring-2 focus:ring-primary transition-all"
                                 />
                             </div>
                         </div>
@@ -92,12 +92,20 @@ export default function ReportPage() {
                         </div>
                         <div className="space-y-2">
                             {["food", "exercise", "water", "sleep", "mood"].map(cat => (
-                                <label key={cat} className="flex items-center gap-3 p-2 hover:bg-secondary/50 rounded-lg cursor-pointer transition-colors">
+                                <label key={cat} className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all border border-transparent ${categories.includes(cat)
+                                        ? "bg-secondary text-foreground shadow-sm"
+                                        : "hover:bg-secondary/50 text-muted-foreground"
+                                    }`}>
                                     <input
                                         type="checkbox"
                                         checked={categories.includes(cat)}
                                         onChange={() => toggleCategory(cat)}
-                                        className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                        className={`w-5 h-5 rounded border-gray-300 focus:ring-offset-0 ${cat === "food" ? "text-orange-500 focus:ring-orange-500" :
+                                                cat === "exercise" ? "text-emerald-500 focus:ring-emerald-500" :
+                                                    cat === "water" ? "text-cyan-500 focus:ring-cyan-500" :
+                                                        cat === "sleep" ? "text-violet-500 focus:ring-violet-500" :
+                                                            "text-yellow-500 focus:ring-yellow-500"
+                                            }`}
                                     />
                                     <span className="capitalize font-medium">{cat}</span>
                                 </label>

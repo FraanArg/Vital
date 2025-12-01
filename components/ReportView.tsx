@@ -72,7 +72,7 @@ export default function ReportView({ logs, categories }: ReportViewProps) {
                                 if (categories.includes("exercise") && log.exercise) {
                                     return (
                                         <div key={log._id} className="flex gap-3 text-sm">
-                                            <Dumbbell className="w-4 h-4 text-blue-500 mt-0.5 print:text-black" />
+                                            <Dumbbell className="w-4 h-4 text-emerald-500 mt-0.5 print:text-black" />
                                             <div>
                                                 <span className="font-semibold capitalize">{log.exercise.type}</span>
                                                 <span className="text-muted-foreground print:text-black"> • {log.exercise.duration}m</span>
@@ -94,7 +94,7 @@ export default function ReportView({ logs, categories }: ReportViewProps) {
                                 if (categories.includes("water") && log.water) {
                                     return (
                                         <div key={log._id} className="flex gap-3 text-sm text-muted-foreground print:text-black">
-                                            <Droplets className="w-4 h-4 text-blue-400 print:text-black" />
+                                            <Droplets className="w-4 h-4 text-cyan-500 print:text-black" />
                                             <span>Drank {log.water}L of water</span>
                                         </div>
                                     );
@@ -103,7 +103,7 @@ export default function ReportView({ logs, categories }: ReportViewProps) {
                                 if (categories.includes("sleep") && log.sleep) {
                                     return (
                                         <div key={log._id} className="flex gap-3 text-sm">
-                                            <Moon className="w-4 h-4 text-indigo-500 print:text-black" />
+                                            <Moon className="w-4 h-4 text-violet-500 print:text-black" />
                                             <div>
                                                 <span className="font-semibold">Slept {log.sleep}h</span>
                                                 {log.sleep_start && log.sleep_end && (

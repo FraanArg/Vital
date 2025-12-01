@@ -142,6 +142,7 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
             <div className="space-y-4">
                 <SuggestionRow
                     suggestions={suggestions?.map(s => ({ name: s.name })) || []}
+                    type="exercise"
                     onSelect={(name) => {
                         // Map suggestion name back to ID
                         const activityId = ACTIVITIES.find(a => a.id === name)?.id || name;

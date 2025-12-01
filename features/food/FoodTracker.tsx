@@ -145,6 +145,7 @@ export default function FoodTracker({ onClose, selectedDate }: { onClose: () => 
 
             <SuggestionRow
                 suggestions={useQuery(api.suggestions.getSuggestions, { type: "food" })?.map(s => ({ name: s.name })) || []}
+                type="food"
                 onSelect={(name) => {
                     if (!items.includes(name)) {
                         setItems([...items, name]);
