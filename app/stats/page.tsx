@@ -1,7 +1,32 @@
 "use client";
 
-import StatsCharts from "../../components/StatsCharts";
-import StatsOverview from "../../components/StatsOverview";
+import dynamic from "next/dynamic";
+import { Skeleton } from "../../components/ui/Skeleton";
+
+const StatsOverview = dynamic(() => import("../../components/StatsOverview"), {
+    loading: () => (
+        <div className="grid grid-cols-3 gap-4 mb-8">
+            {[1, 2, 3].map((i) => (
+                <div key={i} className="p-4 rounded-2xl bg-card border border-border/50 shadow-sm flex flex-col items-center justify-center text-center h-[106px] animate-pulse bg-muted/20" />
+            ))}
+        </div>
+    ),
+    ssr: false
+});
+
+const StatsCharts = dynamic(() => import("../../components/StatsCharts"), {
+    loading: () => (
+        <div className="space-y-8">
+            {[1, 2].map((i) => (
+                <div key={i} className="p-6 rounded-3xl bg-card border border-border/50 shadow-sm space-y-4">
+                    <Skeleton className="h-6 w-32" />
+                    <Skeleton className="h-[300px] w-full rounded-xl" />
+                </div>
+            ))}
+        </div>
+    ),
+    ssr: false
+});
 
 export default function StatisticsPage() {
     return (
