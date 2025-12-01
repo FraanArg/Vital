@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as analysis from "../analysis.js";
 import type * as foodItems from "../foodItems.js";
 import type * as icons from "../icons.js";
 import type * as logs from "../logs.js";
@@ -22,6 +23,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  analysis: typeof analysis;
   foodItems: typeof foodItems;
   icons: typeof icons;
   logs: typeof logs;

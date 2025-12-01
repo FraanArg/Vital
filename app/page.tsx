@@ -9,6 +9,12 @@ import LogList from "../components/LogList";
 import dynamic from "next/dynamic";
 import DateSelector from "../components/DateSelector";
 import SmartSuggestions from "../components/SmartSuggestions";
+import Insights from "../components/Insights";
+
+// ...
+
+          <SmartSuggestions />
+          <Insights />
 import OfflineIndicator from "../components/OfflineIndicator";
 
 const StatsOverview = dynamic(() => import("../components/StatsOverview"), {
@@ -59,6 +65,7 @@ export default function Home() {
 
           <DateSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
           <SmartSuggestions />
+          <Insights />
 
           <StatsOverview selectedDate={selectedDate} />
 
