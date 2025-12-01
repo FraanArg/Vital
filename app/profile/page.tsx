@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useUser, useClerk } from "@clerk/nextjs";
 import SyncData from "../../components/SyncData";
 import { Settings, Shield, Mail, User as UserIcon, Loader2 } from "lucide-react";
+import Image from "next/image";
 
 export default function ProfilePage() {
     const { user, isLoaded } = useUser();
@@ -62,9 +63,11 @@ export default function ProfilePage() {
             {/* Custom Profile Card */}
             <div className="bg-card border border-border/50 rounded-2xl p-6 shadow-sm flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
                 <div className="relative">
-                    <img
+                    <Image
                         src={user.imageUrl}
                         alt={user.fullName || "User"}
+                        width={96}
+                        height={96}
                         className="w-24 h-24 rounded-full border-4 border-background shadow-lg"
                     />
                     <div className="absolute bottom-0 right-0 w-6 h-6 bg-green-500 border-4 border-background rounded-full"></div>

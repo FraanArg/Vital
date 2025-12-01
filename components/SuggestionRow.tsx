@@ -1,8 +1,8 @@
-import { Sparkles } from "lucide-react";
+import { Sparkles, LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface SuggestionRowProps {
-    suggestions: { name: string; icon?: any }[];
+    suggestions: { name: string; icon?: LucideIcon }[];
     onSelect: (name: string) => void;
     label?: string;
 }
