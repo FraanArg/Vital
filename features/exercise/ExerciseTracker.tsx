@@ -182,16 +182,7 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
         setShowIconPicker(null);
     };
 
-    // Fetch dynamic sports
-    const dynamicSports = useQuery(api.sports.getSports);
 
-    interface SportItem {
-        id: string;
-        label: string;
-        icon: LucideIcon;
-        isCustom?: boolean;
-        _id?: string;
-    }
 
     // Merge defaults with dynamic sports, avoiding duplicates by ID/Name
     const allSports: SportItem[] = [
