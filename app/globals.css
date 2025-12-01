@@ -8,6 +8,8 @@
   --foreground: #1D1D1F;
   --card: #FFFFFF;
   --card-foreground: #1D1D1F;
+  --popover: #FFFFFF;
+  --popover-foreground: #1D1D1F;
 
   --primary: #0071E3;
   --primary-foreground: #FFFFFF;
@@ -16,9 +18,28 @@
   --secondary-foreground: #1D1D1F;
 
   --muted: #86868B;
+  --muted-foreground: #86868B;
+  --accent: #F5F5F7;
+  --accent-foreground: #1D1D1F;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
   --border: #D2D2D7;
+  --input: #D2D2D7;
+  --ring: #0071E3;
 
   --radius: 24px;
+
+  /* Custom Accents */
+  --accent-food: 24 94% 53%;
+  /* Orange 500 */
+  --accent-exercise: 158 64% 52%;
+  /* Emerald 400 */
+  --accent-water: 189 94% 43%;
+  /* Cyan 500 */
+  --accent-sleep: 262 83% 58%;
+  /* Violet 500 */
+  --accent-mood: 47 95% 57%;
+  /* Yellow 400 */
 
   /* Glassmorphism */
   --glass-bg: rgba(255, 255, 255, 0.65);
@@ -29,7 +50,6 @@
 
 
 .dark {
-  --background: #09090B;
   --foreground: #FAFAFA;
   --card: #18181B;
   --card-foreground: #FAFAFA;

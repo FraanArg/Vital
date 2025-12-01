@@ -5,7 +5,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { Id, Doc } from "../convex/_generated/dataModel";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trash2, Star, Search, Trophy, Dumbbell, Timer, Footprints, LucideIcon, Circle, Waves, Swords, Target } from "lucide-react";
+import { Trash2, Star, Search, Trophy, Dumbbell, Timer, Footprints, LucideIcon, Circle, Waves, Swords, Target, Moon, Droplets, Utensils, Smile } from "lucide-react";
 import { Skeleton } from "./ui/Skeleton";
 import { ICON_LIBRARY } from "../lib/icon-library";
 
@@ -84,7 +84,32 @@ export default function LogList({ selectedDate }: LogListProps) {
 
 
     const getIcon = (log: Doc<"logs">) => {
-        // ... (other log types)
+        if (log.work) return (
+            <div className="p-3 rounded-xl bg-secondary text-foreground">
+                <Timer className="w-5 h-5" />
+            </div>
+        );
+        if (log.sleep) return (
+            <div className="p-3 rounded-xl bg-violet-500/10 text-violet-500">
+                <Moon className="w-5 h-5" />
+            </div>
+        );
+        if (log.water) return (
+            <div className="p-3 rounded-xl bg-cyan-500/10 text-cyan-500">
+                <Droplets className="w-5 h-5" />
+            </div>
+        );
+        if (log.meal || log.food) return (
+            <div className="p-3 rounded-xl bg-orange-500/10 text-orange-500">
+                <Utensils className="w-5 h-5" />
+            </div>
+        );
+        if (log.mood) return (
+            <div className="p-3 rounded-xl bg-yellow-500/10 text-yellow-500">
+                <Smile className="w-5 h-5" />
+            </div>
+        );
+
         if (log.exercise) {
             const defaultIcons: Record<string, { icon: LucideIcon }> = {
                 padel: { icon: Swords },
@@ -107,14 +132,14 @@ export default function LogList({ selectedDate }: LogListProps) {
             }
 
             return (
-                <div className="p-2 rounded-full bg-secondary text-foreground">
+                <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-500">
                     <Icon className="w-5 h-5" />
                 </div>
             );
         }
         if (log.custom) return (
-            <div className="p-2 rounded-full bg-gray-100 dark:bg-gray-800">
-                <Star className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <div className="p-3 rounded-xl bg-secondary text-foreground">
+                <Star className="w-5 h-5" />
             </div>
         );
         return null;
@@ -204,15 +229,30 @@ export default function LogList({ selectedDate }: LogListProps) {
                         initial={{ opacity: 0, y: 20, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
-                        className="bg-card p-4 rounded-2xl shadow-sm border border-border/50 flex items-center justify-between group"
+                        className={`bg-card p-4 rounded-2xl shadow-sm border flex items-center justify-between group relative overflow-hidden ${log.meal || log.food ? "border-orange-500/20 hover:border-orange-500/40" :
+                            log.exercise ? "border-emerald-500/20 hover:border-emerald-500/40" :
+                                log.water ? "border-cyan-500/20 hover:border-cyan-500/40" :
+                                    log.sleep ? "border-violet-500/20 hover:border-violet-500/40" :
+                                        log.mood ? "border-yellow-500/20 hover:border-yellow-500/40" :
+                                            "border-border/50"
+                            }`}
                     >
-                        <div className="flex items-center gap-3">
+                        {/* Glow Effect */}
+                        <div className={`absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity pointer-events-none ${log.meal || log.food ? "bg-orange-500" :
+                            log.exercise ? "bg-emerald-500" :
+                                log.water ? "bg-cyan-500" :
+                                    log.sleep ? "bg-violet-500" :
+                                        log.mood ? "bg-yellow-500" :
+                                            "bg-white"
+                            }`} />
+
+                        <div className="flex items-center gap-4 relative z-10">
                             {getIcon(log)}
                             <span className="font-medium">{getText(log)}</span>
                         </div>
                         <button
                             onClick={() => deleteLog({ id: log._id as Id<"logs"> })}
-                            className="p-2 text-muted hover:text-destructive transition-colors opacity-0 group-hover:opacity-100 active:scale-90"
+                            className="p-2 text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100 active:scale-90 relative z-10"
                         >
                             <Trash2 className="w-4 h-4" />
                         </button>

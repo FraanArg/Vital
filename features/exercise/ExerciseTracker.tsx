@@ -325,7 +325,7 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
                         value={distance}
                         onChange={(e) => setDistance(parseFloat(e.target.value))}
                         placeholder="0.0"
-                        className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary text-lg font-semibold"
+                        className="w-full p-4 rounded-2xl bg-secondary/50 border border-border/10 focus:bg-secondary focus:ring-2 focus:ring-emerald-500/50 transition-all text-lg font-semibold"
                     />
                 </div>
             )}
@@ -354,21 +354,21 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
                                             value={set.weight || ""}
                                             onChange={(e) => updateSet(i, j, "weight", parseFloat(e.target.value))}
                                             placeholder="0"
-                                            className="p-2 rounded-lg bg-background border border-border/50 text-center"
+                                            className="p-2 rounded-lg bg-background/50 border border-border/50 text-center focus:ring-2 focus:ring-emerald-500/50"
                                         />
                                         <input
                                             type="number"
                                             value={set.reps || ""}
                                             onChange={(e) => updateSet(i, j, "reps", parseFloat(e.target.value))}
                                             placeholder="0"
-                                            className="p-2 rounded-lg bg-background border border-border/50 text-center"
+                                            className="p-2 rounded-lg bg-background/50 border border-border/50 text-center focus:ring-2 focus:ring-emerald-500/50"
                                         />
                                         <button onClick={() => removeSet(i, j)} className="p-2 text-muted hover:text-destructive">
                                             <Trash2 className="w-4 h-4" />
                                         </button>
                                     </div>
                                 ))}
-                                <button onClick={() => addSet(i)} className="text-xs text-primary font-medium flex items-center gap-1 mt-2">
+                                <button onClick={() => addSet(i)} className="text-xs text-emerald-500 font-medium flex items-center gap-1 mt-2">
                                     <Plus className="w-3 h-3" /> Add Set
                                 </button>
                             </div>
@@ -394,13 +394,13 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="How did it go?"
-                    className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary min-h-[80px] resize-none"
+                    className="w-full p-4 rounded-2xl bg-secondary/50 border border-border/10 focus:bg-secondary focus:ring-2 focus:ring-emerald-500/50 transition-all min-h-[80px] resize-none"
                 />
             </div>
 
             <button
                 onClick={handleSave}
-                className="w-full p-4 bg-primary text-primary-foreground rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all active:scale-95"
+                className="w-full p-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all active:scale-95"
             >
                 Save Activity
             </button>

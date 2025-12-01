@@ -163,7 +163,7 @@ export default function FoodTracker({ onClose, selectedDate }: { onClose: () => 
                                     key={type.id}
                                     onClick={() => setMealType(type.id)}
                                     className={`flex-1 flex items-center gap-3 p-3 rounded-xl transition-all border border-transparent ${mealType === type.id
-                                        ? "bg-primary text-primary-foreground shadow-lg scale-[1.02] ring-2 ring-primary ring-offset-2 ring-offset-background"
+                                        ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20 scale-[1.02]"
                                         : "bg-secondary/50 hover:bg-secondary text-muted-foreground hover:border-border/50"
                                         }`}
                                 >
@@ -186,7 +186,7 @@ export default function FoodTracker({ onClose, selectedDate }: { onClose: () => 
                 type="button"
                 onClick={save}
                 disabled={!mealType || items.length === 0}
-                className="w-full p-4 bg-primary text-primary-foreground rounded-2xl disabled:opacity-50 font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all active:scale-95"
+                className="w-full p-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-2xl disabled:opacity-50 font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all active:scale-95"
             >
                 Save Meal
             </button>
