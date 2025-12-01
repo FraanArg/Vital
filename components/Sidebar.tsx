@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, BarChart3, User, Settings, Utensils } from "lucide-react";
+import { LayoutDashboard, BarChart3, User, Settings, Utensils, FileText } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import StreakCounter from "./StreakCounter";
 
 const LINKS = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
     { href: "/stats", label: "Statistics", icon: BarChart3 },
     { href: "/foods", label: "Foods", icon: Utensils },
+    { href: "/report", label: "Report", icon: FileText },
     { href: "/profile", label: "Profile", icon: User },
     { href: "/settings", label: "Settings", icon: Settings },
 ];
@@ -24,6 +26,9 @@ export default function Sidebar() {
                     <span className="text-primary-foreground font-bold">V</span>
                 </div>
                 <h1 className="font-bold text-xl tracking-tight">Vital</h1>
+                <div className="ml-auto">
+                    <StreakCounter />
+                </div>
             </div>
 
             <nav className="flex-1 space-y-2">

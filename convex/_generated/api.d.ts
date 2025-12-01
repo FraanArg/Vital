@@ -10,6 +10,7 @@
 
 import type * as analysis from "../analysis.js";
 import type * as foodItems from "../foodItems.js";
+import type * as gamification from "../gamification.js";
 import type * as icons from "../icons.js";
 import type * as logs from "../logs.js";
 import type * as routines from "../routines.js";
@@ -25,6 +26,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   analysis: typeof analysis;
   foodItems: typeof foodItems;
+  gamification: typeof gamification;
   icons: typeof icons;
   logs: typeof logs;
   routines: typeof routines;

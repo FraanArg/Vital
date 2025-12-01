@@ -16,6 +16,8 @@ import Insights from "../components/Insights";
           <SmartSuggestions />
           <Insights />
 import OfflineIndicator from "../components/OfflineIndicator";
+import StreakCounter from "../components/StreakCounter";
+import DailyProgress from "../components/DailyProgress";
 
 const StatsOverview = dynamic(() => import("../components/StatsOverview"), {
   loading: () => (
@@ -60,7 +62,11 @@ export default function Home() {
         <div className="container max-w-md mx-auto p-4 space-y-6">
           <header className="flex items-center justify-between py-2">
             <h1 className="text-2xl font-bold tracking-tight">Vital</h1>
-            <OfflineIndicator />
+            <div className="flex items-center gap-2">
+              <DailyProgress selectedDate={selectedDate} />
+              <StreakCounter />
+              <OfflineIndicator />
+            </div>
           </header>
 
           <DateSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
