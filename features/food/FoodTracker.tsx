@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import FoodCombobox from "../../components/FoodCombobox";
 import { Clock } from "lucide-react";
+import SuggestionRow from "../../components/SuggestionRow";
 
 const MEAL_ROWS = [
     [
@@ -141,6 +142,15 @@ export default function FoodTracker({ onClose, selectedDate }: { onClose: () => 
                     </div>
                 </div>
             </div>
+
+            <SuggestionRow
+                suggestions={useQuery(api.suggestions.getSuggestions, { type: "food" })?.map(s => ({ name: s.name })) || []}
+                onSelect={(name) => {
+                    if (!items.includes(name)) {
+                        setItems([...items, name]);
+                    }
+                }}
+            />
 
             {/* Meal Type - Explicit Rows */}
             <div className="space-y-2">
