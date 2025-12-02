@@ -22,6 +22,13 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 import ConvexClientProvider from "../components/ConvexClientProvider";
 import { ToastProvider } from "../components/ui/ToastContext";
 

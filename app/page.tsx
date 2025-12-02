@@ -57,7 +57,7 @@ export default function Home() {
     <div className="flex flex-col h-full bg-background">
       <div className="flex-1 overflow-y-auto pb-24 sm:pb-8">
         <div className="container max-w-md mx-auto p-4 space-y-6">
-          <header className="flex items-center justify-between py-2">
+          <header className="flex items-center justify-between py-2 pt-safe">
             <h1 className="text-2xl font-bold tracking-tight">Vital</h1>
             <div className="flex items-center gap-2">
               <DailyProgress selectedDate={selectedDate} />

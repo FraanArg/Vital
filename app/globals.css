@@ -71,6 +71,8 @@ body {
   max-width: 100vw;
   overflow-x: hidden;
   height: 100%;
+  overscroll-behavior-y: none;
+  /* Prevent rubber-banding */
 }
 
 body {
@@ -216,5 +218,16 @@ button {
     color: black !important;
     text-shadow: none !important;
     box-shadow: none !important;
+  }
+}
+
+/* Safe Area Utilities */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
   }
 }
