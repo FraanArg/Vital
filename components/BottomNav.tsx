@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, BarChart2, User, Settings, Utensils, FileText, Dumbbell } from "lucide-react";
+import { LayoutDashboard, BarChart2, User, Folder } from "lucide-react";
 import { clsx } from "clsx";
 
 export default function BottomNav() {
@@ -11,11 +11,8 @@ export default function BottomNav() {
     const links = [
         { href: "/", label: "Today", icon: LayoutDashboard },
         { href: "/stats", label: "Stats", icon: BarChart2 },
-        { href: "/workouts", label: "Workouts", icon: Dumbbell },
-        { href: "/foods", label: "Foods", icon: Utensils },
-        { href: "/report", label: "Report", icon: FileText },
+        { href: "/library", label: "Library", icon: Folder },
         { href: "/profile", label: "Profile", icon: User },
-        { href: "/settings", label: "Settings", icon: Settings },
     ];
 
     return (

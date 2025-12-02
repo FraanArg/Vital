@@ -2,6 +2,8 @@
 
 import dynamic from "next/dynamic";
 import { Skeleton } from "../../components/ui/Skeleton";
+import Link from "next/link";
+import { FileText } from "lucide-react";
 
 const StatsOverview = dynamic(() => import("../../components/StatsOverview"), {
     loading: () => (
@@ -32,9 +34,14 @@ export default function StatisticsPage() {
     return (
         <div className="min-h-screen p-4 sm:p-8 pb-24 flex flex-col items-center">
             <div className="w-full max-w-2xl animate-fade-in">
-                <header className="mb-8">
-                    <h1 className="text-3xl font-bold tracking-tight">Statistics</h1>
-                    <p className="text-muted-foreground mt-2">Visualize your progress over time.</p>
+                <header className="mb-8 flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold tracking-tight">Statistics</h1>
+                        <p className="text-muted-foreground mt-2">Visualize your progress over time.</p>
+                    </div>
+                    <Link href="/report" className="p-3 bg-secondary hover:bg-secondary/80 rounded-xl transition-colors" title="View Report">
+                        <FileText className="w-5 h-5" />
+                    </Link>
                 </header>
 
                 <StatsOverview />

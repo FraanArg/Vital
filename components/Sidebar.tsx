@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, BarChart3, User, Settings, Utensils, FileText, Dumbbell } from "lucide-react";
+import { LayoutDashboard, BarChart3, User, Folder } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import StreakCounter from "./StreakCounter";
@@ -10,11 +10,8 @@ import StreakCounter from "./StreakCounter";
 const LINKS = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
     { href: "/stats", label: "Statistics", icon: BarChart3 },
-    { href: "/workouts", label: "Workouts", icon: Dumbbell },
-    { href: "/foods", label: "Foods", icon: Utensils },
-    { href: "/report", label: "Report", icon: FileText },
+    { href: "/library", label: "Library", icon: Folder },
     { href: "/profile", label: "Profile", icon: User },
-    { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 export default function Sidebar() {

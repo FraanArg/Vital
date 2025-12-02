@@ -3,8 +3,11 @@
 import { useState } from "react";
 import { useUser, useClerk } from "@clerk/nextjs";
 import SyncData from "../../components/SyncData";
-import { Settings, Shield, Mail, User as UserIcon, Loader2 } from "lucide-react";
+import { Settings, Shield, Mail, User as UserIcon, Loader2, Trash2 } from "lucide-react";
 import Image from "next/image";
+import { ThemeToggle } from "../../components/ThemeToggle";
+import DataExport from "../../components/DataExport";
+import { db } from "../../lib/db";
 
 export default function ProfilePage() {
     const { user, isLoaded } = useUser();
@@ -14,8 +17,15 @@ export default function ProfilePage() {
     const handleSignIn = () => {
         setIsLoading(true);
         openSignIn();
-        // Reset loading after a delay in case the modal is closed without signing in
         setTimeout(() => setIsLoading(false), 2000);
+    };
+
+    const clearData = async () => {
+        if (confirm("Are you sure you want to delete ALL data? This cannot be undone.")) {
+            await db.logs.clear();
+            alert("All data cleared.");
+            window.location.reload();
+        }
     };
 
     if (!isLoaded) {
@@ -57,7 +67,7 @@ export default function ProfilePage() {
         <div className="p-4 sm:p-6 max-w-2xl mx-auto space-y-8 pb-24 sm:pb-8">
             <div>
                 <h1 className="text-3xl font-bold tracking-tight mb-2">Profile</h1>
-                <p className="text-muted-foreground">Manage your account and data.</p>
+                <p className="text-muted-foreground">Manage your account and preferences.</p>
             </div>
 
             {/* Custom Profile Card */}
@@ -90,43 +100,51 @@ export default function ProfilePage() {
                 </button>
             </div>
 
-            <div className="grid gap-4">
-                <h3 className="text-lg font-semibold ml-1">Data Management</h3>
-                <SyncData />
-            </div>
+            <div className="grid gap-6">
+                {/* Appearance */}
+                <section className="bg-card p-6 rounded-2xl border border-border/50 shadow-sm">
+                    <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                        <Settings className="w-5 h-5" />
+                        Preferences
+                    </h2>
+                    <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Theme</span>
+                        <ThemeToggle />
+                    </div>
+                </section>
 
-            <div className="bg-card border border-border/50 rounded-2xl overflow-hidden">
-                <button
-                    onClick={() => openUserProfile()}
-                    className="w-full p-4 flex items-center justify-between hover:bg-secondary/50 transition-colors border-b border-border/50 last:border-0"
-                >
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-blue-500/10 text-blue-600 rounded-lg">
-                            <UserIcon className="w-5 h-5" />
+                {/* Data Management */}
+                <section className="bg-card p-6 rounded-2xl border border-border/50 shadow-sm">
+                    <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                        <Shield className="w-5 h-5" />
+                        Data Management
+                    </h2>
+
+                    <div className="space-y-6">
+                        <SyncData />
+
+                        <div className="flex items-center justify-between pt-4 border-t border-border/50">
+                            <div>
+                                <p className="font-medium">Export / Import</p>
+                                <p className="text-sm text-muted-foreground">Backup your data to JSON</p>
+                            </div>
+                            <DataExport />
                         </div>
-                        <div className="text-left">
-                            <p className="font-medium">Account Details</p>
-                            <p className="text-xs text-muted-foreground">Update name and photo</p>
+
+                        <div className="flex items-center justify-between pt-4 border-t border-border/50">
+                            <div>
+                                <p className="font-medium text-destructive">Danger Zone</p>
+                                <p className="text-sm text-muted-foreground">Delete all your logs permanently</p>
+                            </div>
+                            <button
+                                onClick={clearData}
+                                className="p-2 bg-destructive/10 text-destructive rounded-lg hover:bg-destructive/20 transition-colors"
+                            >
+                                <Trash2 className="w-5 h-5" />
+                            </button>
                         </div>
                     </div>
-                    <Settings className="w-4 h-4 text-muted-foreground" />
-                </button>
-
-                <button
-                    onClick={() => openUserProfile()}
-                    className="w-full p-4 flex items-center justify-between hover:bg-secondary/50 transition-colors"
-                >
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-purple-500/10 text-purple-600 rounded-lg">
-                            <Shield className="w-5 h-5" />
-                        </div>
-                        <div className="text-left">
-                            <p className="font-medium">Security</p>
-                            <p className="text-xs text-muted-foreground">Password and 2FA</p>
-                        </div>
-                    </div>
-                    <Settings className="w-4 h-4 text-muted-foreground" />
-                </button>
+                </section>
             </div>
         </div>
     );
