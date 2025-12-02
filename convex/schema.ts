@@ -57,6 +57,8 @@ export default defineSchema({
             day: v.optional(v.string()), // e.g. "Day 1", "Push", etc.
             targetRpe: v.optional(v.string()), // e.g. "8", "7-8"
             targetReps: v.optional(v.string()), // e.g. "8-12"
+            alternateName: v.optional(v.string()), // e.g. "Dead Bug"
+            notes: v.optional(v.string()), // e.g. "Pause at top"
         }))
     }).index("by_user", ["userId"]),
 

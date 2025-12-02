@@ -17,7 +17,7 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
     const updateRoutine = useMutation(api.routines.updateRoutine); // Need to implement this backend mutation if not exists, or just delete/create
 
     const [name, setName] = useState(initialData?.name || "");
-    const [selectedExercises, setSelectedExercises] = useState<{ name: string; defaultSets: number; day?: string; targetRpe?: string; targetReps?: string }[]>(
+    const [selectedExercises, setSelectedExercises] = useState<{ name: string; defaultSets: number; day?: string; targetRpe?: string; targetReps?: string; alternateName?: string; notes?: string }[]>(
         initialData?.exercises || []
     );
     const [days, setDays] = useState<string[]>(() => {
@@ -448,6 +448,29 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
                                                         onChange={(e) => updateExercise(ex.originalIndex, "targetReps", e.target.value)}
                                                         placeholder="-"
                                                         className="w-16 p-1 text-center rounded-lg bg-secondary text-sm"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-col gap-2 pl-10 mt-2">
+                                                <div className="flex items-center gap-2 w-full">
+                                                    <span className="text-xs text-muted-foreground whitespace-nowrap">Alt. Exercise</span>
+                                                    <input
+                                                        type="text"
+                                                        value={ex.alternateName || ""}
+                                                        onChange={(e) => updateExercise(ex.originalIndex, "alternateName", e.target.value)}
+                                                        placeholder="e.g. Dead Bug"
+                                                        className="flex-1 p-1 px-2 rounded-lg bg-secondary text-sm"
+                                                    />
+                                                </div>
+                                                <div className="flex items-center gap-2 w-full">
+                                                    <span className="text-xs text-muted-foreground whitespace-nowrap w-[68px]">Notes</span>
+                                                    <input
+                                                        type="text"
+                                                        value={ex.notes || ""}
+                                                        onChange={(e) => updateExercise(ex.originalIndex, "notes", e.target.value)}
+                                                        placeholder="e.g. Pause at top"
+                                                        className="flex-1 p-1 px-2 rounded-lg bg-secondary text-sm"
                                                     />
                                                 </div>
                                             </div>
