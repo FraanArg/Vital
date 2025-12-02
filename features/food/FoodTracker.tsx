@@ -91,9 +91,9 @@ export default function FoodTracker({ onClose, selectedDate, initialData }: { on
                     await createLog(logData);
                 }
                 onClose();
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Failed to save meal:", error);
-                alert("Failed to save meal. Please try again."); // Simple fallback for now
+                alert(`Failed to save meal: ${error.message || "Unknown error"}`);
                 setIsSaving(false);
             }
         }
