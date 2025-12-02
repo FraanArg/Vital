@@ -17,7 +17,7 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
     const updateRoutine = useMutation(api.routines.updateRoutine); // Need to implement this backend mutation if not exists, or just delete/create
 
     const [name, setName] = useState(initialData?.name || "");
-    const [selectedExercises, setSelectedExercises] = useState<{ name: string; defaultSets: number; day?: string; targetRpe?: string }[]>(
+    const [selectedExercises, setSelectedExercises] = useState<{ name: string; defaultSets: number; day?: string; targetRpe?: string; targetReps?: string }[]>(
         initialData?.exercises || []
     );
     const [days, setDays] = useState<string[]>(() => {
@@ -436,6 +436,16 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
                                                         type="text"
                                                         value={ex.targetRpe || ""}
                                                         onChange={(e) => updateExercise(ex.originalIndex, "targetRpe", e.target.value)}
+                                                        placeholder="-"
+                                                        className="w-16 p-1 text-center rounded-lg bg-secondary text-sm"
+                                                    />
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs text-muted-foreground">Target Reps</span>
+                                                    <input
+                                                        type="text"
+                                                        value={ex.targetReps || ""}
+                                                        onChange={(e) => updateExercise(ex.originalIndex, "targetReps", e.target.value)}
                                                         placeholder="-"
                                                         className="w-16 p-1 text-center rounded-lg bg-secondary text-sm"
                                                     />

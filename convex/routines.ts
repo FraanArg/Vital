@@ -9,6 +9,7 @@ export const createRoutine = mutation({
             defaultSets: v.number(),
             day: v.optional(v.string()),
             targetRpe: v.optional(v.string()),
+            targetReps: v.optional(v.string()),
         }))
     },
     handler: async (ctx, args) => {
@@ -60,6 +61,7 @@ export const updateRoutine = mutation({
             defaultSets: v.number(),
             day: v.optional(v.string()),
             targetRpe: v.optional(v.string()),
+            targetReps: v.optional(v.string()),
         }))
     },
     handler: async (ctx, args) => {
