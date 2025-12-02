@@ -8,13 +8,17 @@ import { useHaptic } from '../hooks/useHaptic';
 
 interface LogEntryProps {
     selectedDate: Date;
+    activeTracker: string | null;
+    onTrackerChange: (trackerId: string | null) => void;
+    editingLog?: any;
 }
 
-export default function LogEntry({ selectedDate }: LogEntryProps) {
-    const [activeTracker, setActiveTracker] = useState<string | null>(null);
+export default function LogEntry({ selectedDate, activeTracker, onTrackerChange, editingLog }: LogEntryProps) {
     const { trigger } = useHaptic();
 
-    const handleClose = () => setActiveTracker(null);
+    const handleClose = () => {
+        onTrackerChange(null);
+    };
 
     const activeTrackerConfig = TRACKERS.find(t => t.id === activeTracker);
 
@@ -39,7 +43,7 @@ export default function LogEntry({ selectedDate }: LogEntryProps) {
                             type="button"
                             onClick={() => {
                                 trigger("light");
-                                setActiveTracker(tracker.id);
+                                onTrackerChange(tracker.id);
                             }}
                             className="flex flex-col items-center justify-center p-4 rounded-2xl bg-card border border-border/50 shadow-sm hover:shadow-md hover:scale-105 active:scale-95 transition-all group"
                         >
@@ -79,7 +83,7 @@ export default function LogEntry({ selectedDate }: LogEntryProps) {
                                         <div className={`p-2 rounded-full ${activeTrackerConfig.bgColor}`}>
                                             <activeTrackerConfig.icon className={`w-5 h-5 ${activeTrackerConfig.color}`} />
                                         </div>
-                                        <h2 className="text-xl font-bold">{activeTrackerConfig.label}</h2>
+                                        <h2 className="text-xl font-bold">{editingLog ? `Edit ${activeTrackerConfig.label}` : activeTrackerConfig.label}</h2>
                                     </div>
                                     <button
                                         onClick={() => {
@@ -96,6 +100,7 @@ export default function LogEntry({ selectedDate }: LogEntryProps) {
                                 <activeTrackerConfig.component
                                     onClose={handleClose}
                                     selectedDate={selectedDate}
+                                    initialData={editingLog}
                                 />
                             </div>
                         </motion.div>

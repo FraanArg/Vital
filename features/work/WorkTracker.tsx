@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
-export default function WorkTracker({ onClose, selectedDate }: { onClose: () => void, selectedDate: Date }) {
-    const [hours, setHours] = useState(8);
+export default function WorkTracker({ onClose, selectedDate, initialData }: { onClose: () => void, selectedDate: Date, initialData?: any }) {
+    const [hours, setHours] = useState(initialData?.work || 8);
     const createLog = useMutation(api.logs.createLog).withOptimisticUpdate((localStore, args) => {
         const { date, ...logData } = args;
         const logDate = new Date(date);
@@ -27,9 +27,18 @@ export default function WorkTracker({ onClose, selectedDate }: { onClose: () => 
             localStore.setQuery(api.logs.getLogs, queryArgs, [...existingLogs, newLog]);
         }
     });
+    const updateLog = useMutation(api.logs.updateLog);
 
     const save = async () => {
-        await createLog({ work: hours, date: selectedDate.toISOString() });
+        if (initialData) {
+            await updateLog({
+                id: initialData._id,
+                work: hours,
+                date: selectedDate.toISOString()
+            });
+        } else {
+            await createLog({ work: hours, date: selectedDate.toISOString() });
+        }
         onClose();
     };
 

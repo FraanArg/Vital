@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
-export default function JournalTracker({ onClose, selectedDate }: { onClose: () => void, selectedDate: Date }) {
-    const [entry, setEntry] = useState('');
+export default function JournalTracker({ onClose, selectedDate, initialData }: { onClose: () => void, selectedDate: Date, initialData?: any }) {
+    const [entry, setEntry] = useState(initialData?.journal || '');
     const createLog = useMutation(api.logs.createLog).withOptimisticUpdate((localStore, args) => {
         const { date, ...logData } = args;
         const logDate = new Date(date);
@@ -27,10 +27,19 @@ export default function JournalTracker({ onClose, selectedDate }: { onClose: () 
             localStore.setQuery(api.logs.getLogs, queryArgs, [...existingLogs, newLog]);
         }
     });
+    const updateLog = useMutation(api.logs.updateLog);
 
     const save = async () => {
         if (entry.trim()) {
-            await createLog({ journal: entry, date: selectedDate.toISOString() });
+            if (initialData) {
+                await updateLog({
+                    id: initialData._id,
+                    journal: entry,
+                    date: selectedDate.toISOString()
+                });
+            } else {
+                await createLog({ journal: entry, date: selectedDate.toISOString() });
+            }
             onClose();
         }
     };

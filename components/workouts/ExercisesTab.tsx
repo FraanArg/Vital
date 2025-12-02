@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Search, Plus, Dumbbell, Loader2 } from "lucide-react";
-import { Skeleton } from "../ui/Skeleton";
 
 export default function ExercisesTab() {
     const exercises = useQuery(api.exercises.getExercises);
@@ -158,7 +157,7 @@ export default function ExercisesTab() {
                         className="w-full text-left p-3 rounded-xl hover:bg-secondary transition-colors flex items-center gap-2 text-primary"
                     >
                         <Plus className="w-5 h-5" />
-                        <span className="font-medium">Create "{search}"</span>
+                        <span className="font-medium">Create &quot;{search}&quot;</span>
                     </button>
                 )}
 

@@ -29,38 +29,20 @@ const MEAL_ROWS = [
 const HOURS = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
 const MINUTES = ["00", "15", "30", "45"];
 
-export default function FoodTracker({ onClose, selectedDate }: { onClose: () => void, selectedDate: Date }) {
-    const [mealType, setMealType] = useState<string | null>(null);
-    const [selectedHour, setSelectedHour] = useState("12");
-    const [selectedMinute, setSelectedMinute] = useState("00");
-    const [items, setItems] = useState<string[]>([]);
+export default function FoodTracker({ onClose, selectedDate, initialData }: { onClose: () => void, selectedDate: Date, initialData?: any }) {
+    const [mealType, setMealType] = useState<string | null>(initialData?.meal?.type || null);
+    const [selectedHour, setSelectedHour] = useState(initialData?.meal?.time?.split(':')[0] || "12");
+    const [selectedMinute, setSelectedMinute] = useState(initialData?.meal?.time?.split(':')[1] || "00");
+    const [items, setItems] = useState<string[]>(initialData?.meal?.items || []);
     const [isSaving, setIsSaving] = useState(false);
 
-    const createLog = useMutation(api.logs.createLog).withOptimisticUpdate((localStore, args) => {
-        const { date, ...logData } = args;
-        const logDate = new Date(date);
-        const start = new Date(logDate);
-        start.setHours(0, 0, 0, 0);
-        const end = new Date(logDate);
-        end.setHours(23, 59, 59, 999);
+    const createLog = useMutation(api.logs.createLog);
+    const updateLog = useMutation(api.logs.updateLog);
 
-        const queryArgs = { from: start.toISOString(), to: end.toISOString() };
-        const existingLogs = localStore.getQuery(api.logs.getLogs, queryArgs);
-
-        if (existingLogs) {
-            const newLog: any = {
-                _id: crypto.randomUUID(),
-                _creationTime: Date.now(),
-                userId: "temp-optimistic-id",
-                date: date,
-                ...logData
-            };
-            localStore.setQuery(api.logs.getLogs, queryArgs, [...existingLogs, newLog]);
-        }
-    });
-
-    // Auto-select meal and time based on current time
+    // Auto-select meal and time based on current time ONLY if not editing
     useEffect(() => {
+        if (initialData) return;
+
         const now = new Date();
         const currentHour = now.getHours();
         const currentMinute = now.getMinutes();
@@ -84,20 +66,29 @@ export default function FoodTracker({ onClose, selectedDate }: { onClose: () => 
             else if (currentHour >= 21 && currentHour < 23) setMealType("cena");
             else setMealType("postre");
         }
-    }, []);
+    }, [initialData]);
 
     const save = async () => {
         if (mealType && items.length > 0) {
             setIsSaving(true);
             try {
-                await createLog({
+                const logData = {
                     meal: {
                         type: mealType,
                         items: items,
                         time: `${selectedHour}:${selectedMinute}`
                     },
                     date: selectedDate.toISOString()
-                });
+                };
+
+                if (initialData) {
+                    await updateLog({
+                        id: initialData._id,
+                        ...logData
+                    });
+                } else {
+                    await createLog(logData);
+                }
                 onClose();
             } catch (error) {
                 console.error("Failed to save meal:", error);

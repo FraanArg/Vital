@@ -41,13 +41,32 @@ function PrefetchDays({ date }: { date: Date }) {
   return null;
 }
 
+import { TRACKERS } from "../lib/tracker-registry";
+
 export default function Home() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isMounted, setIsMounted] = useState(false);
+  const [activeTracker, setActiveTracker] = useState<string | null>(null);
+  const [editingLog, setEditingLog] = useState<any>(null);
 
   useEffect(() => {
     setTimeout(() => setIsMounted(true), 0);
   }, []);
+
+  const handleEdit = (log: any) => {
+    const tracker = TRACKERS.find(t => t.matcher(log));
+    if (tracker) {
+      setEditingLog(log);
+      setActiveTracker(tracker.id);
+    }
+  };
+
+  const handleTrackerChange = (trackerId: string | null) => {
+    setActiveTracker(trackerId);
+    if (!trackerId) {
+      setEditingLog(null);
+    }
+  };
 
   if (!isMounted) {
     return null;
@@ -72,7 +91,12 @@ export default function Home() {
 
           <StatsOverview selectedDate={selectedDate} />
 
-          <LogEntry selectedDate={selectedDate} />
+          <LogEntry
+            selectedDate={selectedDate}
+            activeTracker={activeTracker}
+            onTrackerChange={handleTrackerChange}
+            editingLog={editingLog}
+          />
 
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -81,7 +105,7 @@ export default function Home() {
                 {format(selectedDate, "MMMM d, yyyy")}
               </span>
             </div>
-            <LogList selectedDate={selectedDate} />
+            <LogList selectedDate={selectedDate} onEdit={handleEdit} />
           </div>
         </div>
       </div>

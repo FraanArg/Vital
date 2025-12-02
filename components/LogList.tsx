@@ -12,9 +12,10 @@ import { useToast } from "./ui/ToastContext";
 
 interface LogListProps {
     selectedDate: Date;
+    onEdit?: (log: any) => void;
 }
 
-export default function LogList({ selectedDate }: LogListProps) {
+export default function LogList({ selectedDate, onEdit }: LogListProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const iconMappings = useQuery(api.icons.getIconMappings);
     const { toast } = useToast();
@@ -134,11 +135,12 @@ export default function LogList({ selectedDate }: LogListProps) {
                                         handleDelete(log._id as Id<"logs">);
                                     }
                                 }}
+                                onClick={() => onEdit?.(log)}
                                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
                                 animate={{ opacity: 1, y: 0, scale: 1, x: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
                                 whileDrag={{ scale: 1.02 }}
-                                className={`bg-card p-4 rounded-2xl shadow-sm border flex items-center justify-between relative overflow-hidden border-border/50 z-10 touch-pan-y ${tracker.bgColor.replace('bg-', 'bg-')}`}
+                                className={`bg-card p-4 rounded-2xl shadow-sm border flex items-center justify-between relative overflow-hidden border-border/50 z-10 touch-pan-y cursor-pointer ${tracker.bgColor.replace('bg-', 'bg-')}`}
                                 style={{ x: 0 }}
                             >
                                 {/* Hover Effect Background (Desktop) */}

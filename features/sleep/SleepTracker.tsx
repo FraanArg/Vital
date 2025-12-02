@@ -5,12 +5,13 @@ import { api } from "../../convex/_generated/api";
 import { Loader2 } from "lucide-react";
 import { useHaptic } from "../../hooks/useHaptic";
 
-export default function SleepTracker({ onClose, selectedDate }: { onClose: () => void, selectedDate: Date }) {
-    const [start, setStart] = useState("23:00");
-    const [end, setEnd] = useState("07:00");
-    const [duration, setDuration] = useState(8);
+export default function SleepTracker({ onClose, selectedDate, initialData }: { onClose: () => void, selectedDate: Date, initialData?: any }) {
+    const [start, setStart] = useState(initialData?.sleep_start || "23:00");
+    const [end, setEnd] = useState(initialData?.sleep_end || "07:00");
+    const [duration, setDuration] = useState(initialData?.sleep || 8);
     const [isSaving, setIsSaving] = useState(false);
     const { trigger } = useHaptic();
+
     const createLog = useMutation(api.logs.createLog).withOptimisticUpdate((localStore, args) => {
         const { date, ...logData } = args;
         const logDate = new Date(date);
@@ -33,6 +34,7 @@ export default function SleepTracker({ onClose, selectedDate }: { onClose: () =>
             localStore.setQuery(api.logs.getLogs, queryArgs, [...existingLogs, newLog]);
         }
     });
+    const updateLog = useMutation(api.logs.updateLog);
 
     const { isAuthenticated, isLoading: isAuthLoading } = useConvexAuth();
 
@@ -66,12 +68,21 @@ export default function SleepTracker({ onClose, selectedDate }: { onClose: () =>
             const logDate = new Date(selectedDate);
             logDate.setHours(endH, endM, 0, 0);
 
-            await createLog({
+            const logData = {
                 sleep: duration,
                 sleep_start: start,
                 sleep_end: end,
                 date: logDate.toISOString()
-            });
+            };
+
+            if (initialData) {
+                await updateLog({
+                    id: initialData._id,
+                    ...logData
+                });
+            } else {
+                await createLog(logData);
+            }
             onClose();
         } catch (error) {
             console.error("Failed to save sleep log:", error);

@@ -4,8 +4,8 @@ import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useHaptic } from "../../hooks/useHaptic";
 
-export default function WaterTracker({ onClose, selectedDate }: { onClose: () => void, selectedDate: Date }) {
-    const [liters, setLiters] = useState(0.5);
+export default function WaterTracker({ onClose, selectedDate, initialData }: { onClose: () => void, selectedDate: Date, initialData?: any }) {
+    const [liters, setLiters] = useState(initialData?.water || 0.5);
     const { trigger } = useHaptic();
     const createLog = useMutation(api.logs.createLog).withOptimisticUpdate((localStore, args) => {
         const { date, ...logData } = args;
@@ -29,9 +29,18 @@ export default function WaterTracker({ onClose, selectedDate }: { onClose: () =>
             localStore.setQuery(api.logs.getLogs, queryArgs, [...existingLogs, newLog]);
         }
     });
+    const updateLog = useMutation(api.logs.updateLog);
 
     const save = async () => {
-        await createLog({ water: liters, date: selectedDate.toISOString() });
+        if (initialData) {
+            await updateLog({
+                id: initialData._id,
+                water: liters,
+                date: selectedDate.toISOString()
+            });
+        } else {
+            await createLog({ water: liters, date: selectedDate.toISOString() });
+        }
         onClose();
     };
 
