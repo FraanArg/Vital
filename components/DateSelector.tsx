@@ -50,8 +50,41 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
 
     const isToday = (date: Date) => isSameDay(date, new Date());
 
+    // Swipe Logic
+    const touchStart = useRef<number | null>(null);
+    const touchEnd = useRef<number | null>(null);
+
+    const minSwipeDistance = 50;
+
+    const onTouchStart = (e: React.TouchEvent) => {
+        touchEnd.current = null;
+        touchStart.current = e.targetTouches[0].clientX;
+    };
+
+    const onTouchMove = (e: React.TouchEvent) => {
+        touchEnd.current = e.targetTouches[0].clientX;
+    };
+
+    const onTouchEnd = () => {
+        if (!touchStart.current || !touchEnd.current) return;
+        const distance = touchStart.current - touchEnd.current;
+        const isLeftSwipe = distance > minSwipeDistance;
+        const isRightSwipe = distance < -minSwipeDistance;
+
+        if (isLeftSwipe) {
+            handleNextDay();
+        } else if (isRightSwipe) {
+            handlePrevDay();
+        }
+    };
+
     return (
-        <div className="w-full mb-8">
+        <div
+            className="w-full mb-8 touch-pan-y"
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+        >
             <div className="flex items-center justify-between mb-6 px-2">
                 <h2 className="text-2xl font-bold tracking-tight">
                     {isToday(selectedDate) ? "Today" : format(selectedDate, "MMMM d")}

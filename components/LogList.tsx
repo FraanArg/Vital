@@ -102,30 +102,52 @@ export default function LogList({ selectedDate }: LogListProps) {
                     const Icon = tracker.getIcon ? tracker.getIcon(log, iconMappings) : tracker.icon;
 
                     return (
-                        <motion.div
-                            key={log._id}
-                            layout
-                            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
-                            className={`bg-card p-4 rounded-2xl shadow-sm border flex items-center justify-between group relative overflow-hidden border-border/50 hover:border-primary/20`}
-                        >
-                            {/* Hover Effect Background */}
-                            <div className={`absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity pointer-events-none ${tracker.bgColor.replace('bg-', 'bg-')}`} />
-
-                            <div className="flex items-center gap-4 relative z-10">
-                                <div className={`p-3 rounded-xl ${tracker.bgColor} ${tracker.color}`}>
-                                    <Icon className="w-5 h-5" />
-                                </div>
-                                <span className="font-medium">{tracker.renderContent(log)}</span>
+                        <div className="relative mb-3 group" key={log._id}>
+                            {/* Swipe Background (Trash) */}
+                            <div className="absolute inset-0 bg-red-500/10 rounded-2xl flex items-center justify-end pr-4 border border-red-500/20">
+                                <Trash2 className="w-5 h-5 text-red-500" />
                             </div>
-                            <button
-                                onClick={() => deleteLog({ id: log._id as Id<"logs"> })}
-                                className="p-2 text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100 active:scale-90 relative z-10"
+
+                            <motion.div
+                                layout
+                                drag="x"
+                                dragConstraints={{ left: 0, right: 0 }}
+                                dragElastic={{ left: 0.5, right: 0.05 }}
+                                onDragEnd={(_, info) => {
+                                    if (info.offset.x < -100) {
+                                        deleteLog({ id: log._id as Id<"logs"> });
+                                    }
+                                }}
+                                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1, x: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+                                whileDrag={{ scale: 1.02 }}
+                                className={`bg-card p-4 rounded-2xl shadow-sm border flex items-center justify-between relative overflow-hidden border-border/50 z-10 touch-pan-y ${tracker.bgColor.replace('bg-', 'bg-')}`}
+                                style={{ x: 0 }}
                             >
-                                <Trash2 className="w-4 h-4" />
-                            </button>
-                        </motion.div>
+                                {/* Hover Effect Background (Desktop) */}
+                                <div className={`absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity pointer-events-none ${tracker.bgColor.replace('bg-', 'bg-')}`} />
+
+                                <div className="flex items-center gap-4 relative z-10 pointer-events-none">
+                                    <div className={`p-3 rounded-xl ${tracker.bgColor} ${tracker.color}`}>
+                                        <Icon className="w-5 h-5" />
+                                    </div>
+                                    <span className="font-medium">{tracker.renderContent(log)}</span>
+                                </div>
+
+                                {/* Desktop Trash Button (Hidden on Mobile usually, but good to keep for mouse users) */}
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        deleteLog({ id: log._id as Id<"logs"> });
+                                    }}
+                                    className="hidden sm:block p-2 text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100 active:scale-90 relative z-10"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                </button>
+                                {/* Mobile Chevron/Indicator (Optional, maybe just the swipe hint is enough) */}
+                            </motion.div>
+                        </div>
                     );
                 })}
             </AnimatePresence>

@@ -51,6 +51,7 @@ export default function WaterTracker({ onClose, selectedDate }: { onClose: () =>
                 <div className="flex items-center justify-center gap-1">
                     <input
                         autoFocus
+                        inputMode="decimal"
                         type="number"
                         value={liters}
                         onChange={(e) => setLiters(parseFloat(e.target.value) || 0)}

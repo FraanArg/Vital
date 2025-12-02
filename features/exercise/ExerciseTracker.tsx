@@ -322,6 +322,7 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
                 <div className="space-y-2">
                     <label className="text-sm font-medium text-muted-foreground">Distance (km)</label>
                     <input
+                        inputMode="decimal"
                         type="number"
                         value={distance}
                         onChange={(e) => setDistance(parseFloat(e.target.value))}
@@ -351,6 +352,7 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
                                     <div key={j} className="grid grid-cols-[auto_1fr_1fr_auto] gap-2 items-center">
                                         <span className="w-6 text-center text-sm font-medium text-muted-foreground">{j + 1}</span>
                                         <input
+                                            inputMode="decimal"
                                             type="number"
                                             value={set.weight || ""}
                                             onChange={(e) => updateSet(i, j, "weight", parseFloat(e.target.value))}
@@ -358,6 +360,7 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
                                             className="p-2 rounded-lg bg-background/50 border border-border/50 text-center focus:ring-2 focus:ring-emerald-500/50"
                                         />
                                         <input
+                                            inputMode="decimal"
                                             type="number"
                                             value={set.reps || ""}
                                             onChange={(e) => updateSet(i, j, "reps", parseFloat(e.target.value))}
