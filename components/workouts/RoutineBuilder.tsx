@@ -105,6 +105,7 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
     const createExercise = useMutation(api.exercises.createExercise);
     const [isCreatingExercise, setIsCreatingExercise] = useState(false);
     const [newExerciseData, setNewExerciseData] = useState({ name: "", muscle: "Chest", category: "Barbell", icon: "💪" });
+    const [activeField, setActiveField] = useState<"muscle" | "category" | null>(null);
 
     const handleCreateExercise = async () => {
         if (!newExerciseData.name) return;
@@ -168,37 +169,59 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
+                            <div className="space-y-2 relative">
                                 <label className="text-sm font-medium">Muscle</label>
                                 <input
-                                    list="rb-muscles"
                                     type="text"
                                     value={newExerciseData.muscle}
                                     onChange={e => setNewExerciseData({ ...newExerciseData, muscle: e.target.value })}
+                                    onFocus={() => setActiveField("muscle")}
+                                    onBlur={() => setTimeout(() => setActiveField(null), 200)}
                                     className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary"
                                     placeholder="Select or type..."
                                 />
-                                <datalist id="rb-muscles">
-                                    {["Chest", "Back", "Legs", "Shoulders", "Arms", "Core", "Cardio", "Other"].map(m => (
-                                        <option key={m} value={m} />
-                                    ))}
-                                </datalist>
+                                {activeField === "muscle" && (
+                                    <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg z-10 max-h-48 overflow-y-auto">
+                                        {["Chest", "Back", "Legs", "Shoulders", "Arms", "Core", "Cardio", "Other"]
+                                            .filter(m => m.toLowerCase().includes(newExerciseData.muscle.toLowerCase()))
+                                            .map(m => (
+                                                <button
+                                                    key={m}
+                                                    onClick={() => setNewExerciseData({ ...newExerciseData, muscle: m })}
+                                                    className="w-full text-left px-4 py-2 hover:bg-secondary transition-colors text-sm"
+                                                >
+                                                    {m}
+                                                </button>
+                                            ))}
+                                    </div>
+                                )}
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-2 relative">
                                 <label className="text-sm font-medium">Category</label>
                                 <input
-                                    list="rb-categories"
                                     type="text"
                                     value={newExerciseData.category}
                                     onChange={e => setNewExerciseData({ ...newExerciseData, category: e.target.value })}
+                                    onFocus={() => setActiveField("category")}
+                                    onBlur={() => setTimeout(() => setActiveField(null), 200)}
                                     className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary"
                                     placeholder="Select or type..."
                                 />
-                                <datalist id="rb-categories">
-                                    {["Barbell", "Dumbbell", "Machine", "Bodyweight", "Cable", "Weighted Bodyweight", "Assisted Bodyweight", "Kettlebell", "Plyometric", "Cardio", "Other"].map(c => (
-                                        <option key={c} value={c} />
-                                    ))}
-                                </datalist>
+                                {activeField === "category" && (
+                                    <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg z-10 max-h-48 overflow-y-auto">
+                                        {["Barbell", "Dumbbell", "Machine", "Bodyweight", "Cable", "Weighted Bodyweight", "Assisted Bodyweight", "Kettlebell", "Plyometric", "Cardio", "Other"]
+                                            .filter(c => c.toLowerCase().includes(newExerciseData.category.toLowerCase()))
+                                            .map(c => (
+                                                <button
+                                                    key={c}
+                                                    onClick={() => setNewExerciseData({ ...newExerciseData, category: c })}
+                                                    className="w-full text-left px-4 py-2 hover:bg-secondary transition-colors text-sm"
+                                                >
+                                                    {c}
+                                                </button>
+                                            ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
 
