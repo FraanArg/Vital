@@ -56,6 +56,9 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
         name: string;
         sets: { reps: number; weight: number; rpe?: number }[];
         targetRpe?: string;
+        targetReps?: string;
+        alternateName?: string;
+        routineNotes?: string;
         notes?: string;
     }[]>(initialData?.exercise?.workout || []);
 
@@ -174,6 +177,9 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
             name: e.name,
             sets: Array(e.defaultSets).fill({ reps: 0, weight: 0 }),
             targetRpe: e.targetRpe,
+            targetReps: e.targetReps,
+            alternateName: e.alternateName,
+            routineNotes: e.notes,
             notes: ""
         })));
         setGymMode("log");
@@ -461,14 +467,43 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
                     {workout.map((exercise, i) => (
                         <div key={i} className="space-y-3 p-4 rounded-2xl bg-secondary/20 border border-border/50">
                             <div className="flex flex-col gap-1">
-                                <div className="flex justify-between items-center">
-                                    <h4 className="font-bold">{exercise.name}</h4>
-                                    {exercise.targetRpe && (
-                                        <span className="text-xs font-medium px-2 py-1 bg-primary/10 text-primary rounded-full">
-                                            Target RPE: {exercise.targetRpe}
-                                        </span>
-                                    )}
+                                <div className="flex justify-between items-start">
+                                    <div className="flex flex-col">
+                                        <h4 className="font-bold text-lg">{exercise.name}</h4>
+                                        {exercise.alternateName && (
+                                            <button
+                                                onClick={() => {
+                                                    const newWorkout = [...workout];
+                                                    const currentName = newWorkout[i].name;
+                                                    newWorkout[i].name = newWorkout[i].alternateName!;
+                                                    newWorkout[i].alternateName = currentName;
+                                                    setWorkout(newWorkout);
+                                                }}
+                                                className="text-xs text-muted-foreground hover:text-primary text-left flex items-center gap-1"
+                                            >
+                                                <Activity className="w-3 h-3" />
+                                                Switch to {exercise.alternateName}
+                                            </button>
+                                        )}
+                                    </div>
+                                    <div className="flex flex-col items-end gap-1">
+                                        {exercise.targetRpe && (
+                                            <span className="text-xs font-medium px-2 py-1 bg-primary/10 text-primary rounded-full whitespace-nowrap">
+                                                Target RPE: {exercise.targetRpe}
+                                            </span>
+                                        )}
+                                        {exercise.targetReps && (
+                                            <span className="text-xs font-medium px-2 py-1 bg-secondary text-muted-foreground rounded-full whitespace-nowrap">
+                                                Target: {exercise.targetReps}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
+                                {exercise.routineNotes && (
+                                    <div className="text-xs text-amber-500/90 bg-amber-500/10 p-2 rounded-lg mt-1">
+                                        💡 {exercise.routineNotes}
+                                    </div>
+                                )}
                                 <ExerciseHistory exerciseName={exercise.name} />
                             </div>
 
