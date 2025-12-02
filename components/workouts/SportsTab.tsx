@@ -72,7 +72,7 @@ export default function SportsTab() {
                     {DEFAULT_SPORTS.map((sport) => {
                         const mapping = iconMappings.find(m => m.key === sport.id && m.type === "sport");
                         const label = mapping?.customLabel || sport.label;
-                        const iconName = mapping?.icon || "Trophy"; // Fallback if mapping exists but icon is weird, though usually it has icon
+                        // const iconName = mapping?.icon || "Trophy"; // Fallback if mapping exists but icon is weird, though usually it has icon
                         // Actually, if mapping exists, use its icon. If not, use sport.icon (component)
                         // But wait, sport.icon is a Component, mapping.icon is a string name.
                         // We need to resolve the component.

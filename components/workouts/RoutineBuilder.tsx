@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Doc } from "../../convex/_generated/dataModel";
-import { Search, Plus, Trash2, X, Save, GripVertical } from "lucide-react";
+import { Search, Plus, Trash2, X, GripVertical } from "lucide-react";
 
 interface RoutineBuilderProps {
     initialData?: Doc<"routines"> | null;
@@ -61,8 +61,9 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
         setSelectedExercises(selectedExercises.filter((_, i) => i !== index));
     };
 
-    const updateExercise = (index: number, field: keyof typeof selectedExercises[0], value: any) => {
+    const updateExercise = (index: number, field: keyof typeof selectedExercises[0], value: string | number) => {
         const updated = [...selectedExercises];
+        // @ts-ignore
         updated[index] = { ...updated[index], [field]: value };
         setSelectedExercises(updated);
     };
@@ -236,7 +237,7 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
                             className="w-full text-left p-3 rounded-xl hover:bg-secondary transition-colors flex items-center gap-2 text-primary"
                         >
                             <Plus className="w-5 h-5" />
-                            <span className="font-medium">Create "{search}"</span>
+                            <span className="font-medium">Create &quot;{search}&quot;</span>
                         </button>
                     )}
                 </div>
@@ -281,8 +282,8 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
                                 <button
                                     onClick={() => setActiveDay(day)}
                                     className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${activeDay === day
-                                            ? "bg-primary text-primary-foreground"
-                                            : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+                                        ? "bg-primary text-primary-foreground"
+                                        : "bg-secondary text-muted-foreground hover:bg-secondary/80"
                                         }`}
                                 >
                                     {day}

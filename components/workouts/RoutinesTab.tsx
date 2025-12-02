@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { Plus, Trash2, ChevronRight, Dumbbell } from "lucide-react";
+import { Plus, Trash2, Dumbbell } from "lucide-react";
 import { Skeleton } from "../ui/Skeleton";
 import RoutineBuilder from "./RoutineBuilder";
 import { Doc } from "../../convex/_generated/dataModel";

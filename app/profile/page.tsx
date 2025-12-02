@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useUser, useClerk } from "@clerk/nextjs";
 import SyncData from "../../components/SyncData";
-import { Settings, Shield, Mail, User as UserIcon, Loader2, Trash2 } from "lucide-react";
+import { Settings, Shield, Mail, Loader2, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { ThemeToggle } from "../../components/ThemeToggle";
 import DataExport from "../../components/DataExport";
