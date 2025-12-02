@@ -100,7 +100,7 @@ export default function FoodTracker({ onClose, selectedDate, initialData }: { on
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 pb-4">
             <div className="text-center space-y-2">
                 <h3 className="text-lg font-medium text-muted-foreground">Log Meal</h3>
                 <div className="flex items-center justify-center gap-2">

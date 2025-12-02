@@ -51,6 +51,22 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
     const [distance, setDistance] = useState<number | "">(initialData?.exercise?.distance || "");
     const [notes, setNotes] = useState(initialData?.exercise?.notes || "");
 
+    // Time tracking
+    const [timeMode, setTimeMode] = useState<"duration" | "range">("duration");
+    const [startTime, setStartTime] = useState("18:00");
+    const [endTime, setEndTime] = useState("19:30");
+
+    // Calculate duration from range
+    useEffect(() => {
+        if (timeMode === "range") {
+            const [startH, startM] = startTime.split(':').map(Number);
+            const [endH, endM] = endTime.split(':').map(Number);
+            let diff = (endH * 60 + endM) - (startH * 60 + startM);
+            if (diff < 0) diff += 24 * 60; // Handle overnight
+            setDuration(diff);
+        }
+    }, [startTime, endTime, timeMode]);
+
     const [gymMode, setGymMode] = useState<"select" | "log">(initialData?.exercise?.workout ? "log" : "select");
     const [workout, setWorkout] = useState<{
         name: string;
@@ -409,7 +425,7 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
 
     // Main Logging View
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 pb-4">
             <div className="flex items-center justify-between">
                 <button
                     onClick={() => {
@@ -429,21 +445,61 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
                 <div className="w-8" /> {/* Spacer */}
             </div>
 
-            {/* Duration Input */}
-            <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Duration (minutes)</label>
-                <div className="flex items-center gap-4">
-                    <input
-                        type="range"
-                        min="10"
-                        max="180"
-                        step="5"
-                        value={duration}
-                        onChange={(e) => setDuration(parseInt(e.target.value))}
-                        className="flex-1 accent-primary"
-                    />
-                    <span className="text-xl font-bold w-16 text-right">{duration}m</span>
+            {/* Duration / Time Input */}
+            <div className="space-y-4">
+                <div className="flex justify-center p-1 bg-secondary rounded-xl">
+                    <button
+                        onClick={() => setTimeMode("duration")}
+                        className={`flex-1 py-1.5 text-sm font-medium rounded-lg transition-all ${timeMode === "duration" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                    >
+                        Duration
+                    </button>
+                    <button
+                        onClick={() => setTimeMode("range")}
+                        className={`flex-1 py-1.5 text-sm font-medium rounded-lg transition-all ${timeMode === "range" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                    >
+                        Time Range
+                    </button>
                 </div>
+
+                {timeMode === "duration" ? (
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-muted-foreground">Duration (minutes)</label>
+                        <div className="flex items-center gap-4">
+                            <input
+                                type="range"
+                                min="10"
+                                max="180"
+                                step="5"
+                                value={duration}
+                                onChange={(e) => setDuration(parseInt(e.target.value))}
+                                className="flex-1 accent-primary"
+                            />
+                            <span className="text-xl font-bold w-16 text-right">{duration}m</span>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground">Start Time</label>
+                            <input
+                                type="time"
+                                value={startTime}
+                                onChange={(e) => setStartTime(e.target.value)}
+                                className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary text-center font-semibold"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground">End Time</label>
+                            <input
+                                type="time"
+                                value={endTime}
+                                onChange={(e) => setEndTime(e.target.value)}
+                                className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary text-center font-semibold"
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Distance Input (Run/Walk) */}

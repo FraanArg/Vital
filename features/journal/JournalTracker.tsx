@@ -45,7 +45,7 @@ export default function JournalTracker({ onClose, selectedDate, initialData }: {
     };
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-4 pb-4">
             <h3 className="text-xl font-semibold">Daily Journal</h3>
             <textarea
                 value={entry}
