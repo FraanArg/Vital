@@ -63,7 +63,6 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
 
     const updateExercise = (index: number, field: keyof typeof selectedExercises[0], value: string | number) => {
         const updated = [...selectedExercises];
-        // @ts-ignore
         updated[index] = { ...updated[index], [field]: value };
         setSelectedExercises(updated);
     };
