@@ -189,7 +189,8 @@ export const getExerciseHistory = query({
                 const workout = log.exercise?.workout?.find(w => w.name === args.exerciseName);
                 return {
                     date: log.date,
-                    sets: workout?.sets || []
+                    sets: workout?.sets || [],
+                    notes: workout?.notes
                 };
             })
             .slice(0, args.limit || 5);

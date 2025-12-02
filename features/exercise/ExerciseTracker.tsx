@@ -105,15 +105,27 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
         }
     };
 
+    const [selectedRoutine, setSelectedRoutine] = useState<Doc<"routines"> | null>(null);
+
     const handleRoutineSelect = (routine: Doc<"routines">) => {
         const uniqueDays = Array.from(new Set(routine.exercises.map(e => e.day || "Day 1")));
 
-        // If multiple days, we should ideally let the user pick. 
-        // For now, let's just pick the first one to avoid UI complexity in this step
-        // Or better: If we had a modal, we'd show it. 
-        // Let's just load the first day's exercises.
-        const dayToLoad = uniqueDays[0];
-        const dayExercises = routine.exercises.filter(e => (e.day || "Day 1") === dayToLoad);
+        if (uniqueDays.length > 1) {
+            setSelectedRoutine(routine);
+        } else {
+            loadDayExercises(routine, uniqueDays[0]);
+        }
+    };
+
+    const loadDay = (day: string) => {
+        if (selectedRoutine) {
+            loadDayExercises(selectedRoutine, day);
+            setSelectedRoutine(null);
+        }
+    };
+
+    const loadDayExercises = (routine: Doc<"routines">, day: string) => {
+        const dayExercises = routine.exercises.filter(e => (e.day || "Day 1") === day);
 
         setWorkout(dayExercises.map(e => ({
             name: e.name,
@@ -122,9 +134,6 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
             notes: ""
         })));
         setGymMode("log");
-        // Assuming setShowRoutineList is defined elsewhere or will be added.
-        // For now, commenting it out to avoid a compilation error if it's not defined.
-        // setShowRoutineList(false);
     };
 
     const updateSet = (exerciseIndex: number, setIndex: number, field: "reps" | "weight" | "rpe", value: number) => {
@@ -285,6 +294,35 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
 
     // Gym Routine Selection View
     if (activity === "gym" && gymMode === "select") {
+        if (selectedRoutine) {
+            const uniqueDays = Array.from(new Set(selectedRoutine.exercises.map(e => e.day || "Day 1")));
+
+            return (
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-4">
+                        <button onClick={() => setSelectedRoutine(null)} className="text-sm text-muted-foreground hover:text-foreground">
+                            ← Back
+                        </button>
+                        <h3 className="font-semibold">Select Day</h3>
+                    </div>
+                    <div className="grid gap-3">
+                        {uniqueDays.map(day => (
+                            <button
+                                key={day}
+                                onClick={() => loadDay(day)}
+                                className="w-full p-4 rounded-xl bg-secondary hover:bg-secondary/80 transition-colors text-left font-medium flex justify-between items-center"
+                            >
+                                <span>{day}</span>
+                                <span className="text-xs text-muted-foreground">
+                                    {selectedRoutine.exercises.filter(e => (e.day || "Day 1") === day).length} exercises
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
         return (
             <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
