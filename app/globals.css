@@ -42,9 +42,15 @@
   /* Yellow 400 */
 
   /* Glassmorphism */
-  --glass-bg: rgba(255, 255, 255, 0.65);
+  --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.5);
-  --shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.08);
+  --shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.02),
+    0 10px 15px -3px rgba(0, 0, 0, 0.04),
+    0 20px 25px -5px rgba(0, 0, 0, 0.02);
+  --shadow-hover:
+    0 10px 15px -3px rgba(0, 0, 0, 0.04),
+    0 25px 30px -5px rgba(0, 0, 0, 0.05);
 }
 
 
@@ -53,17 +59,19 @@
   --foreground: #FAFAFA;
   --card: #18181B;
   --card-foreground: #FAFAFA;
-  --primary: #3B82F6;
+  --primary: #60A5FA;
+  /* Slightly lighter blue for dark mode */
   --primary-foreground: #FFFFFF;
   --secondary: #27272A;
   --secondary-foreground: #FAFAFA;
   --muted: #A1A1AA;
   --border: #3F3F46;
   /* Lighter border for better contrast */
-  --glass-bg: rgba(24, 24, 27, 0.75);
+  --glass-bg: rgba(24, 24, 27, 0.6);
   /* More opaque for legibility */
-  --glass-border: rgba(255, 255, 255, 0.12);
-  --shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  --shadow-hover: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
 }
 
 html,

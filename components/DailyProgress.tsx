@@ -52,16 +52,18 @@ export default function DailyProgress({ selectedDate }: DailyProgressProps) {
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="4"
+                    strokeLinecap="round"
                 />
                 {/* Progress Circle */}
                 <motion.path
-                    className="text-primary"
+                    className="text-primary drop-shadow-sm"
                     d="M18 2.0845
                         a 15.9155 15.9155 0 0 1 0 31.831
                         a 15.9155 15.9155 0 0 1 0 -31.831"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="4"
+                    strokeLinecap="round"
                     strokeDasharray={`${progress * 100}, 100`}
                     initial={{ strokeDasharray: "0, 100" }}
                     animate={{ strokeDasharray: `${progress * 100}, 100` }}

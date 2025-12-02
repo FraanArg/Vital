@@ -67,36 +67,36 @@ export default function StatsOverview({ selectedDate = new Date() }: StatsOvervi
             animate="show"
             className="grid grid-cols-3 gap-4 mb-8"
         >
-            <motion.div variants={item} className="p-4 rounded-2xl bg-card border border-border/50 shadow-sm flex flex-col items-center justify-center text-center">
+            <motion.div variants={item} className="p-4 rounded-2xl bg-card border border-border/50 shadow-[var(--shadow)] hover:shadow-[var(--shadow-hover)] hover:-translate-y-1 transition-all duration-300 flex flex-col items-center justify-center text-center">
                 <div className="mb-2 p-2 bg-green-100 dark:bg-green-500/20 rounded-full">
                     <Briefcase className="w-5 h-5 text-green-600 dark:text-green-300" />
                 </div>
                 <div className="text-2xl font-bold">{stats.work}h</div>
-                <div className="text-xs text-muted">Work</div>
+                <div className="text-xs text-muted-foreground font-medium">Work</div>
             </motion.div>
 
-            <motion.div variants={item} className="p-4 rounded-2xl bg-card border border-border/50 shadow-sm flex flex-col items-center justify-center text-center">
+            <motion.div variants={item} className="p-4 rounded-2xl bg-card border border-border/50 shadow-[var(--shadow)] hover:shadow-[var(--shadow-hover)] hover:-translate-y-1 transition-all duration-300 flex flex-col items-center justify-center text-center">
                 <div className="mb-2 p-2 bg-purple-100 dark:bg-purple-500/20 rounded-full">
                     <Moon className="w-5 h-5 text-purple-600 dark:text-purple-300" />
                 </div>
                 <div className="text-2xl font-bold">{stats.sleep}h</div>
-                <div className="text-xs text-muted">Sleep</div>
+                <div className="text-xs text-muted-foreground font-medium">Sleep</div>
             </motion.div>
 
-            <motion.div variants={item} className="p-4 rounded-2xl bg-card border border-border/50 shadow-sm flex flex-col items-center justify-center text-center">
+            <motion.div variants={item} className="p-4 rounded-2xl bg-card border border-border/50 shadow-[var(--shadow)] hover:shadow-[var(--shadow-hover)] hover:-translate-y-1 transition-all duration-300 flex flex-col items-center justify-center text-center">
                 <div className="mb-2 p-2 bg-blue-100 dark:bg-blue-500/20 rounded-full">
                     <Droplets className="w-5 h-5 text-blue-600 dark:text-blue-300" />
                 </div>
                 <div className="text-2xl font-bold">{stats.water}L</div>
-                <div className="text-xs text-muted">Water</div>
+                <div className="text-xs text-muted-foreground font-medium">Water</div>
             </motion.div>
 
-            <motion.div variants={item} className="p-4 rounded-2xl bg-card border border-border/50 shadow-sm flex flex-col items-center justify-center text-center">
+            <motion.div variants={item} className="p-4 rounded-2xl bg-card border border-border/50 shadow-[var(--shadow)] hover:shadow-[var(--shadow-hover)] hover:-translate-y-1 transition-all duration-300 flex flex-col items-center justify-center text-center">
                 <div className="mb-2 p-2 bg-red-100 dark:bg-red-500/20 rounded-full">
                     <Trophy className="w-5 h-5 text-red-600 dark:text-red-300" />
                 </div>
                 <div className="text-2xl font-bold">{Math.round(stats.exercise / 60 * 10) / 10}h</div>
-                <div className="text-xs text-muted">Exercise</div>
+                <div className="text-xs text-muted-foreground font-medium">Exercise</div>
             </motion.div>
         </motion.div>
     );

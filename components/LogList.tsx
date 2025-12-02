@@ -140,7 +140,7 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
                                 animate={{ opacity: 1, y: 0, scale: 1, x: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
                                 whileDrag={{ scale: 1.02 }}
-                                className={`bg-card p-4 rounded-2xl shadow-sm border flex items-center justify-between relative overflow-hidden border-border/50 z-10 touch-pan-y cursor-pointer ${tracker.bgColor.replace('bg-', 'bg-')}`}
+                                className={`bg-card p-4 rounded-2xl shadow-[var(--shadow)] hover:shadow-[var(--shadow-hover)] border flex items-center justify-between relative overflow-hidden border-border/50 z-10 touch-pan-y cursor-pointer transition-all duration-300 ${tracker.bgColor.replace('bg-', 'bg-')}`}
                                 style={{ x: 0 }}
                             >
                                 {/* Hover Effect Background (Desktop) */}
