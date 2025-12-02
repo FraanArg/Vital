@@ -48,3 +48,31 @@ export const deleteRoutine = mutation({
         await ctx.db.delete(args.id);
     },
 });
+
+export const updateRoutine = mutation({
+    args: {
+        id: v.id("routines"),
+        name: v.string(),
+        exercises: v.array(v.object({
+            name: v.string(),
+            defaultSets: v.number(),
+        }))
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Unauthenticated");
+        const userId = identity.subject;
+
+        const routine = await ctx.db.get(args.id);
+        if (!routine) return;
+
+        if (routine.userId !== userId) {
+            throw new Error("Unauthorized");
+        }
+
+        await ctx.db.patch(args.id, {
+            name: args.name,
+            exercises: args.exercises
+        });
+    },
+});

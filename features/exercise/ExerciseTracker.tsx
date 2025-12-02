@@ -261,7 +261,16 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
                     <h3 className="font-semibold">Gym Workout</h3>
                 </div>
 
-                <RoutineManager onSelect={handleRoutineSelect} onClose={onClose} />
+                <div className="grid gap-3 max-h-[40vh] overflow-y-auto">
+                    {/* We can still show a simple list here or just a link */}
+                    <RoutineManager onSelect={handleRoutineSelect} onClose={onClose} />
+                </div>
+
+                <div className="text-center">
+                    <a href="/workouts" className="text-sm text-primary hover:underline">
+                        Manage Routines & Exercises
+                    </a>
+                </div>
 
                 <div className="relative py-2">
                     <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border/50"></span></div>

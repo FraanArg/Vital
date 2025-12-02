@@ -67,4 +67,12 @@ export default defineSchema({
         icon: v.string(),
         category: v.optional(v.string()), // "Racket", "Team", "Water", etc.
     }).index("by_user", ["userId"]),
+
+    exercises: defineTable({
+        name: v.string(),
+        muscle: v.string(), // "Chest", "Back", "Legs", "Shoulders", "Arms", "Core", "Cardio"
+        category: v.string(), // "Barbell", "Dumbbell", "Machine", "Bodyweight", "Cable", "Weighted Bodyweight", "Assisted Bodyweight"
+        userId: v.optional(v.string()), // null = system default, string = user custom
+    }).index("by_user", ["userId"])
+        .index("by_muscle", ["muscle"]),
 });
