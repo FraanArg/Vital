@@ -5,9 +5,10 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trash2, Search } from "lucide-react";
+import { Trash2, Search, ClipboardList } from "lucide-react";
 import { Skeleton } from "./ui/Skeleton";
 import { TRACKERS } from "../lib/tracker-registry";
+import { useToast } from "./ui/ToastContext";
 
 interface LogListProps {
     selectedDate: Date;
@@ -16,6 +17,7 @@ interface LogListProps {
 export default function LogList({ selectedDate }: LogListProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const iconMappings = useQuery(api.icons.getIconMappings);
+    const { toast } = useToast();
 
     // Calculate start and end of day
     const start = new Date(selectedDate);
@@ -42,6 +44,11 @@ export default function LogList({ selectedDate }: LogListProps) {
             );
         }
     });
+
+    const handleDelete = (id: Id<"logs">) => {
+        deleteLog({ id });
+        toast("Log deleted", "success");
+    };
 
     const filteredLogs = useMemo(() => {
         return logs?.filter(log => {
@@ -75,8 +82,16 @@ export default function LogList({ selectedDate }: LogListProps) {
 
     if (logs.length === 0) {
         return (
-            <div className="text-center py-10 text-muted">
-                <p>No logs yet. Start tracking!</p>
+            <div className="flex flex-col items-center justify-center py-12 text-center space-y-4">
+                <div className="p-4 bg-secondary/50 rounded-full">
+                    <ClipboardList className="w-12 h-12 text-muted-foreground/50" />
+                </div>
+                <div className="space-y-1">
+                    <h3 className="text-lg font-semibold text-foreground">Ready to track?</h3>
+                    <p className="text-sm text-muted-foreground max-w-[250px]">
+                        Log your first activity to start your streak for today.
+                    </p>
+                </div>
             </div>
         );
     }
@@ -88,6 +103,7 @@ export default function LogList({ selectedDate }: LogListProps) {
                 <input
                     type="text"
                     placeholder="Search logs..."
+                    aria-label="Search logs"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-9 pr-4 py-2 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary text-base"
@@ -115,7 +131,7 @@ export default function LogList({ selectedDate }: LogListProps) {
                                 dragElastic={{ left: 0.5, right: 0.05 }}
                                 onDragEnd={(_, info) => {
                                     if (info.offset.x < -100) {
-                                        deleteLog({ id: log._id as Id<"logs"> });
+                                        handleDelete(log._id as Id<"logs">);
                                     }
                                 }}
                                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -139,8 +155,9 @@ export default function LogList({ selectedDate }: LogListProps) {
                                 <button
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        deleteLog({ id: log._id as Id<"logs"> });
+                                        handleDelete(log._id as Id<"logs">);
                                     }}
+                                    aria-label="Delete log"
                                     className="hidden sm:block p-2 text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100 active:scale-90 relative z-10"
                                 >
                                     <Trash2 className="w-4 h-4" />

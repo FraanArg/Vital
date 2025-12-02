@@ -95,6 +95,7 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
                 <div className="flex items-center gap-2">
                     <button
                         onClick={() => onDateChange(new Date())}
+                        aria-label="Go to today"
                         className={`text-sm font-medium px-4 py-2 rounded-full transition-all ${isToday(selectedDate)
                             ? "bg-primary text-primary-foreground shadow-md"
                             : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
@@ -105,6 +106,7 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
                     <div className="relative">
                         <input
                             type="date"
+                            aria-label="Select date"
                             className="absolute inset-0 opacity-0 cursor-pointer"
                             onChange={(e) => {
                                 if (e.target.valueAsDate) {
@@ -113,7 +115,7 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
                                 }
                             }}
                         />
-                        <button className="p-2 rounded-full bg-secondary hover:bg-secondary/80 transition-colors">
+                        <button className="p-2 rounded-full bg-secondary hover:bg-secondary/80 transition-colors" aria-label="Open calendar">
                             <CalendarIcon className="w-5 h-5" />
                         </button>
                     </div>
@@ -123,6 +125,7 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
             <div className="relative group">
                 <button
                     onClick={handlePrevDay}
+                    aria-label="Previous day"
                     className="absolute -left-2 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm shadow-sm border border-border/50 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0 hover:bg-secondary"
                 >
                     <ChevronLeft className="w-5 h-5" />
@@ -140,6 +143,8 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
                             <motion.button
                                 key={date.toISOString()}
                                 onClick={() => handleDateClick(date)}
+                                aria-label={`Select ${format(date, "MMMM do, yyyy")}`}
+                                aria-current={isSelected ? "date" : undefined}
                                 layout
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
@@ -166,6 +171,7 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
 
                 <button
                     onClick={handleNextDay}
+                    aria-label="Next day"
                     className="absolute -right-2 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm shadow-sm border border-border/50 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-secondary"
                 >
                     <ChevronRight className="w-5 h-5" />
