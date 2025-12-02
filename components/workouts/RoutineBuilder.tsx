@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Doc } from "../../convex/_generated/dataModel";
-import { Search, Plus, Trash2, X, GripVertical } from "lucide-react";
+import { Search, Plus, Trash2, X, GripVertical, Loader2 } from "lucide-react";
 
 interface RoutineBuilderProps {
     initialData?: Doc<"routines"> | null;
@@ -32,19 +32,26 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
     const [showPicker, setShowPicker] = useState(false);
     const [search, setSearch] = useState("");
 
+    const [isSaving, setIsSaving] = useState(false);
+    const [isCreatingExerciseLoading, setIsCreatingExerciseLoading] = useState(false);
+
     const handleSave = async () => {
         if (!name || selectedExercises.length === 0) return;
-
-        if (initialData) {
-            await updateRoutine({
-                id: initialData._id,
-                name,
-                exercises: selectedExercises
-            });
-        } else {
-            await createRoutine({ name, exercises: selectedExercises });
+        setIsSaving(true);
+        try {
+            if (initialData) {
+                await updateRoutine({
+                    id: initialData._id,
+                    name,
+                    exercises: selectedExercises
+                });
+            } else {
+                await createRoutine({ name, exercises: selectedExercises });
+            }
+            onClose();
+        } finally {
+            setIsSaving(false);
         }
-        onClose();
     };
 
     const addExercise = (ex: Doc<"exercises">) => {
@@ -63,6 +70,7 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
 
     const updateExercise = (index: number, field: keyof typeof selectedExercises[0], value: string | number) => {
         const updated = [...selectedExercises];
+        // @ts-ignore
         updated[index] = { ...updated[index], [field]: value };
         setSelectedExercises(updated);
     };
@@ -88,16 +96,21 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
 
     const handleCreateExercise = async () => {
         if (!newExerciseData.name) return;
-        await createExercise(newExerciseData);
-        setSelectedExercises([...selectedExercises, {
-            name: newExerciseData.name,
-            defaultSets: 3,
-            day: activeDay
-        }]);
-        setIsCreatingExercise(false);
-        setShowPicker(false);
-        setSearch("");
-        setNewExerciseData({ name: "", muscle: "Chest", category: "Barbell", icon: "💪" });
+        setIsCreatingExerciseLoading(true);
+        try {
+            await createExercise(newExerciseData);
+            setSelectedExercises([...selectedExercises, {
+                name: newExerciseData.name,
+                defaultSets: 3,
+                day: activeDay
+            }]);
+            setIsCreatingExercise(false);
+            setShowPicker(false);
+            setSearch("");
+            setNewExerciseData({ name: "", muscle: "Chest", category: "Barbell", icon: "💪" });
+        } finally {
+            setIsCreatingExerciseLoading(false);
+        }
     };
 
     if (showPicker) {
@@ -133,27 +146,35 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Muscle</label>
-                                <select
+                                <input
+                                    list="rb-muscles"
+                                    type="text"
                                     value={newExerciseData.muscle}
                                     onChange={e => setNewExerciseData({ ...newExerciseData, muscle: e.target.value })}
                                     className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary"
-                                >
+                                    placeholder="Select or type..."
+                                />
+                                <datalist id="rb-muscles">
                                     {["Chest", "Back", "Legs", "Shoulders", "Arms", "Core", "Cardio", "Other"].map(m => (
-                                        <option key={m} value={m}>{m}</option>
+                                        <option key={m} value={m} />
                                     ))}
-                                </select>
+                                </datalist>
                             </div>
                             <div className="space-y-2">
                                 <label className="text-sm font-medium">Category</label>
-                                <select
+                                <input
+                                    list="rb-categories"
+                                    type="text"
                                     value={newExerciseData.category}
                                     onChange={e => setNewExerciseData({ ...newExerciseData, category: e.target.value })}
                                     className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary"
-                                >
-                                    {["Barbell", "Dumbbell", "Machine", "Bodyweight", "Cable", "Weighted Bodyweight", "Assisted Bodyweight", "Other"].map(c => (
-                                        <option key={c} value={c}>{c}</option>
+                                    placeholder="Select or type..."
+                                />
+                                <datalist id="rb-categories">
+                                    {["Barbell", "Dumbbell", "Machine", "Bodyweight", "Cable", "Weighted Bodyweight", "Assisted Bodyweight", "Kettlebell", "Plyometric", "Cardio", "Other"].map(c => (
+                                        <option key={c} value={c} />
                                     ))}
-                                </select>
+                                </datalist>
                             </div>
                         </div>
 
@@ -179,10 +200,10 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
 
                         <button
                             onClick={handleCreateExercise}
-                            disabled={!newExerciseData.name}
-                            className="w-full p-3 bg-primary text-primary-foreground rounded-xl font-bold disabled:opacity-50"
+                            disabled={!newExerciseData.name || isCreatingExerciseLoading}
+                            className="w-full p-3 bg-primary text-primary-foreground rounded-xl font-bold disabled:opacity-50 flex items-center justify-center gap-2"
                         >
-                            Create & Add
+                            {isCreatingExerciseLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Create & Add"}
                         </button>
                     </div>
                 </div>
@@ -255,9 +276,10 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
                 </div>
                 <button
                     onClick={handleSave}
-                    disabled={!name || selectedExercises.length === 0}
-                    className="text-primary font-bold disabled:opacity-50"
+                    disabled={!name || selectedExercises.length === 0 || isSaving}
+                    className="text-primary font-bold disabled:opacity-50 flex items-center gap-2"
                 >
+                    {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
                     Save
                 </button>
             </div>

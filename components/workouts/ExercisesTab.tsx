@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { Search, Plus, Dumbbell } from "lucide-react";
+import { Search, Plus, Dumbbell, Loader2 } from "lucide-react";
 import { Skeleton } from "../ui/Skeleton";
 
 export default function ExercisesTab() {
@@ -18,33 +18,33 @@ export default function ExercisesTab() {
         ex.muscle.toLowerCase().includes(search.toLowerCase())
     );
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     const handleCreate = async () => {
         if (!newExercise.name) return;
-        await createExercise(newExercise);
-        setIsCreating(false);
-        setNewExercise({ name: "", muscle: "Chest", category: "Barbell", icon: "💪" });
+        setIsSubmitting(true);
+        try {
+            await createExercise(newExercise);
+            setIsCreating(false);
+            setNewExercise({ name: "", muscle: "Chest", category: "Barbell", icon: "💪" });
+            setSearch("");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
-
-    if (!exercises) {
-        return (
-            <div className="space-y-4">
-                {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="flex items-center gap-4 p-4 bg-card rounded-2xl border border-border/50">
-                        <Skeleton className="w-10 h-10 rounded-full" />
-                        <div className="space-y-2">
-                            <Skeleton className="w-32 h-4" />
-                            <Skeleton className="w-20 h-3" />
-                        </div>
-                    </div>
-                ))}
-            </div>
-        );
-    }
 
     if (isCreating) {
         return (
             <div className="space-y-4 p-4 bg-card rounded-2xl border border-border/50">
-                <h3 className="font-semibold text-lg">New Exercise</h3>
+                <div className="flex items-center gap-2 mb-2">
+                    <button
+                        onClick={() => setIsCreating(false)}
+                        className="text-sm text-muted-foreground hover:text-foreground"
+                    >
+                        ← Back
+                    </button>
+                    <h3 className="font-semibold text-lg">New Exercise</h3>
+                </div>
 
                 <div className="space-y-2">
                     <label className="text-sm font-medium">Name</label>
@@ -84,45 +84,45 @@ export default function ExercisesTab() {
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <label className="text-sm font-medium">Muscle</label>
-                        <select
+                        <input
+                            list="muscles"
+                            type="text"
                             value={newExercise.muscle}
                             onChange={e => setNewExercise({ ...newExercise, muscle: e.target.value })}
-                            className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary appearance-none"
-                        >
-                            {["Chest", "Back", "Legs", "Shoulders", "Arms", "Core", "Cardio"].map(m => (
-                                <option key={m} value={m}>{m}</option>
+                            className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary"
+                            placeholder="Select or type..."
+                        />
+                        <datalist id="muscles">
+                            {["Chest", "Back", "Legs", "Shoulders", "Arms", "Core", "Cardio", "Other"].map(m => (
+                                <option key={m} value={m} />
                             ))}
-                        </select>
+                        </datalist>
                     </div>
                     <div className="space-y-2">
                         <label className="text-sm font-medium">Category</label>
-                        <select
+                        <input
+                            list="categories"
+                            type="text"
                             value={newExercise.category}
                             onChange={e => setNewExercise({ ...newExercise, category: e.target.value })}
-                            className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary appearance-none"
-                        >
-                            {["Barbell", "Dumbbell", "Machine", "Bodyweight", "Cable", "Weighted Bodyweight", "Assisted Bodyweight", "Kettlebell", "Plyometric", "Cardio"].map(c => (
-                                <option key={c} value={c}>{c}</option>
+                            className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary"
+                            placeholder="Select or type..."
+                        />
+                        <datalist id="categories">
+                            {["Barbell", "Dumbbell", "Machine", "Bodyweight", "Cable", "Weighted Bodyweight", "Assisted Bodyweight", "Kettlebell", "Plyometric", "Cardio", "Other"].map(c => (
+                                <option key={c} value={c} />
                             ))}
-                        </select>
+                        </datalist>
                     </div>
                 </div>
 
-                <div className="flex gap-2 pt-2">
-                    <button
-                        onClick={() => setIsCreating(false)}
-                        className="flex-1 p-3 rounded-xl font-medium hover:bg-secondary transition-colors"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        onClick={handleCreate}
-                        disabled={!newExercise.name}
-                        className="flex-1 p-3 bg-primary text-primary-foreground rounded-xl font-bold disabled:opacity-50"
-                    >
-                        Create
-                    </button>
-                </div>
+                <button
+                    onClick={handleCreate}
+                    disabled={!newExercise.name || isSubmitting}
+                    className="w-full p-3 bg-primary text-primary-foreground rounded-xl font-bold disabled:opacity-50 mt-4 flex items-center justify-center gap-2"
+                >
+                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Create Exercise"}
+                </button>
             </div>
         );
     }
@@ -149,6 +149,19 @@ export default function ExercisesTab() {
             </div>
 
             <div className="space-y-2">
+                {search && (
+                    <button
+                        onClick={() => {
+                            setNewExercise({ ...newExercise, name: search });
+                            setIsCreating(true);
+                        }}
+                        className="w-full text-left p-3 rounded-xl hover:bg-secondary transition-colors flex items-center gap-2 text-primary"
+                    >
+                        <Plus className="w-5 h-5" />
+                        <span className="font-medium">Create "{search}"</span>
+                    </button>
+                )}
+
                 {filteredExercises?.map((ex) => (
                     <div key={ex._id} className="flex items-center gap-4 p-4 bg-card rounded-2xl border border-border/50 hover:bg-secondary/30 transition-colors">
                         <div className="p-3 bg-secondary rounded-xl text-2xl">
@@ -160,15 +173,10 @@ export default function ExercisesTab() {
                         </div>
                     </div>
                 ))}
-                {filteredExercises?.length === 0 && (
+
+                {filteredExercises?.length === 0 && !search && (
                     <div className="text-center py-8 text-muted-foreground">
                         <p className="mb-4">No exercises found.</p>
-                        <button
-                            onClick={() => createExercise({ name: "Seed Defaults", muscle: "System", category: "System" }).then(() => window.location.reload())} // Hacky trigger for now, better to call the seed mutation directly
-                            className="text-sm text-primary hover:underline"
-                        >
-                            {/* Actually let's use the proper seed mutation */}
-                        </button>
                         <SeedButton />
                     </div>
                 )}

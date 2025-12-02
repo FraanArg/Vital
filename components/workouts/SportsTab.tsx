@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { Trophy, Plus, Trash2, Circle, Swords, Target, Waves, Settings, X } from "lucide-react";
+import { Trophy, Plus, Trash2, Circle, Swords, Target, Waves, Settings, X, Loader2 } from "lucide-react";
 import { Skeleton } from "../ui/Skeleton";
 import { ICON_LIBRARY } from "../../lib/icon-library";
 import IconPicker from "../../components/IconPicker";
@@ -31,23 +31,35 @@ export default function SportsTab() {
     const [editingSport, setEditingSport] = useState<{ id: string, name: string, icon: string } | null>(null);
     const [showIconPicker, setShowIconPicker] = useState(false);
 
+    const [isCreatingSport, setIsCreatingSport] = useState(false);
+    const [isSavingEdit, setIsSavingEdit] = useState(false);
+
     const handleCreate = async () => {
         if (!newSportName) return;
-        await createSport({ name: newSportName, icon: "Trophy" }); // Default icon for now
-        setNewSportName("");
-        setIsCreating(false);
+        setIsCreatingSport(true);
+        try {
+            await createSport({ name: newSportName, icon: "Trophy" }); // Default icon for now
+            setNewSportName("");
+            setIsCreating(false);
+        } finally {
+            setIsCreatingSport(false);
+        }
     };
 
     const handleSaveEdit = async () => {
         if (!editingSport) return;
-
-        await saveMapping({
-            type: "sport",
-            key: editingSport.id,
-            icon: editingSport.icon,
-            customLabel: editingSport.name
-        });
-        setEditingSport(null);
+        setIsSavingEdit(true);
+        try {
+            await saveMapping({
+                type: "sport",
+                key: editingSport.id,
+                icon: editingSport.icon,
+                customLabel: editingSport.name
+            });
+            setEditingSport(null);
+        } finally {
+            setIsSavingEdit(false);
+        }
     };
 
     if (!customSports || !iconMappings) {
@@ -129,9 +141,10 @@ export default function SportsTab() {
                         />
                         <button
                             onClick={handleCreate}
-                            disabled={!newSportName}
-                            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium disabled:opacity-50"
+                            disabled={!newSportName || isCreatingSport}
+                            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium disabled:opacity-50 flex items-center gap-2"
                         >
+                            {isCreatingSport && <Loader2 className="w-4 h-4 animate-spin" />}
                             Save
                         </button>
                     </div>
@@ -201,8 +214,10 @@ export default function SportsTab() {
 
                         <button
                             onClick={handleSaveEdit}
-                            className="w-full p-3 bg-primary text-primary-foreground rounded-xl font-bold mt-2"
+                            disabled={isSavingEdit}
+                            className="w-full p-3 bg-primary text-primary-foreground rounded-xl font-bold mt-2 flex items-center justify-center gap-2"
                         >
+                            {isSavingEdit && <Loader2 className="w-4 h-4 animate-spin" />}
                             Save Changes
                         </button>
                     </div>

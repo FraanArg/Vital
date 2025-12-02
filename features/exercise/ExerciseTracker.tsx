@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Doc } from "../../convex/_generated/dataModel";
-import { Dumbbell, Trophy, Activity, Footprints, Timer, Plus, Trash2, ChevronDown, ChevronUp, Circle, Waves, Swords, Target, Settings, LucideIcon } from "lucide-react";
+import { Dumbbell, Trophy, Activity, Footprints, Timer, Plus, Trash2, ChevronDown, ChevronUp, Circle, Waves, Swords, Target, Settings, LucideIcon, Loader2 } from "lucide-react";
 import RoutineManager from "./RoutineManager";
 import IconPicker from "../../components/IconPicker";
 import { ICON_LIBRARY } from "../../lib/icon-library";
@@ -71,31 +71,38 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
         }
     });
 
+    const [isSaving, setIsSaving] = useState(false);
+
     const handleSave = async () => {
         if (!activity) return;
 
         const finalType = activity === "sports" ? subActivity : activity;
         if (!finalType) return;
 
-        const exerciseData: any = {
-            type: finalType,
-            duration: duration,
-            notes: notes.trim() || undefined,
-        };
+        setIsSaving(true);
+        try {
+            const exerciseData: any = {
+                type: finalType,
+                duration: duration,
+                notes: notes.trim() || undefined,
+            };
 
-        if ((finalType === "run" || finalType === "walk") && distance) {
-            exerciseData.distance = Number(distance);
+            if ((finalType === "run" || finalType === "walk") && distance) {
+                exerciseData.distance = Number(distance);
+            }
+
+            if (finalType === "gym") {
+                exerciseData.workout = workout;
+            }
+
+            await createLog({
+                exercise: exerciseData,
+                date: selectedDate.toISOString()
+            });
+            onClose();
+        } finally {
+            setIsSaving(false);
         }
-
-        if (finalType === "gym") {
-            exerciseData.workout = workout;
-        }
-
-        await createLog({
-            exercise: exerciseData,
-            date: selectedDate.toISOString()
-        });
-        onClose();
     };
 
     const handleRoutineSelect = (routine: Doc<"routines">) => {
@@ -465,9 +472,10 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
 
             <button
                 onClick={handleSave}
-                className="w-full p-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all active:scale-95"
+                disabled={isSaving}
+                className="w-full p-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all active:scale-95 disabled:opacity-70 disabled:scale-100 flex items-center justify-center gap-2"
             >
-                Save Activity
+                {isSaving ? <Loader2 className="w-6 h-6 animate-spin" /> : "Save Activity"}
             </button>
         </div>
     );
