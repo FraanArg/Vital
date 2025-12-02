@@ -11,7 +11,7 @@ export default function ExercisesTab() {
     const createExercise = useMutation(api.exercises.createExercise);
     const [search, setSearch] = useState("");
     const [isCreating, setIsCreating] = useState(false);
-    const [newExercise, setNewExercise] = useState({ name: "", muscle: "Chest", category: "Barbell" });
+    const [newExercise, setNewExercise] = useState({ name: "", muscle: "Chest", category: "Barbell", icon: "💪" });
 
     const filteredExercises = exercises?.filter(ex =>
         ex.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -22,7 +22,7 @@ export default function ExercisesTab() {
         if (!newExercise.name) return;
         await createExercise(newExercise);
         setIsCreating(false);
-        setNewExercise({ name: "", muscle: "Chest", category: "Barbell" });
+        setNewExercise({ name: "", muscle: "Chest", category: "Barbell", icon: "💪" });
     };
 
     if (!exercises) {
@@ -57,6 +57,30 @@ export default function ExercisesTab() {
                     />
                 </div>
 
+                <div className="space-y-2">
+                    <label className="text-sm font-medium">Icon (Emoji)</label>
+                    <div className="flex gap-2">
+                        <input
+                            type="text"
+                            value={newExercise.icon}
+                            onChange={e => setNewExercise({ ...newExercise, icon: e.target.value })}
+                            placeholder="💪"
+                            className="w-16 p-3 text-center rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary"
+                        />
+                        <div className="flex-1 flex gap-2 overflow-x-auto p-1">
+                            {["💪", "🏋️‍♂️", "🦵", "🏃", "🧘", "🤸", "🚴", "🏊", "🧗", "🥊"].map(emoji => (
+                                <button
+                                    key={emoji}
+                                    onClick={() => setNewExercise({ ...newExercise, icon: emoji })}
+                                    className="p-2 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors"
+                                >
+                                    {emoji}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <label className="text-sm font-medium">Muscle</label>
@@ -77,7 +101,7 @@ export default function ExercisesTab() {
                             onChange={e => setNewExercise({ ...newExercise, category: e.target.value })}
                             className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary appearance-none"
                         >
-                            {["Barbell", "Dumbbell", "Machine", "Bodyweight", "Cable", "Weighted Bodyweight", "Assisted Bodyweight"].map(c => (
+                            {["Barbell", "Dumbbell", "Machine", "Bodyweight", "Cable", "Weighted Bodyweight", "Assisted Bodyweight", "Kettlebell", "Plyometric", "Cardio"].map(c => (
                                 <option key={c} value={c}>{c}</option>
                             ))}
                         </select>
@@ -127,8 +151,8 @@ export default function ExercisesTab() {
             <div className="space-y-2">
                 {filteredExercises?.map((ex) => (
                     <div key={ex._id} className="flex items-center gap-4 p-4 bg-card rounded-2xl border border-border/50 hover:bg-secondary/30 transition-colors">
-                        <div className="p-3 bg-secondary rounded-xl">
-                            <Dumbbell className="w-5 h-5 text-primary" />
+                        <div className="p-3 bg-secondary rounded-xl text-2xl">
+                            {ex.icon || <Dumbbell className="w-5 h-5 text-primary" />}
                         </div>
                         <div>
                             <div className="font-semibold">{ex.name}</div>

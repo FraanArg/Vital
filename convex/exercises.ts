@@ -31,6 +31,7 @@ export const createExercise = mutation({
         name: v.string(),
         muscle: v.string(),
         category: v.string(),
+        icon: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
@@ -48,57 +49,94 @@ export const seedDefaults = mutation({
     handler: async (ctx) => {
         const defaults = [
             // Chest
-            { name: "Bench Press (Barbell)", muscle: "Chest", category: "Barbell" },
-            { name: "Bench Press (Dumbbell)", muscle: "Chest", category: "Dumbbell" },
-            { name: "Incline Bench Press (Barbell)", muscle: "Chest", category: "Barbell" },
-            { name: "Incline Bench Press (Dumbbell)", muscle: "Chest", category: "Dumbbell" },
-            { name: "Chest Fly", muscle: "Chest", category: "Machine" },
-            { name: "Push Up", muscle: "Chest", category: "Bodyweight" },
+            { name: "Bench Press (Barbell)", muscle: "Chest", category: "Barbell", icon: "🏋️‍♂️" },
+            { name: "Bench Press (Dumbbell)", muscle: "Chest", category: "Dumbbell", icon: "🏋️‍♂️" },
+            { name: "Incline Bench Press (Barbell)", muscle: "Chest", category: "Barbell", icon: "📐" },
+            { name: "Incline Bench Press (Dumbbell)", muscle: "Chest", category: "Dumbbell", icon: "📐" },
+            { name: "Chest Fly", muscle: "Chest", category: "Machine", icon: "🦋" },
+            { name: "Push Up", muscle: "Chest", category: "Bodyweight", icon: "💪" },
+            { name: "Wide Push Up", muscle: "Chest", category: "Bodyweight", icon: "↔️" },
+            { name: "Pike Push Up", muscle: "Shoulders", category: "Bodyweight", icon: "🧘" },
+            { name: "Dips", muscle: "Chest", category: "Bodyweight", icon: "🪜" },
 
             // Back
-            { name: "Deadlift", muscle: "Back", category: "Barbell" },
-            { name: "Pull Up", muscle: "Back", category: "Bodyweight" },
-            { name: "Lat Pulldown", muscle: "Back", category: "Cable" },
-            { name: "Seated Row", muscle: "Back", category: "Cable" },
-            { name: "Bent Over Row", muscle: "Back", category: "Barbell" },
+            { name: "Deadlift", muscle: "Back", category: "Barbell", icon: "🏋️‍♂️" },
+            { name: "Pull Up", muscle: "Back", category: "Bodyweight", icon: "🧗" },
+            { name: "Lat Pulldown", muscle: "Back", category: "Cable", icon: "⬇️" },
+            { name: "Seated Row", muscle: "Back", category: "Cable", icon: "🚣" },
+            { name: "Bent Over Row", muscle: "Back", category: "Barbell", icon: "🙇" },
+            { name: "One-Arm Dumbbell Row", muscle: "Back", category: "Dumbbell", icon: "💪" },
+            { name: "Inverted Row", muscle: "Back", category: "Bodyweight", icon: "🙃" },
+            { name: "Chest-Supported Row", muscle: "Back", category: "Machine", icon: "💺" },
+            { name: "Backpack/Band Row", muscle: "Back", category: "Weighted Bodyweight", icon: "🎒" },
 
             // Legs
-            { name: "Squat (Barbell)", muscle: "Legs", category: "Barbell" },
-            { name: "Leg Press", muscle: "Legs", category: "Machine" },
-            { name: "Lunges", muscle: "Legs", category: "Dumbbell" },
-            { name: "Leg Extension", muscle: "Legs", category: "Machine" },
-            { name: "Leg Curl", muscle: "Legs", category: "Machine" },
-            { name: "Calf Raise", muscle: "Legs", category: "Machine" },
+            { name: "Squat (Barbell)", muscle: "Legs", category: "Barbell", icon: "🦵" },
+            { name: "Front Squat", muscle: "Legs", category: "Barbell", icon: "🦵" },
+            { name: "Back Squat", muscle: "Legs", category: "Barbell", icon: "🍑" },
+            { name: "Romanian Deadlift", muscle: "Legs", category: "Barbell", icon: "📉" },
+            { name: "Leg Press", muscle: "Legs", category: "Machine", icon: "🦶" },
+            { name: "Lunges", muscle: "Legs", category: "Dumbbell", icon: "🚶" },
+            { name: "Bulgarian Split Squat", muscle: "Legs", category: "Dumbbell", icon: "🇧🇬" },
+            { name: "Leg Extension", muscle: "Legs", category: "Machine", icon: "🦵" },
+            { name: "Leg Curl", muscle: "Legs", category: "Machine", icon: "🍗" },
+            { name: "Nordic Curl", muscle: "Legs", category: "Bodyweight", icon: "🇩🇰" },
+            { name: "Calf Raise (Standing)", muscle: "Legs", category: "Machine", icon: "👠" },
+            { name: "Calf Raise (Seated)", muscle: "Legs", category: "Machine", icon: "🪑" },
+            { name: "Hip Thrust", muscle: "Legs", category: "Barbell", icon: "🍑" },
+            { name: "Single-Leg Hip Thrust", muscle: "Legs", category: "Bodyweight", icon: "🦩" },
+            { name: "Box Jump", muscle: "Legs", category: "Plyometric", icon: "📦" },
+            { name: "Broad Jump", muscle: "Legs", category: "Plyometric", icon: "🐇" },
+            { name: "Lateral Bound", muscle: "Legs", category: "Plyometric", icon: "⛸️" },
 
             // Shoulders
-            { name: "Overhead Press (Barbell)", muscle: "Shoulders", category: "Barbell" },
-            { name: "Overhead Press (Dumbbell)", muscle: "Shoulders", category: "Dumbbell" },
-            { name: "Lateral Raise", muscle: "Shoulders", category: "Dumbbell" },
-            { name: "Face Pull", muscle: "Shoulders", category: "Cable" },
+            { name: "Overhead Press (Barbell)", muscle: "Shoulders", category: "Barbell", icon: "🙆" },
+            { name: "Overhead Press (Dumbbell)", muscle: "Shoulders", category: "Dumbbell", icon: "🙆" },
+            { name: "Seated Dumbbell Shoulder Press", muscle: "Shoulders", category: "Dumbbell", icon: "🪑" },
+            { name: "Lateral Raise", muscle: "Shoulders", category: "Dumbbell", icon: "🦅" },
+            { name: "Face Pull", muscle: "Shoulders", category: "Cable", icon: "🤡" },
 
             // Arms
-            { name: "Bicep Curl (Barbell)", muscle: "Arms", category: "Barbell" },
-            { name: "Bicep Curl (Dumbbell)", muscle: "Arms", category: "Dumbbell" },
-            { name: "Tricep Extension", muscle: "Arms", category: "Cable" },
-            { name: "Skullcrusher", muscle: "Arms", category: "Barbell" },
-            { name: "Dips", muscle: "Arms", category: "Bodyweight" },
+            { name: "Bicep Curl (Barbell)", muscle: "Arms", category: "Barbell", icon: "💪" },
+            { name: "Bicep Curl (Dumbbell)", muscle: "Arms", category: "Dumbbell", icon: "💪" },
+            { name: "Tricep Extension", muscle: "Arms", category: "Cable", icon: "💪" },
+            { name: "Tricep Pressdown", muscle: "Arms", category: "Cable", icon: "⬇️" },
+            { name: "Skullcrusher", muscle: "Arms", category: "Barbell", icon: "💀" },
 
             // Core
-            { name: "Plank", muscle: "Core", category: "Bodyweight" },
-            { name: "Crunch", muscle: "Core", category: "Bodyweight" },
-            { name: "Leg Raise", muscle: "Core", category: "Bodyweight" },
+            { name: "Plank", muscle: "Core", category: "Bodyweight", icon: "🪵" },
+            { name: "Plank with Shoulder Taps", muscle: "Core", category: "Bodyweight", icon: "👋" },
+            { name: "Side Plank", muscle: "Core", category: "Bodyweight", icon: "📐" },
+            { name: "Copenhagen Plank", muscle: "Core", category: "Bodyweight", icon: "🇩🇰" },
+            { name: "Crunch", muscle: "Core", category: "Bodyweight", icon: "🍫" },
+            { name: "Leg Raise", muscle: "Core", category: "Bodyweight", icon: "🦵" },
+            { name: "Hanging Leg Raise", muscle: "Core", category: "Bodyweight", icon: "🐒" },
+            { name: "Dead Bug", muscle: "Core", category: "Bodyweight", icon: "🐞" },
+            { name: "Hollow Body Hold", muscle: "Core", category: "Bodyweight", icon: "🥣" },
+            { name: "Pallof Press", muscle: "Core", category: "Cable", icon: "🛑" },
+
+            // Cardio/Other
+            { name: "Sprint", muscle: "Cardio", category: "Cardio", icon: "🏃" },
+            { name: "Kettlebell Swing", muscle: "Legs", category: "Kettlebell", icon: "🔔" },
         ];
 
         // Check if defaults already exist to avoid duplicates
-        // This is a naive check, ideally we'd check one by one or use a flag, 
-        // but for a dev tool this is fine.
-        const existing = await ctx.db.query("exercises").filter(q => q.eq(q.field("userId"), undefined)).first();
-        if (existing) return "Defaults already seeded";
+        // We check individually to allow adding new defaults to existing databases
+        const existingSystemExercises = await ctx.db
+            .query("exercises")
+            .filter(q => q.eq(q.field("userId"), undefined))
+            .collect();
 
+        const existingNames = new Set(existingSystemExercises.map(e => e.name));
+
+        let addedCount = 0;
         for (const ex of defaults) {
-            await ctx.db.insert("exercises", ex);
+            if (!existingNames.has(ex.name)) {
+                await ctx.db.insert("exercises", ex);
+                addedCount++;
+            }
         }
 
-        return "Seeded " + defaults.length + " exercises";
+        return "Seeded " + addedCount + " new exercises";
     },
 });

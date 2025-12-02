@@ -39,9 +39,11 @@ export default defineSchema({
     }).index("by_userId_date", ["userId", "date"]),
 
     foodItems: defineTable({
-        userId: v.string(),
+        userId: v.optional(v.string()), // null = system default, string = user custom
         name: v.string(),
         usage_count: v.number(),
+        icon: v.optional(v.string()),
+        category: v.optional(v.string()), // "Protein", "Carb", "Veggie", "Fruit", "Fat", "Drink", "Sweet", "Other"
     }).index("by_user_name", ["userId", "name"]),
 
     routines: defineTable({
@@ -73,6 +75,7 @@ export default defineSchema({
         name: v.string(),
         muscle: v.string(), // "Chest", "Back", "Legs", "Shoulders", "Arms", "Core", "Cardio"
         category: v.string(), // "Barbell", "Dumbbell", "Machine", "Bodyweight", "Cable", "Weighted Bodyweight", "Assisted Bodyweight"
+        icon: v.optional(v.string()), // Emoji or icon name
         userId: v.optional(v.string()), // null = system default, string = user custom
     }).index("by_user", ["userId"])
         .index("by_muscle", ["muscle"]),

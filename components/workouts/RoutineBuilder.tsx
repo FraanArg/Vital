@@ -92,7 +92,12 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
                             onClick={() => addExercise(ex)}
                             className="w-full text-left p-3 rounded-xl hover:bg-secondary transition-colors flex justify-between items-center"
                         >
-                            <span className="font-medium">{ex.name}</span>
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 flex items-center justify-center bg-secondary rounded-lg text-lg">
+                                    {ex.icon || "💪"}
+                                </div>
+                                <span className="font-medium">{ex.name}</span>
+                            </div>
                             <span className="text-xs text-muted-foreground">{ex.muscle}</span>
                         </button>
                     ))}
@@ -143,27 +148,33 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
                     </div>
 
                     <div className="space-y-2">
-                        {selectedExercises.map((ex, i) => (
-                            <div key={i} className="flex items-center gap-3 p-3 bg-card rounded-xl border border-border/50">
-                                <GripVertical className="w-4 h-4 text-muted-foreground/50" />
-                                <div className="flex-1 font-medium">{ex.name}</div>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-xs text-muted-foreground">Sets</span>
-                                    <input
-                                        type="number"
-                                        value={ex.defaultSets}
-                                        onChange={(e) => updateSets(i, parseInt(e.target.value) || 0)}
-                                        className="w-12 p-1 text-center rounded-lg bg-secondary text-sm"
-                                    />
+                        {selectedExercises.map((ex, i) => {
+                            const exerciseDef = exercises?.find(e => e.name === ex.name);
+                            return (
+                                <div key={i} className="flex items-center gap-3 p-3 bg-card rounded-xl border border-border/50">
+                                    <GripVertical className="w-4 h-4 text-muted-foreground/50" />
+                                    <div className="w-8 h-8 flex items-center justify-center bg-secondary rounded-lg text-lg">
+                                        {exerciseDef?.icon || "💪"}
+                                    </div>
+                                    <div className="flex-1 font-medium">{ex.name}</div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs text-muted-foreground">Sets</span>
+                                        <input
+                                            type="number"
+                                            value={ex.defaultSets}
+                                            onChange={(e) => updateSets(i, parseInt(e.target.value) || 0)}
+                                            className="w-12 p-1 text-center rounded-lg bg-secondary text-sm"
+                                        />
+                                    </div>
+                                    <button
+                                        onClick={() => removeExercise(i)}
+                                        className="p-2 text-muted hover:text-destructive transition-colors"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
                                 </div>
-                                <button
-                                    onClick={() => removeExercise(i)}
-                                    className="p-2 text-muted hover:text-destructive transition-colors"
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                </button>
-                            </div>
-                        ))}
+                            );
+                        })}
                         {selectedExercises.length === 0 && (
                             <div className="text-center py-8 text-muted-foreground bg-secondary/20 rounded-xl border border-dashed border-border/50">
                                 No exercises added yet.

@@ -11,6 +11,7 @@ import { Doc } from "../../convex/_generated/dataModel";
 export default function RoutinesTab() {
     const routines = useQuery(api.routines.getRoutines);
     const deleteRoutine = useMutation(api.routines.deleteRoutine);
+    const seedRoutines = useMutation(api.routines.seedRoutines);
     const [isCreating, setIsCreating] = useState(false);
     const [editingRoutine, setEditingRoutine] = useState<Doc<"routines"> | null>(null);
 
@@ -47,6 +48,14 @@ export default function RoutinesTab() {
             >
                 <Plus className="w-5 h-5" />
                 <span className="font-medium">Create New Routine</span>
+            </button>
+
+            <button
+                onClick={() => seedRoutines()}
+                className="w-full p-4 border-2 border-dashed border-border rounded-2xl flex items-center justify-center gap-2 text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-primary/5 transition-all"
+            >
+                <Dumbbell className="w-5 h-5" />
+                <span className="font-medium">Load Sample Routines</span>
             </button>
 
             <div className="grid gap-4">

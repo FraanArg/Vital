@@ -95,25 +95,33 @@ export default function FoodCombobox({ selectedItems, onItemsChange }: FoodCombo
                 />
 
                 {isOpen && (suggestions?.length || query) && (
-                    <div className="absolute w-full mt-1 bg-card border border-border rounded-xl shadow-lg z-[100] overflow-hidden">
+                    <div className="absolute w-full mt-1 bg-card border border-border rounded-xl shadow-lg z-[100] overflow-hidden max-h-[300px] overflow-y-auto">
                         {suggestions?.map((item: Doc<"foodItems">) => (
                             <button
                                 key={item._id}
                                 onClick={() => addItem(item.name)}
-                                className="w-full text-left px-4 py-2 hover:bg-secondary transition-colors flex items-center justify-between group"
+                                className="w-full text-left px-4 py-3 hover:bg-secondary transition-colors flex items-center justify-between group border-b border-border/50 last:border-none"
                             >
-                                <span>{item.name}</span>
+                                <div className="flex items-center gap-3">
+                                    <span className="text-xl">{item.icon || "🍽️"}</span>
+                                    <div>
+                                        <div className="font-medium">{item.name}</div>
+                                        {item.category && <div className="text-xs text-muted-foreground">{item.category}</div>}
+                                    </div>
+                                </div>
                                 {selectedItems.includes(item.name) && <Check className="w-4 h-4 text-primary" />}
                             </button>
                         ))}
                         {query && !suggestions?.some((s: Doc<"foodItems">) => s.name.toLowerCase() === query.toLowerCase()) && (
-                            <button
-                                onClick={() => addItem(query)}
-                                className="w-full text-left px-4 py-2 hover:bg-secondary transition-colors text-primary font-medium flex items-center gap-2"
-                            >
-                                <Plus className="w-4 h-4" />
-                                Add &quot;{query}&quot;
-                            </button>
+                            <div className="p-2">
+                                <button
+                                    onClick={() => addItem(query)}
+                                    className="w-full text-left px-4 py-2 hover:bg-secondary transition-colors text-primary font-medium flex items-center gap-2 rounded-lg"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    Add &quot;{query}&quot;
+                                </button>
+                            </div>
                         )}
                     </div>
                 )}
