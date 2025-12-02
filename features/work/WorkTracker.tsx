@@ -3,7 +3,9 @@ import { useState } from 'react';
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
-export default function WorkTracker({ onClose, selectedDate, initialData }: { onClose: () => void, selectedDate: Date, initialData?: any }) {
+import { Doc } from "../../convex/_generated/dataModel";
+
+export default function WorkTracker({ onClose, selectedDate, initialData }: { onClose: () => void, selectedDate: Date, initialData?: Doc<"logs"> | null }) {
     const [hours, setHours] = useState(initialData?.work || 8);
     const createLog = useMutation(api.logs.createLog).withOptimisticUpdate((localStore, args) => {
         const { date, ...logData } = args;
@@ -46,9 +48,9 @@ export default function WorkTracker({ onClose, selectedDate, initialData }: { on
         <div className="space-y-4">
             <h3 className="text-xl font-semibold">Work Hours</h3>
             <div className="flex items-center justify-center gap-4">
-                <button type="button" onClick={() => setHours(h => Math.max(0, h - 0.5))} className="p-2 bg-secondary rounded-full">-</button>
+                <button type="button" onClick={() => setHours((h: number) => Math.max(0, h - 0.5))} className="p-2 bg-secondary rounded-full">-</button>
                 <span className="text-2xl font-bold">{hours}h</span>
-                <button type="button" onClick={() => setHours(h => h + 0.5)} className="p-2 bg-secondary rounded-full">+</button>
+                <button type="button" onClick={() => setHours((h: number) => h + 0.5)} className="p-2 bg-secondary rounded-full">+</button>
             </div>
             <button type="button" onClick={save} className="w-full p-3 bg-primary text-primary-foreground rounded-xl">
                 Save Work

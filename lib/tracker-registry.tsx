@@ -16,7 +16,7 @@ export interface TrackerConfig {
     icon: LucideIcon;
     color: string; // Tailwind class for text color
     bgColor: string; // Tailwind class for background color
-    component: React.ComponentType<{ onClose: () => void; selectedDate: Date; initialData?: any }>;
+    component: React.ComponentType<{ onClose: () => void; selectedDate: Date; initialData?: Doc<"logs"> | null }>;
     matcher: (log: Doc<"logs">) => boolean;
     renderContent: (log: Doc<"logs">) => React.ReactNode;
     getIcon?: (log: Doc<"logs">, iconMappings?: Doc<"icon_mappings">[]) => LucideIcon;

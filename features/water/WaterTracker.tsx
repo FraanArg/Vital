@@ -4,7 +4,9 @@ import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useHaptic } from "../../hooks/useHaptic";
 
-export default function WaterTracker({ onClose, selectedDate, initialData }: { onClose: () => void, selectedDate: Date, initialData?: any }) {
+import { Doc } from "../../convex/_generated/dataModel";
+
+export default function WaterTracker({ onClose, selectedDate, initialData }: { onClose: () => void, selectedDate: Date, initialData?: Doc<"logs"> | null }) {
     const [liters, setLiters] = useState(initialData?.water || 0.5);
     const { trigger } = useHaptic();
     const createLog = useMutation(api.logs.createLog).withOptimisticUpdate((localStore, args) => {
@@ -51,7 +53,7 @@ export default function WaterTracker({ onClose, selectedDate, initialData }: { o
                 <button
                     onClick={() => {
                         trigger("light");
-                        setLiters(l => Math.max(0, Number((l - 0.25).toFixed(2))));
+                        setLiters((l: number) => Math.max(0, Number((l - 0.25).toFixed(2))));
                     }}
                     className="w-12 h-12 bg-background shadow-sm rounded-xl flex items-center justify-center text-xl font-bold hover:scale-105 transition-transform"
                 >
@@ -72,7 +74,7 @@ export default function WaterTracker({ onClose, selectedDate, initialData }: { o
                 <button
                     onClick={() => {
                         trigger("light");
-                        setLiters(l => Number((l + 0.25).toFixed(2)));
+                        setLiters((l: number) => Number((l + 0.25).toFixed(2)));
                     }}
                     className="w-12 h-12 bg-background shadow-sm rounded-xl flex items-center justify-center text-xl font-bold hover:scale-105 transition-transform"
                 >

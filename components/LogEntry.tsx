@@ -1,16 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { TRACKERS } from '../lib/tracker-registry';
 import { useHaptic } from '../hooks/useHaptic';
+import { Doc } from "../convex/_generated/dataModel";
 
 interface LogEntryProps {
     selectedDate: Date;
     activeTracker: string | null;
     onTrackerChange: (trackerId: string | null) => void;
-    editingLog?: any;
+    editingLog?: Doc<"logs"> | null;
 }
 
 export default function LogEntry({ selectedDate, activeTracker, onTrackerChange, editingLog }: LogEntryProps) {
@@ -30,7 +31,7 @@ export default function LogEntry({ selectedDate, activeTracker, onTrackerChange,
         };
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, []);
+    }, [handleClose]);
 
     return (
         <div className="w-full mb-8">

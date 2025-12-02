@@ -43,17 +43,21 @@ function PrefetchDays({ date }: { date: Date }) {
 
 import { TRACKERS } from "../lib/tracker-registry";
 
+import { Doc } from "../convex/_generated/dataModel";
+
+// ...
+
 export default function Home() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isMounted, setIsMounted] = useState(false);
   const [activeTracker, setActiveTracker] = useState<string | null>(null);
-  const [editingLog, setEditingLog] = useState<any>(null);
+  const [editingLog, setEditingLog] = useState<Doc<"logs"> | null>(null);
 
   useEffect(() => {
     setTimeout(() => setIsMounted(true), 0);
   }, []);
 
-  const handleEdit = (log: any) => {
+  const handleEdit = (log: Doc<"logs">) => {
     const tracker = TRACKERS.find(t => t.matcher(log));
     if (tracker) {
       setEditingLog(log);

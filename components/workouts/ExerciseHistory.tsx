@@ -24,7 +24,7 @@ export default function ExerciseHistory({ exerciseName }: { exerciseName: string
                     </div>
                     {entry.notes && (
                         <p className="text-muted-foreground italic pl-2 border-l-2 border-primary/20">
-                            "{entry.notes}"
+                            &quot;{entry.notes}&quot;
                         </p>
                     )}
                 </div>

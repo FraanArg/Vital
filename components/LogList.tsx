@@ -10,9 +10,11 @@ import { Skeleton } from "./ui/Skeleton";
 import { TRACKERS } from "../lib/tracker-registry";
 import { useToast } from "./ui/ToastContext";
 
+import { Doc } from "../convex/_generated/dataModel";
+
 interface LogListProps {
     selectedDate: Date;
-    onEdit?: (log: any) => void;
+    onEdit?: (log: Doc<"logs">) => void;
 }
 
 export default function LogList({ selectedDate, onEdit }: LogListProps) {
