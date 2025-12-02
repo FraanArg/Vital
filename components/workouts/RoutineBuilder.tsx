@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Doc } from "../../convex/_generated/dataModel";
-import { Search, Plus, Trash2, X, GripVertical, Loader2 } from "lucide-react";
+import { Search, Plus, Trash2, X, GripVertical, Loader2, Pencil } from "lucide-react";
 
 interface RoutineBuilderProps {
     initialData?: Doc<"routines"> | null;
@@ -35,6 +35,8 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
     const [isSaving, setIsSaving] = useState(false);
     const [isCreatingExerciseLoading, setIsCreatingExerciseLoading] = useState(false);
 
+    const [replacingIndex, setReplacingIndex] = useState<number | null>(null);
+
     const handleSave = async () => {
         if (!name || selectedExercises.length === 0) return;
         setIsSaving(true);
@@ -48,18 +50,29 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
             } else {
                 await createRoutine({ name, exercises: selectedExercises });
             }
-            onClose();
+            // onClose(); // User wants to keep it open
+            alert("Routine saved successfully!");
         } finally {
             setIsSaving(false);
         }
     };
 
     const addExercise = (ex: Doc<"exercises">) => {
-        setSelectedExercises([...selectedExercises, {
-            name: ex.name,
-            defaultSets: 3,
-            day: activeDay
-        }]);
+        if (replacingIndex !== null) {
+            const updated = [...selectedExercises];
+            updated[replacingIndex] = {
+                ...updated[replacingIndex],
+                name: ex.name
+            };
+            setSelectedExercises(updated);
+            setReplacingIndex(null);
+        } else {
+            setSelectedExercises([...selectedExercises, {
+                name: ex.name,
+                defaultSets: 3,
+                day: activeDay
+            }]);
+        }
         setShowPicker(false);
         setSearch("");
     };
@@ -98,11 +111,23 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
         setIsCreatingExerciseLoading(true);
         try {
             await createExercise(newExerciseData);
-            setSelectedExercises([...selectedExercises, {
-                name: newExerciseData.name,
-                defaultSets: 3,
-                day: activeDay
-            }]);
+
+            if (replacingIndex !== null) {
+                const updated = [...selectedExercises];
+                updated[replacingIndex] = {
+                    ...updated[replacingIndex],
+                    name: newExerciseData.name
+                };
+                setSelectedExercises(updated);
+                setReplacingIndex(null);
+            } else {
+                setSelectedExercises([...selectedExercises, {
+                    name: newExerciseData.name,
+                    defaultSets: 3,
+                    day: activeDay
+                }]);
+            }
+
             setIsCreatingExercise(false);
             setShowPicker(false);
             setSearch("");
@@ -212,10 +237,10 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
         return (
             <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
-                    <button onClick={() => setShowPicker(false)} className="text-sm text-muted-foreground hover:text-foreground">
+                    <button onClick={() => { setShowPicker(false); setReplacingIndex(null); }} className="text-sm text-muted-foreground hover:text-foreground">
                         ← Back
                     </button>
-                    <h3 className="font-semibold">Add Exercise to {activeDay}</h3>
+                    <h3 className="font-semibold">{replacingIndex !== null ? "Replace Exercise" : `Add Exercise to ${activeDay}`}</h3>
                 </div>
 
                 <div className="relative">
@@ -354,6 +379,16 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
                                                     {exerciseDef?.icon || "💪"}
                                                 </div>
                                                 <div className="flex-1 font-medium">{ex.name}</div>
+                                                <button
+                                                    onClick={() => {
+                                                        setReplacingIndex(ex.originalIndex);
+                                                        setShowPicker(true);
+                                                    }}
+                                                    className="p-2 text-muted hover:text-primary transition-colors"
+                                                    title="Replace Exercise"
+                                                >
+                                                    <Pencil className="w-4 h-4" />
+                                                </button>
                                                 <button
                                                     onClick={() => removeExercise(ex.originalIndex)}
                                                     className="p-2 text-muted hover:text-destructive transition-colors"
