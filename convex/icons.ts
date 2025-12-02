@@ -7,6 +7,7 @@ export const saveIconMapping = mutation({
         type: v.string(),
         key: v.string(),
         icon: v.string(),
+        customLabel: v.optional(v.string()),
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
@@ -19,7 +20,10 @@ export const saveIconMapping = mutation({
             .first();
 
         if (existing) {
-            await ctx.db.patch(existing._id, { icon: args.icon });
+            await ctx.db.patch(existing._id, {
+                icon: args.icon,
+                ...(args.customLabel !== undefined ? { customLabel: args.customLabel } : {})
+            });
         } else {
             await ctx.db.insert("icon_mappings", { ...args, userId });
         }

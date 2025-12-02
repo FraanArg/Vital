@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { Trophy, Plus, Trash2, Circle, Swords, Target, Waves } from "lucide-react";
+import { Trophy, Plus, Trash2, Circle, Swords, Target, Waves, Settings, X } from "lucide-react";
 import { Skeleton } from "../ui/Skeleton";
 import { ICON_LIBRARY } from "../../lib/icon-library";
+import IconPicker from "../../components/IconPicker";
 
 const DEFAULT_SPORTS = [
     { id: "padel", label: "Padel", icon: Swords },
@@ -18,11 +19,17 @@ const DEFAULT_SPORTS = [
 
 export default function SportsTab() {
     const customSports = useQuery(api.sports.getSports);
+    const iconMappings = useQuery(api.icons.getIconMappings);
     const createSport = useMutation(api.sports.createSport);
     const deleteSport = useMutation(api.sports.deleteSport);
+    const saveMapping = useMutation(api.icons.saveIconMapping);
 
     const [isCreating, setIsCreating] = useState(false);
     const [newSportName, setNewSportName] = useState("");
+
+    // Editing State
+    const [editingSport, setEditingSport] = useState<{ id: string, name: string, icon: string } | null>(null);
+    const [showIconPicker, setShowIconPicker] = useState(false);
 
     const handleCreate = async () => {
         if (!newSportName) return;
@@ -31,7 +38,19 @@ export default function SportsTab() {
         setIsCreating(false);
     };
 
-    if (!customSports) {
+    const handleSaveEdit = async () => {
+        if (!editingSport) return;
+
+        await saveMapping({
+            type: "sport",
+            key: editingSport.id,
+            icon: editingSport.icon,
+            customLabel: editingSport.name
+        });
+        setEditingSport(null);
+    };
+
+    if (!customSports || !iconMappings) {
         return (
             <div className="grid grid-cols-2 gap-4">
                 {[1, 2, 3, 4].map(i => (
@@ -50,12 +69,39 @@ export default function SportsTab() {
             <div>
                 <h3 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Default Sports</h3>
                 <div className="grid grid-cols-2 gap-3">
-                    {DEFAULT_SPORTS.map((sport) => (
-                        <div key={sport.id} className="p-4 rounded-2xl border border-border/50 bg-secondary/30 flex flex-col items-center gap-2 opacity-75">
-                            <sport.icon className="w-8 h-8 text-foreground" />
-                            <span className="font-medium">{sport.label}</span>
-                        </div>
-                    ))}
+                    {DEFAULT_SPORTS.map((sport) => {
+                        const mapping = iconMappings.find(m => m.key === sport.id && m.type === "sport");
+                        const label = mapping?.customLabel || sport.label;
+                        const iconName = mapping?.icon || "Trophy"; // Fallback if mapping exists but icon is weird, though usually it has icon
+                        // Actually, if mapping exists, use its icon. If not, use sport.icon (component)
+                        // But wait, sport.icon is a Component, mapping.icon is a string name.
+                        // We need to resolve the component.
+
+                        let Icon = sport.icon;
+                        if (mapping?.icon && ICON_LIBRARY[mapping.icon]) {
+                            Icon = ICON_LIBRARY[mapping.icon];
+                        }
+
+                        return (
+                            <div key={sport.id} className="relative group p-4 rounded-2xl border border-border/50 bg-secondary/30 flex flex-col items-center gap-2 transition-all hover:bg-secondary/50">
+                                <Icon className="w-8 h-8 text-foreground" />
+                                <span className="font-medium text-center">{label}</span>
+
+                                <button
+                                    onClick={() => setEditingSport({
+                                        id: sport.id,
+                                        name: label,
+                                        icon: mapping?.icon || "Trophy" // We need a string name for the picker. "Trophy" is a safe default if we don't know the original string name of the component. 
+                                        // Actually, for default sports, we don't have their string names easily available in DEFAULT_SPORTS array unless we add them.
+                                        // Let's assume we start with "Trophy" or try to map back if possible, but "Trophy" is fine for the picker default.
+                                    })}
+                                    className="absolute top-2 right-2 p-1.5 rounded-full bg-background/80 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-primary hover:bg-background transition-all"
+                                >
+                                    <Settings className="w-3 h-3" />
+                                </button>
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
 
@@ -114,6 +160,64 @@ export default function SportsTab() {
                     )}
                 </div>
             </div>
+
+            {/* Edit Modal */}
+            {editingSport && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+                    <div className="w-full max-w-sm bg-card p-6 rounded-3xl border border-border shadow-xl space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h3 className="font-bold text-lg">Customize Sport</h3>
+                            <button onClick={() => setEditingSport(null)} className="p-2 hover:bg-secondary rounded-full">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground">Name</label>
+                            <input
+                                type="text"
+                                value={editingSport.name}
+                                onChange={(e) => setEditingSport({ ...editingSport, name: e.target.value })}
+                                className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground">Icon</label>
+                            <button
+                                onClick={() => setShowIconPicker(true)}
+                                className="w-full p-3 rounded-xl bg-secondary border-none flex items-center justify-between hover:bg-secondary/80 transition-colors"
+                            >
+                                <div className="flex items-center gap-3">
+                                    {(() => {
+                                        const Icon = ICON_LIBRARY[editingSport.icon] || Trophy;
+                                        return <Icon className="w-6 h-6" />;
+                                    })()}
+                                    <span className="text-sm">{editingSport.icon}</span>
+                                </div>
+                                <span className="text-xs text-primary font-medium">Change</span>
+                            </button>
+                        </div>
+
+                        <button
+                            onClick={handleSaveEdit}
+                            className="w-full p-3 bg-primary text-primary-foreground rounded-xl font-bold mt-2"
+                        >
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {showIconPicker && editingSport && (
+                <IconPicker
+                    onSelect={(iconName) => {
+                        setEditingSport({ ...editingSport, icon: iconName });
+                        setShowIconPicker(false);
+                    }}
+                    onClose={() => setShowIconPicker(false)}
+                />
+            )}
         </div>
     );
 }

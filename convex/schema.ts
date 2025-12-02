@@ -58,6 +58,7 @@ export default defineSchema({
         type: v.string(), // "food" | "sport"
         key: v.string(),  // "apple", "padel"
         icon: v.string(), // "Apple", "Swords"
+        customLabel: v.optional(v.string()), // "Paddle Tennis"
     }).index("by_user_type", ["userId", "type"])
         .index("by_user_key", ["userId", "key"]),
 
