@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { Doc } from "../../convex/_generated/dataModel";
 import FoodCombobox from "../../components/FoodCombobox";
 import { Clock } from "lucide-react";
 import SuggestionRow from "../../components/SuggestionRow";
@@ -29,7 +30,7 @@ const MEAL_ROWS = [
 const HOURS = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
 const MINUTES = ["00", "15", "30", "45"];
 
-export default function FoodTracker({ onClose, selectedDate, initialData }: { onClose: () => void, selectedDate: Date, initialData?: any }) {
+export default function FoodTracker({ onClose, selectedDate, initialData }: { onClose: () => void, selectedDate: Date, initialData?: Doc<"logs"> | null }) {
     const [mealType, setMealType] = useState<string | null>(initialData?.meal?.type || null);
     const [selectedHour, setSelectedHour] = useState(initialData?.meal?.time?.split(':')[0] || "12");
     const [selectedMinute, setSelectedMinute] = useState(initialData?.meal?.time?.split(':')[1] || "00");
@@ -92,6 +93,7 @@ export default function FoodTracker({ onClose, selectedDate, initialData }: { on
                 onClose();
             } catch (error) {
                 console.error("Failed to save meal:", error);
+                alert("Failed to save meal. Please try again."); // Simple fallback for now
                 setIsSaving(false);
             }
         }
@@ -177,10 +179,17 @@ export default function FoodTracker({ onClose, selectedDate, initialData }: { on
             <button
                 type="button"
                 onClick={save}
-                disabled={!mealType || items.length === 0}
-                className="w-full p-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-2xl disabled:opacity-50 font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all active:scale-95"
+                disabled={!mealType || items.length === 0 || isSaving}
+                className="w-full p-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-2xl disabled:opacity-50 font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all active:scale-95 flex items-center justify-center gap-2"
             >
-                Save Meal
+                {isSaving ? (
+                    <>
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Saving...</span>
+                    </>
+                ) : (
+                    "Save Meal"
+                )}
             </button>
         </div>
     );

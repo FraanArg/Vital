@@ -3,10 +3,13 @@ import { useState } from 'react';
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 
-export default function CustomTracker({ onClose, selectedDate }: { onClose: () => void, selectedDate: Date }) {
-    const [name, setName] = useState('');
-    const [value, setValue] = useState('');
-    const [unit, setUnit] = useState('');
+import { Doc } from "../../convex/_generated/dataModel";
+
+export default function CustomTracker({ onClose, selectedDate, initialData }: { onClose: () => void, selectedDate: Date, initialData?: Doc<"logs"> | null }) {
+    const [name, setName] = useState(initialData?.custom?.[0]?.name || '');
+    const [value, setValue] = useState(initialData?.custom?.[0]?.value?.toString() || '');
+    const [unit, setUnit] = useState(initialData?.custom?.[0]?.unit || '');
+
     const createLog = useMutation(api.logs.createLog).withOptimisticUpdate((localStore, args) => {
         const { date, ...logData } = args;
         const logDate = new Date(date);
@@ -29,13 +32,22 @@ export default function CustomTracker({ onClose, selectedDate }: { onClose: () =
             localStore.setQuery(api.logs.getLogs, queryArgs, [...existingLogs, newLog]);
         }
     });
+    const updateLog = useMutation(api.logs.updateLog);
 
     const save = async () => {
         if (name && value) {
-            await createLog({
-                custom: [{ name, value: Number(value), unit }],
-                date: selectedDate.toISOString()
-            });
+            if (initialData) {
+                await updateLog({
+                    id: initialData._id,
+                    custom: [{ name, value: Number(value), unit }],
+                    date: selectedDate.toISOString()
+                });
+            } else {
+                await createLog({
+                    custom: [{ name, value: Number(value), unit }],
+                    date: selectedDate.toISOString()
+                });
+            }
             onClose();
         }
     };

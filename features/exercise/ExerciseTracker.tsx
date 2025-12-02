@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Doc } from "../../convex/_generated/dataModel";
@@ -27,21 +27,53 @@ const SPORTS = [
     { id: "volleyball", label: "Volleyball", icon: Circle },
 ];
 
-export default function ExerciseTracker({ onClose, selectedDate }: { onClose: () => void, selectedDate: Date }) {
-    const [activity, setActivity] = useState<string | null>(null);
-    const [subActivity, setSubActivity] = useState<string | null>(null); // For Sports
-    const [duration, setDuration] = useState(60);
-    const [distance, setDistance] = useState<number | "">("");
-    const [notes, setNotes] = useState("");
+export default function ExerciseTracker({ onClose, selectedDate, initialData }: { onClose: () => void, selectedDate: Date, initialData?: Doc<"logs"> | null }) {
+    const [activity, setActivity] = useState<string | null>(initialData?.exercise?.type || null);
+    const [subActivity, setSubActivity] = useState<string | null>(initialData?.exercise?.type === "sports" ? initialData.exercise.type : null); // Logic might need adjustment if "sports" is not the type but the category
+    // Actually, activity is "sports" | "gym" | "run" | "walk".
+    // If initialData.exercise.type is "padel", activity should be "sports" and subActivity "padel"?
+    // Or is "padel" a top level type in the backend?
+    // Looking at schema: type: v.string().
+    // Looking at ExerciseTracker logic: finalType = activity === "sports" ? subActivity : activity.
+    // So if saved as "padel", we need to reverse map it.
 
-    // Gym State
-    const [gymMode, setGymMode] = useState<"select" | "log">("select");
+    // Let's check how it's saved.
+    // const finalType = activity === "sports" ? subActivity : activity;
+    // So "padel" is saved as type.
+
+    // Reverse mapping logic:
+    // If type is in SPORTS list, activity="sports", subActivity=type.
+    // If type is "gym", activity="gym".
+    // If type is "run", activity="run".
+    // If type is "walk", activity="walk".
+
+    const [duration, setDuration] = useState(initialData?.exercise?.duration || 60);
+    const [distance, setDistance] = useState<number | "">(initialData?.exercise?.distance || "");
+    const [notes, setNotes] = useState(initialData?.exercise?.notes || "");
+
+    const [gymMode, setGymMode] = useState<"select" | "log">(initialData?.exercise?.workout ? "log" : "select");
     const [workout, setWorkout] = useState<{
         name: string;
         sets: { reps: number; weight: number; rpe?: number }[];
         targetRpe?: string;
         notes?: string;
-    }[]>([]);
+    }[]>(initialData?.exercise?.workout || []);
+
+    // Initialize activity from initialData
+    useEffect(() => {
+        if (initialData?.exercise) {
+            const type = initialData.exercise.type;
+            if (["gym", "run", "walk"].includes(type)) {
+                setActivity(type);
+            } else {
+                // Assume it's a sport
+                setActivity("sports");
+                setSubActivity(type);
+            }
+        }
+    }, [initialData]);
+
+    const updateLog = useMutation(api.logs.updateLog);
 
     // Icon Customization State
     const [showIconPicker, setShowIconPicker] = useState<{ type: "sport", id: string } | null>(null);
@@ -95,11 +127,22 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
                 exerciseData.workout = workout;
             }
 
-            await createLog({
-                exercise: exerciseData,
-                date: selectedDate.toISOString()
-            });
+            if (initialData) {
+                await updateLog({
+                    id: initialData._id,
+                    exercise: exerciseData,
+                    date: selectedDate.toISOString()
+                });
+            } else {
+                await createLog({
+                    exercise: exerciseData,
+                    date: selectedDate.toISOString()
+                });
+            }
             onClose();
+        } catch (error) {
+            console.error("Failed to save exercise:", error);
+            alert("Failed to save exercise.");
         } finally {
             setIsSaving(false);
         }
