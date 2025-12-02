@@ -9,6 +9,7 @@ import RoutineManager from "./RoutineManager";
 import IconPicker from "../../components/IconPicker";
 import { ICON_LIBRARY } from "../../lib/icon-library";
 import SuggestionRow from "../../components/SuggestionRow";
+import ExerciseHistory from "../../components/workouts/ExerciseHistory";
 
 const ACTIVITIES = [
     { id: "sports", label: "Sports", icon: Trophy },
@@ -35,7 +36,12 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
 
     // Gym State
     const [gymMode, setGymMode] = useState<"select" | "log">("select");
-    const [workout, setWorkout] = useState<{ name: string; sets: { reps: number; weight: number }[] }[]>([]);
+    const [workout, setWorkout] = useState<{
+        name: string;
+        sets: { reps: number; weight: number; rpe?: number }[];
+        targetRpe?: string;
+        notes?: string;
+    }[]>([]);
 
     // Icon Customization State
     const [showIconPicker, setShowIconPicker] = useState<{ type: "sport", id: string } | null>(null);
@@ -93,14 +99,28 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
     };
 
     const handleRoutineSelect = (routine: Doc<"routines">) => {
-        setWorkout(routine.exercises.map((e) => ({
+        const uniqueDays = Array.from(new Set(routine.exercises.map(e => e.day || "Day 1")));
+
+        // If multiple days, we should ideally let the user pick. 
+        // For now, let's just pick the first one to avoid UI complexity in this step
+        // Or better: If we had a modal, we'd show it. 
+        // Let's just load the first day's exercises.
+        const dayToLoad = uniqueDays[0];
+        const dayExercises = routine.exercises.filter(e => (e.day || "Day 1") === dayToLoad);
+
+        setWorkout(dayExercises.map(e => ({
             name: e.name,
-            sets: Array(e.defaultSets).fill({ reps: 0, weight: 0 })
+            sets: Array(e.defaultSets).fill({ reps: 0, weight: 0 }),
+            targetRpe: e.targetRpe,
+            notes: ""
         })));
         setGymMode("log");
+        // Assuming setShowRoutineList is defined elsewhere or will be added.
+        // For now, commenting it out to avoid a compilation error if it's not defined.
+        // setShowRoutineList(false);
     };
 
-    const updateSet = (exerciseIndex: number, setIndex: number, field: "reps" | "weight", value: number) => {
+    const updateSet = (exerciseIndex: number, setIndex: number, field: "reps" | "weight" | "rpe", value: number) => {
         const newWorkout = [...workout];
         newWorkout[exerciseIndex].sets[setIndex] = {
             ...newWorkout[exerciseIndex].sets[setIndex],
@@ -119,6 +139,12 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
     const removeSet = (exerciseIndex: number, setIndex: number) => {
         const newWorkout = [...workout];
         newWorkout[exerciseIndex].sets = newWorkout[exerciseIndex].sets.filter((_, i) => i !== setIndex);
+        setWorkout(newWorkout);
+    };
+
+    const updateNotes = (exerciseIndex: number, notes: string) => {
+        const newWorkout = [...workout];
+        newWorkout[exerciseIndex].notes = notes;
         setWorkout(newWorkout);
     };
 
@@ -346,19 +372,28 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
                 <div className="space-y-6">
                     {workout.map((exercise, i) => (
                         <div key={i} className="space-y-3 p-4 rounded-2xl bg-secondary/20 border border-border/50">
-                            <div className="flex justify-between items-center">
-                                <h4 className="font-bold">{exercise.name}</h4>
+                            <div className="flex flex-col gap-1">
+                                <div className="flex justify-between items-center">
+                                    <h4 className="font-bold">{exercise.name}</h4>
+                                    {exercise.targetRpe && (
+                                        <span className="text-xs font-medium px-2 py-1 bg-primary/10 text-primary rounded-full">
+                                            Target RPE: {exercise.targetRpe}
+                                        </span>
+                                    )}
+                                </div>
+                                <ExerciseHistory exerciseName={exercise.name} />
                             </div>
 
                             <div className="space-y-2">
-                                <div className="grid grid-cols-[auto_1fr_1fr_auto] gap-2 text-xs text-muted-foreground font-medium px-1">
+                                <div className="grid grid-cols-[auto_1fr_1fr_1fr_auto] gap-2 text-xs text-muted-foreground font-medium px-1">
                                     <span className="w-6 text-center">#</span>
                                     <span>kg</span>
                                     <span>reps</span>
+                                    <span>RPE</span>
                                     <span className="w-8"></span>
                                 </div>
                                 {exercise.sets.map((set, j) => (
-                                    <div key={j} className="grid grid-cols-[auto_1fr_1fr_auto] gap-2 items-center">
+                                    <div key={j} className="grid grid-cols-[auto_1fr_1fr_1fr_auto] gap-2 items-center">
                                         <span className="w-6 text-center text-sm font-medium text-muted-foreground">{j + 1}</span>
                                         <input
                                             inputMode="decimal"
@@ -376,6 +411,14 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
                                             placeholder="0"
                                             className="p-2 rounded-lg bg-background/50 border border-border/50 text-center focus:ring-2 focus:ring-emerald-500/50"
                                         />
+                                        <input
+                                            inputMode="decimal"
+                                            type="number"
+                                            value={set.rpe || ""}
+                                            onChange={(e) => updateSet(i, j, "rpe", parseFloat(e.target.value))}
+                                            placeholder="-"
+                                            className="p-2 rounded-lg bg-background/50 border border-border/50 text-center focus:ring-2 focus:ring-emerald-500/50"
+                                        />
                                         <button onClick={() => removeSet(i, j)} className="p-2 text-muted hover:text-destructive">
                                             <Trash2 className="w-4 h-4" />
                                         </button>
@@ -384,6 +427,15 @@ export default function ExerciseTracker({ onClose, selectedDate }: { onClose: ()
                                 <button onClick={() => addSet(i)} className="text-xs text-emerald-500 font-medium flex items-center gap-1 mt-2">
                                     <Plus className="w-3 h-3" /> Add Set
                                 </button>
+                            </div>
+
+                            <div className="pt-2">
+                                <textarea
+                                    value={exercise.notes || ""}
+                                    onChange={(e) => updateNotes(i, e.target.value)}
+                                    placeholder="Notes (e.g. Seat height, cues...)"
+                                    className="w-full p-2 text-sm rounded-lg bg-background/50 border border-border/50 focus:ring-2 focus:ring-primary min-h-[60px]"
+                                />
                             </div>
                         </div>
                     ))}

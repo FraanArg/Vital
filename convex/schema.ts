@@ -25,9 +25,11 @@ export default defineSchema({
                 sets: v.array(v.object({
                     reps: v.number(),
                     weight: v.number(),
-                }))
+                    rpe: v.optional(v.number()),
+                })),
+                notes: v.optional(v.string()), // Exercise-specific notes
             }))),
-            notes: v.optional(v.string()),
+            notes: v.optional(v.string()), // General workout notes
         })),
         journal: v.optional(v.string()),
         custom: v.optional(v.array(v.object({
@@ -52,6 +54,8 @@ export default defineSchema({
         exercises: v.array(v.object({
             name: v.string(),
             defaultSets: v.number(),
+            day: v.optional(v.string()), // e.g. "Day 1", "Push", etc.
+            targetRpe: v.optional(v.string()), // e.g. "8", "7-8"
         }))
     }).index("by_user", ["userId"]),
 

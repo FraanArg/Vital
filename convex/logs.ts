@@ -24,7 +24,9 @@ export const createLog = mutation({
                 sets: v.array(v.object({
                     reps: v.number(),
                     weight: v.number(),
-                }))
+                    rpe: v.optional(v.number()),
+                })),
+                notes: v.optional(v.string()),
             }))),
             notes: v.optional(v.string()),
         })),
@@ -103,5 +105,41 @@ export const deleteLog = mutation({
         }
 
         await ctx.db.delete(args.id);
+    },
+});
+
+export const getExerciseHistory = query({
+    args: {
+        exerciseName: v.string(),
+        limit: v.optional(v.number()),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) return [];
+        const userId = identity.subject;
+
+        const logs = await ctx.db
+            .query("logs")
+            .withIndex("by_userId_date", (q) => q.eq("userId", userId))
+            .order("desc")
+            .collect();
+
+        // Filter for logs containing the exercise
+        // Note: This is done in memory because we can't easily index deep into the JSON object array
+        // For a larger app, we might want a separate "exerciseLogs" table
+        const history = logs
+            .filter(log =>
+                log.exercise?.workout?.some(w => w.name === args.exerciseName)
+            )
+            .map(log => {
+                const workout = log.exercise?.workout?.find(w => w.name === args.exerciseName);
+                return {
+                    date: log.date,
+                    sets: workout?.sets || []
+                };
+            })
+            .slice(0, args.limit || 5);
+
+        return history;
     },
 });

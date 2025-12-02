@@ -7,6 +7,8 @@ export const createRoutine = mutation({
         exercises: v.array(v.object({
             name: v.string(),
             defaultSets: v.number(),
+            day: v.optional(v.string()),
+            targetRpe: v.optional(v.string()),
         }))
     },
     handler: async (ctx, args) => {
@@ -56,6 +58,8 @@ export const updateRoutine = mutation({
         exercises: v.array(v.object({
             name: v.string(),
             defaultSets: v.number(),
+            day: v.optional(v.string()),
+            targetRpe: v.optional(v.string()),
         }))
     },
     handler: async (ctx, args) => {

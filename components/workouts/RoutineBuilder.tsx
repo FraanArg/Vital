@@ -17,26 +17,30 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
     const updateRoutine = useMutation(api.routines.updateRoutine); // Need to implement this backend mutation if not exists, or just delete/create
 
     const [name, setName] = useState(initialData?.name || "");
-    const [selectedExercises, setSelectedExercises] = useState<{ name: string; defaultSets: number }[]>(
+    const [selectedExercises, setSelectedExercises] = useState<{ name: string; defaultSets: number; day?: string; targetRpe?: string }[]>(
         initialData?.exercises || []
     );
+    const [days, setDays] = useState<string[]>(() => {
+        if (initialData?.exercises) {
+            const uniqueDays = Array.from(new Set(initialData.exercises.map(e => e.day || "Day 1")));
+            return uniqueDays.length > 0 ? uniqueDays : ["Day 1"];
+        }
+        return ["Day 1"];
+    });
+    const [activeDay, setActiveDay] = useState("Day 1");
+
     const [showPicker, setShowPicker] = useState(false);
     const [search, setSearch] = useState("");
 
     const handleSave = async () => {
         if (!name || selectedExercises.length === 0) return;
 
-        // Note: Assuming updateRoutine exists or we handle it. 
-        // For now, if initialData exists, we might need to delete and recreate or add an update mutation.
-        // Let's assume createRoutine handles it or we add updateRoutine later. 
-        // Actually, let's just use createRoutine for now and fix the update logic in backend if needed.
-        // Wait, I should check if updateRoutine exists. It likely doesn't.
-        // I'll implement a simple "delete then create" logic if it's an edit, OR just create new.
-        // Better: Add updateRoutine to schema/backend. For now, I'll just create.
-
         if (initialData) {
-            // TODO: Implement update
-            await createRoutine({ name, exercises: selectedExercises }); // Duplicate for now
+            await updateRoutine({
+                id: initialData._id,
+                name,
+                exercises: selectedExercises
+            });
         } else {
             await createRoutine({ name, exercises: selectedExercises });
         }
@@ -44,7 +48,11 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
     };
 
     const addExercise = (ex: Doc<"exercises">) => {
-        setSelectedExercises([...selectedExercises, { name: ex.name, defaultSets: 3 }]);
+        setSelectedExercises([...selectedExercises, {
+            name: ex.name,
+            defaultSets: 3,
+            day: activeDay
+        }]);
         setShowPicker(false);
         setSearch("");
     };
@@ -53,10 +61,43 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
         setSelectedExercises(selectedExercises.filter((_, i) => i !== index));
     };
 
-    const updateSets = (index: number, sets: number) => {
+    const updateExercise = (index: number, field: keyof typeof selectedExercises[0], value: any) => {
         const updated = [...selectedExercises];
-        updated[index].defaultSets = sets;
+        updated[index] = { ...updated[index], [field]: value };
         setSelectedExercises(updated);
+    };
+
+    const addDay = () => {
+        const newDay = `Day ${days.length + 1}`;
+        setDays([...days, newDay]);
+        setActiveDay(newDay);
+    };
+
+    const removeDay = (dayToRemove: string) => {
+        if (days.length <= 1) return;
+        setDays(days.filter(d => d !== dayToRemove));
+        setSelectedExercises(selectedExercises.filter(ex => ex.day !== dayToRemove));
+        if (activeDay === dayToRemove) {
+            setActiveDay(days[0]);
+        }
+    };
+
+    const createExercise = useMutation(api.exercises.createExercise);
+    const [isCreatingExercise, setIsCreatingExercise] = useState(false);
+    const [newExerciseData, setNewExerciseData] = useState({ name: "", muscle: "Chest", category: "Barbell", icon: "💪" });
+
+    const handleCreateExercise = async () => {
+        if (!newExerciseData.name) return;
+        await createExercise(newExerciseData);
+        setSelectedExercises([...selectedExercises, {
+            name: newExerciseData.name,
+            defaultSets: 3,
+            day: activeDay
+        }]);
+        setIsCreatingExercise(false);
+        setShowPicker(false);
+        setSearch("");
+        setNewExerciseData({ name: "", muscle: "Chest", category: "Barbell", icon: "💪" });
     };
 
     if (showPicker) {
@@ -64,13 +105,97 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
             ex.name.toLowerCase().includes(search.toLowerCase())
         );
 
+        if (isCreatingExercise) {
+            return (
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 mb-4">
+                        <button
+                            onClick={() => setIsCreatingExercise(false)}
+                            className="text-sm text-muted-foreground hover:text-foreground"
+                        >
+                            ← Back
+                        </button>
+                        <h3 className="font-semibold">Create Exercise</h3>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Name</label>
+                            <input
+                                type="text"
+                                value={newExerciseData.name}
+                                onChange={e => setNewExerciseData({ ...newExerciseData, name: e.target.value })}
+                                className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary"
+                                placeholder="e.g. Bulgarian Split Squat"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Muscle</label>
+                                <select
+                                    value={newExerciseData.muscle}
+                                    onChange={e => setNewExerciseData({ ...newExerciseData, muscle: e.target.value })}
+                                    className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary"
+                                >
+                                    {["Chest", "Back", "Legs", "Shoulders", "Arms", "Core", "Cardio", "Other"].map(m => (
+                                        <option key={m} value={m}>{m}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">Category</label>
+                                <select
+                                    value={newExerciseData.category}
+                                    onChange={e => setNewExerciseData({ ...newExerciseData, category: e.target.value })}
+                                    className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary"
+                                >
+                                    {["Barbell", "Dumbbell", "Machine", "Bodyweight", "Cable", "Weighted Bodyweight", "Assisted Bodyweight", "Other"].map(c => (
+                                        <option key={c} value={c}>{c}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Icon</label>
+                            <div className="flex gap-2">
+                                <div className="w-12 h-12 flex items-center justify-center bg-secondary rounded-xl text-2xl">
+                                    {newExerciseData.icon}
+                                </div>
+                                <div className="flex-1 flex gap-2 overflow-x-auto p-1">
+                                    {["💪", "🏋️‍♂️", "🦵", "🏃", "🧘", "🤸", "🚴", "🏊", "🧗", "🥊"].map(emoji => (
+                                        <button
+                                            key={emoji}
+                                            onClick={() => setNewExerciseData({ ...newExerciseData, icon: emoji })}
+                                            className="p-2 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors"
+                                        >
+                                            {emoji}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={handleCreateExercise}
+                            disabled={!newExerciseData.name}
+                            className="w-full p-3 bg-primary text-primary-foreground rounded-xl font-bold disabled:opacity-50"
+                        >
+                            Create & Add
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
         return (
             <div className="space-y-4">
                 <div className="flex items-center gap-2 mb-4">
                     <button onClick={() => setShowPicker(false)} className="text-sm text-muted-foreground hover:text-foreground">
                         ← Back
                     </button>
-                    <h3 className="font-semibold">Add Exercise</h3>
+                    <h3 className="font-semibold">Add Exercise to {activeDay}</h3>
                 </div>
 
                 <div className="relative">
@@ -101,6 +226,19 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
                             <span className="text-xs text-muted-foreground">{ex.muscle}</span>
                         </button>
                     ))}
+
+                    {search && (
+                        <button
+                            onClick={() => {
+                                setNewExerciseData({ ...newExerciseData, name: search });
+                                setIsCreatingExercise(true);
+                            }}
+                            className="w-full text-left p-3 rounded-xl hover:bg-secondary transition-colors flex items-center gap-2 text-primary"
+                        >
+                            <Plus className="w-5 h-5" />
+                            <span className="font-medium">Create "{search}"</span>
+                        </button>
+                    )}
                 </div>
             </div>
         );
@@ -136,50 +274,104 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
                     />
                 </div>
 
-                <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                        <label className="text-sm font-medium text-muted-foreground">Exercises</label>
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 overflow-x-auto pb-2">
+                        {days.map(day => (
+                            <div key={day} className="flex items-center">
+                                <button
+                                    onClick={() => setActiveDay(day)}
+                                    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${activeDay === day
+                                            ? "bg-primary text-primary-foreground"
+                                            : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+                                        }`}
+                                >
+                                    {day}
+                                </button>
+                            </div>
+                        ))}
                         <button
-                            onClick={() => setShowPicker(true)}
-                            className="text-sm text-primary font-medium flex items-center gap-1"
+                            onClick={addDay}
+                            className="px-3 py-2 rounded-full bg-secondary/50 text-muted-foreground hover:bg-secondary hover:text-primary transition-colors"
+                            title="Add Day"
                         >
-                            <Plus className="w-4 h-4" /> Add
+                            <Plus className="w-4 h-4" />
                         </button>
                     </div>
 
-                    <div className="space-y-2">
-                        {selectedExercises.map((ex, i) => {
-                            const exerciseDef = exercises?.find(e => e.name === ex.name);
-                            return (
-                                <div key={i} className="flex items-center gap-3 p-3 bg-card rounded-xl border border-border/50">
-                                    <GripVertical className="w-4 h-4 text-muted-foreground/50" />
-                                    <div className="w-8 h-8 flex items-center justify-center bg-secondary rounded-lg text-lg">
-                                        {exerciseDef?.icon || "💪"}
-                                    </div>
-                                    <div className="flex-1 font-medium">{ex.name}</div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-xs text-muted-foreground">Sets</span>
-                                        <input
-                                            type="number"
-                                            value={ex.defaultSets}
-                                            onChange={(e) => updateSets(i, parseInt(e.target.value) || 0)}
-                                            className="w-12 p-1 text-center rounded-lg bg-secondary text-sm"
-                                        />
-                                    </div>
+                    <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                                <label className="text-sm font-medium text-muted-foreground">Exercises ({activeDay})</label>
+                                {days.length > 1 && (
                                     <button
-                                        onClick={() => removeExercise(i)}
-                                        className="p-2 text-muted hover:text-destructive transition-colors"
+                                        onClick={() => removeDay(activeDay)}
+                                        className="text-xs text-destructive hover:underline"
                                     >
-                                        <Trash2 className="w-4 h-4" />
+                                        Remove Day
                                     </button>
-                                </div>
-                            );
-                        })}
-                        {selectedExercises.length === 0 && (
-                            <div className="text-center py-8 text-muted-foreground bg-secondary/20 rounded-xl border border-dashed border-border/50">
-                                No exercises added yet.
+                                )}
                             </div>
-                        )}
+                            <button
+                                onClick={() => setShowPicker(true)}
+                                className="text-sm text-primary font-medium flex items-center gap-1"
+                            >
+                                <Plus className="w-4 h-4" /> Add
+                            </button>
+                        </div>
+
+                        <div className="space-y-2">
+                            {selectedExercises
+                                .map((ex, i) => ({ ...ex, originalIndex: i }))
+                                .filter(ex => (ex.day || "Day 1") === activeDay)
+                                .map((ex) => {
+                                    const exerciseDef = exercises?.find(e => e.name === ex.name);
+                                    return (
+                                        <div key={ex.originalIndex} className="flex flex-col gap-2 p-3 bg-card rounded-xl border border-border/50">
+                                            <div className="flex items-center gap-3">
+                                                <GripVertical className="w-4 h-4 text-muted-foreground/50" />
+                                                <div className="w-8 h-8 flex items-center justify-center bg-secondary rounded-lg text-lg">
+                                                    {exerciseDef?.icon || "💪"}
+                                                </div>
+                                                <div className="flex-1 font-medium">{ex.name}</div>
+                                                <button
+                                                    onClick={() => removeExercise(ex.originalIndex)}
+                                                    className="p-2 text-muted hover:text-destructive transition-colors"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+
+                                            <div className="flex items-center gap-4 pl-10">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs text-muted-foreground">Sets</span>
+                                                    <input
+                                                        type="number"
+                                                        value={ex.defaultSets}
+                                                        onChange={(e) => updateExercise(ex.originalIndex, "defaultSets", parseInt(e.target.value) || 0)}
+                                                        className="w-12 p-1 text-center rounded-lg bg-secondary text-sm"
+                                                    />
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs text-muted-foreground">Target RPE</span>
+                                                    <input
+                                                        type="text"
+                                                        value={ex.targetRpe || ""}
+                                                        onChange={(e) => updateExercise(ex.originalIndex, "targetRpe", e.target.value)}
+                                                        placeholder="-"
+                                                        className="w-16 p-1 text-center rounded-lg bg-secondary text-sm"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+
+                            {selectedExercises.filter(ex => (ex.day || "Day 1") === activeDay).length === 0 && (
+                                <div className="text-center py-8 text-muted-foreground bg-secondary/20 rounded-xl border border-dashed border-border/50">
+                                    No exercises in {activeDay}.
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
