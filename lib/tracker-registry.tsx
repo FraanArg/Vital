@@ -135,7 +135,7 @@ export const TRACKERS: TrackerConfig[] = [
                 return (
                     <div className="flex flex-col" >
                         <span className="font-semibold text-sm flex items-center gap-2" >
-                            {typeName} < span className="text-xs text-muted font-normal" > {log.exercise.duration}m </span>
+                            {typeName} < span className="text-xs text-muted font-normal" > {log.exercise.time ? `${log.exercise.time} • ` : ""}{log.exercise.duration}m </span>
                         </span>
                         < span className="text-xs text-muted-foreground" >
                             {exerciseCount} exercises: {exerciseNames.substring(0, 30)} {exerciseNames.length > 30 ? '...' : ''}
@@ -151,7 +151,7 @@ export const TRACKERS: TrackerConfig[] = [
             return (
                 <div className="flex flex-col" >
                     <span className="font-semibold text-sm flex items-center gap-2" >
-                        {typeName} < span className="text-xs text-muted font-normal" > {log.exercise.duration}m </span>
+                        {typeName} < span className="text-xs text-muted font-normal" > {log.exercise.time ? `${log.exercise.time} • ` : ""}{log.exercise.duration}m </span>
                     </span>
                     {
                         log.exercise.distance && (

@@ -54,7 +54,7 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
     };
 
     const filteredLogs = useMemo(() => {
-        return logs?.filter(log => {
+        const filtered = logs?.filter(log => {
             if (!searchQuery) return true;
             const query = searchQuery.toLowerCase();
             return (
@@ -62,6 +62,50 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
                 log.journal?.toLowerCase().includes(query) ||
                 log.custom?.some(c => c.name.toLowerCase().includes(query))
             );
+        });
+
+        // Sort chronologically
+        return filtered?.sort((a, b) => {
+            const getTime = (log: Doc<"logs">) => {
+                if (log.sleep_start) return log.sleep_start;
+                if (log.meal?.time) return log.meal.time;
+                if (log.exercise?.time) return log.exercise.time;
+                // Default fallback for items without explicit time (like Journal or simple Food)
+                // We can try to infer or just put them at the end/start
+                // For now, let's use a default "00:00" if undefined so they appear first? 
+                // Or maybe "23:59" to appear last?
+                // Actually, creation time might be better if available, but we only have _creationTime which is a timestamp.
+                // Let's use _creationTime as a fallback for sorting if explicit time is missing.
+                // But we need to compare strings "HH:MM" vs timestamps? No.
+                // Let's convert "HH:MM" to minutes from midnight for comparison.
+                return "12:00"; // Default middle of day?
+            };
+
+            const getMinutes = (log: Doc<"logs">) => {
+                let timeStr = "12:00";
+                if (log.sleep_start) timeStr = log.sleep_start;
+                else if (log.meal?.time) timeStr = log.meal.time;
+                else if (log.exercise?.time) timeStr = log.exercise.time;
+                else {
+                    // Fallback using creation time if available to sort relatively?
+                    // But mixing explicit times with creation times is tricky.
+                    // Let's just stick to a default for now.
+                    return 9999; // Put at the end?
+                }
+
+                const [h, m] = timeStr.split(':').map(Number);
+                return h * 60 + m;
+            };
+
+            const timeA = getMinutes(a);
+            const timeB = getMinutes(b);
+
+            // If times are equal (or both default), maybe sort by creation time?
+            if (timeA === timeB) {
+                return a._creationTime - b._creationTime;
+            }
+
+            return timeA - timeB;
         });
     }, [logs, searchQuery]);
 

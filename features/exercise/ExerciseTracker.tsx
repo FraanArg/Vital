@@ -136,6 +136,7 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
                 type: finalType,
                 duration: duration,
                 notes: notes.trim() || undefined,
+                time: timeMode === "range" ? startTime : undefined,
             };
 
             if ((finalType === "run" || finalType === "walk") && distance) {
