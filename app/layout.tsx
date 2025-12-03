@@ -31,7 +31,6 @@ export const viewport = {
 
 import ConvexClientProvider from "../components/ConvexClientProvider";
 import { ToastProvider } from "../components/ui/ToastContext";
-import PullToRefresh from "../components/PullToRefresh";
 
 export default function RootLayout({
   children,
@@ -55,9 +54,7 @@ export default function RootLayout({
               <div className="flex h-screen bg-background">
                 <Sidebar />
                 <main className="flex-1 overflow-y-auto pb-20 sm:pb-0">
-                  <PullToRefresh>
-                    {children}
-                  </PullToRefresh>
+                  {children}
                 </main>
                 <BottomNav />
               </div>
