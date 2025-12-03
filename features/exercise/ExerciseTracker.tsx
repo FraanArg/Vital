@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Doc } from "../../convex/_generated/dataModel";
-import { Dumbbell, Trophy, Activity, Footprints, Timer, Plus, Trash2, ChevronDown, ChevronUp, Circle, Waves, Swords, Target, Settings, LucideIcon, Loader2 } from "lucide-react";
+import { Dumbbell, Trophy, Activity, Footprints, Timer, Plus, Trash2, ChevronDown, ChevronUp, Circle, Waves, Swords, Target, Settings, Loader2 } from "lucide-react";
 import RoutineManager from "./RoutineManager";
 import IconPicker from "../../components/IconPicker";
 import { ICON_LIBRARY } from "../../lib/icon-library";
@@ -236,7 +236,7 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
     interface SportItem {
         id: string;
         label: string;
-        icon: LucideIcon;
+        icon: any;
         isCustom?: boolean;
         _id?: string;
     }
@@ -275,7 +275,7 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
     // Icon Customization
 
 
-    const getCustomIcon = (key: string, defaultIcon: LucideIcon) => {
+    const getCustomIcon = (key: string, defaultIcon: any) => {
         const mapping = iconMappings?.find(m => m.type === "sport" && m.key === key);
         return mapping && ICON_LIBRARY[mapping.icon] ? ICON_LIBRARY[mapping.icon] : defaultIcon;
     };
