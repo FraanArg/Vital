@@ -33,3 +33,8 @@ ts-debug.log*
 # playwright
 playwright-report/
 test-results/
+
+# pwa
+public/sw.js
+public/swe-worker-*.js
+public/workbox-*.js
