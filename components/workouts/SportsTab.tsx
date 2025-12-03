@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Trophy, Plus, Trash2, Circle, Swords, Target, Waves, Settings, X, Loader2 } from "lucide-react";
@@ -89,7 +89,7 @@ export default function SportsTab() {
                         // But wait, sport.icon is a Component, mapping.icon is a string name.
                         // We need to resolve the component.
 
-                        let Icon: any = sport.icon;
+                        let Icon: React.ElementType = sport.icon;
                         if (mapping?.icon && ICON_LIBRARY[mapping.icon]) {
                             Icon = ICON_LIBRARY[mapping.icon];
                         }

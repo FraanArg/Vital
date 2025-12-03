@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { TRACKERS } from '../lib/tracker-registry';
@@ -17,9 +17,9 @@ interface LogEntryProps {
 export default function LogEntry({ selectedDate, activeTracker, onTrackerChange, editingLog }: LogEntryProps) {
     const { trigger } = useHaptic();
 
-    const handleClose = () => {
+    const handleClose = useCallback(() => {
         onTrackerChange(null);
-    };
+    }, [onTrackerChange]);
 
     const activeTrackerConfig = TRACKERS.find(t => t.id === activeTracker);
 
