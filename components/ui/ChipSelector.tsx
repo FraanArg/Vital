@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+
 
 interface ChipOption {
     id: string;
@@ -23,8 +23,8 @@ export default function ChipSelector({ options, selectedId, onSelect, className 
                         key={option.id}
                         onClick={() => onSelect(option.id)}
                         className={`flex items-center gap-2 px-4 py-2.5 rounded-full whitespace-nowrap transition-all border ${isSelected
-                                ? "bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20"
-                                : "bg-secondary/50 text-muted-foreground border-transparent hover:bg-secondary hover:text-foreground"
+                            ? "bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20"
+                            : "bg-secondary/50 text-muted-foreground border-transparent hover:bg-secondary hover:text-foreground"
                             }`}
                     >
                         {option.icon && <span className="text-lg leading-none">{option.icon}</span>}

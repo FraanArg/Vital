@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Plus, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface CollapsibleNoteProps {
     value: string;
@@ -17,7 +17,7 @@ export default function CollapsibleNote({ value, onChange, placeholder = "Add a 
         if (value.length > 0 && !isOpen) {
             setIsOpen(true);
         }
-    }, [value]);
+    }, [value, isOpen]);
 
     return (
         <div className="w-full">
