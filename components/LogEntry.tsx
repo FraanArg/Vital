@@ -2,7 +2,7 @@
 
 import { useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+
 import { TRACKERS } from '../lib/tracker-registry';
 import { useHaptic } from '../hooks/useHaptic';
 import { Doc } from "../convex/_generated/dataModel";
@@ -79,24 +79,7 @@ export default function LogEntry({ selectedDate, activeTracker, onTrackerChange,
                         >
                             <div className="p-6 pb-24">
                                 <div className="w-12 h-1.5 bg-muted/30 rounded-full mx-auto mb-6" />
-                                <div className="flex items-center justify-between mb-6">
-                                    <div className="flex items-center gap-3">
-                                        <div className={`p-2 rounded-full ${activeTrackerConfig.bgColor}`}>
-                                            <activeTrackerConfig.icon className={`w-5 h-5 ${activeTrackerConfig.color}`} />
-                                        </div>
-                                        <h2 className="text-xl font-bold">{editingLog ? `Edit ${activeTrackerConfig.label}` : activeTrackerConfig.label}</h2>
-                                    </div>
-                                    <button
-                                        onClick={() => {
-                                            trigger("light");
-                                            handleClose();
-                                        }}
-                                        className="p-2 rounded-full hover:bg-secondary transition-colors"
-                                        aria-label="Close"
-                                    >
-                                        <X className="w-5 h-5" />
-                                    </button>
-                                </div>
+
 
                                 <activeTrackerConfig.component
                                     onClose={handleClose}

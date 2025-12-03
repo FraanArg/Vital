@@ -1,10 +1,8 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Doc } from "../../convex/_generated/dataModel";
-import { Dumbbell, Trophy, Activity, Plus, Trash2, Settings } from "lucide-react";
+import { Dumbbell, Trophy, Activity, Plus, Trash2, Settings, ChevronDown, ChevronUp, Check } from "lucide-react";
 import RoutineManager from "./RoutineManager";
 import IconPicker from "../../components/IconPicker";
 import { ICON_LIBRARY } from "../../lib/icon-library";
@@ -13,6 +11,9 @@ import TrackerLayout from "../../components/ui/TrackerLayout";
 import ExerciseHistory from "../../components/workouts/ExerciseHistory";
 import SaveButton from "../../components/ui/SaveButton";
 import { DEFAULT_SPORTS, ACTIVITIES } from "../../lib/constants";
+import ChipSelector from "../../components/ui/ChipSelector";
+import TimePicker from "../../components/ui/TimePicker";
+import CollapsibleNote from "../../components/ui/CollapsibleNote";
 
 export default function ExerciseTracker({ onClose, selectedDate, initialData }: { onClose: () => void, selectedDate: Date, initialData?: Doc<"logs"> | null }) {
     const [activity, setActivity] = useState<string | null>(initialData?.exercise?.type || null);
@@ -47,7 +48,8 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
         alternateName?: string;
         routineNotes?: string;
         notes?: string;
-    }[]>(initialData?.exercise?.workout || []);
+        isCollapsed?: boolean;
+    }[]>(initialData?.exercise?.workout?.map(w => ({ ...w, isCollapsed: false })) || []);
 
     // Initialize activity from initialData
     useEffect(() => {
@@ -115,7 +117,7 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
             }
 
             if (finalType === "gym") {
-                exerciseData.workout = workout;
+                exerciseData.workout = workout.map(({ isCollapsed, ...w }) => w);
             }
 
             if (initialData) {
@@ -168,7 +170,8 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
             targetReps: e.targetReps,
             alternateName: e.alternateName,
             routineNotes: e.notes,
-            notes: ""
+            notes: "",
+            isCollapsed: false
         })));
         setGymMode("log");
     };
@@ -201,6 +204,12 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
         setWorkout(newWorkout);
     };
 
+    const toggleCollapse = (index: number) => {
+        const newWorkout = [...workout];
+        newWorkout[index].isCollapsed = !newWorkout[index].isCollapsed;
+        setWorkout(newWorkout);
+    };
+
     // Fetch dynamic sports
     const dynamicSports = useQuery(api.sports.getSports);
     const suggestions = useQuery(api.suggestions.getSuggestions, { type: "exercise" });
@@ -216,7 +225,16 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
     // Activity Selection View
     if (!activity) {
         return (
-            <div className="space-y-4">
+            <div className="space-y-6">
+                <div className="space-y-2">
+                    <label className="text-sm font-medium text-muted-foreground">Activity Type</label>
+                    <ChipSelector
+                        options={ACTIVITIES.map(a => ({ ...a, icon: <a.icon className="w-4 h-4" /> }))}
+                        selectedId={null}
+                        onSelect={setActivity}
+                    />
+                </div>
+
                 <SuggestionRow
                     suggestions={suggestions?.map(s => ({ name: s.name })) || []}
                     type="exercise"
@@ -226,18 +244,6 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
                         setActivity(activityId);
                     }}
                 />
-                <div className="grid grid-cols-2 gap-3">
-                    {ACTIVITIES.map((act) => (
-                        <button
-                            key={act.id}
-                            onClick={() => setActivity(act.id)}
-                            className="p-4 rounded-2xl border border-border/50 flex flex-col items-center gap-2 transition-all hover:scale-105 active:scale-95 bg-secondary/50 hover:bg-secondary"
-                        >
-                            <act.icon className="w-8 h-8 text-foreground" />
-                            <span className="font-medium">{act.label}</span>
-                        </button>
-                    ))}
-                </div>
             </div>
         );
     }
@@ -282,6 +288,7 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
                     </button>
                     <h3 className="font-semibold">Select Sport</h3>
                 </div>
+
                 <div className="grid grid-cols-2 gap-3">
                     {allSports.map((sport) => {
                         const Icon = sport.isCustom ? sport.icon : getCustomIcon(sport.id, sport.icon);
@@ -404,7 +411,7 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
         >
             {/* Duration / Time Input */}
             <div className="space-y-4">
-                <div className="flex justify-center p-1 bg-secondary rounded-xl">
+                <div className="flex justify-center p-1 bg-secondary/50 rounded-xl">
                     <button
                         onClick={() => setTimeMode("duration")}
                         className={`flex-1 py-1.5 text-sm font-medium rounded-lg transition-all ${timeMode === "duration" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
@@ -438,22 +445,12 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
                 ) : (
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-muted-foreground">Start Time</label>
-                            <input
-                                type="time"
-                                value={startTime}
-                                onChange={(e) => setStartTime(e.target.value)}
-                                className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary text-center font-semibold"
-                            />
+                            <label className="text-sm font-medium text-muted-foreground">Start</label>
+                            <TimePicker value={startTime} onChange={setStartTime} className="w-full" />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-muted-foreground">End Time</label>
-                            <input
-                                type="time"
-                                value={endTime}
-                                onChange={(e) => setEndTime(e.target.value)}
-                                className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary text-center font-semibold"
-                            />
+                            <label className="text-sm font-medium text-muted-foreground">End</label>
+                            <TimePicker value={endTime} onChange={setEndTime} className="w-full" />
                         </div>
                     </div>
                 )}
@@ -469,122 +466,116 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
                         value={distance}
                         onChange={(e) => setDistance(parseFloat(e.target.value))}
                         placeholder="0.0"
-                        className="w-full p-4 rounded-2xl bg-secondary/50 border border-border/10 focus:bg-secondary focus:ring-2 focus:ring-emerald-500/50 transition-all text-lg font-semibold"
+                        className="w-full p-0 text-3xl font-bold bg-transparent border-none focus:ring-0 placeholder:text-muted-foreground/30"
                     />
                 </div>
             )}
 
             {/* Gym Logger */}
             {activity === "gym" && (
-                <div className="space-y-6">
+                <div className="space-y-4">
                     {workout.map((exercise, i) => (
-                        <div key={i} className="space-y-3 p-4 rounded-2xl bg-secondary/20 border border-border/50">
-                            <div className="flex flex-col gap-1">
-                                <div className="flex justify-between items-start">
-                                    <div className="flex flex-col">
-                                        <h4 className="font-bold text-lg">{exercise.name}</h4>
-                                        {exercise.alternateName && (
-                                            <button
-                                                onClick={() => {
-                                                    const newWorkout = [...workout];
-                                                    const currentName = newWorkout[i].name;
-                                                    newWorkout[i].name = newWorkout[i].alternateName!;
-                                                    newWorkout[i].alternateName = currentName;
-                                                    setWorkout(newWorkout);
-                                                }}
-                                                className="text-xs text-muted-foreground hover:text-primary text-left flex items-center gap-1"
-                                            >
-                                                <Activity className="w-3 h-3" />
-                                                Switch to {exercise.alternateName}
-                                            </button>
-                                        )}
-                                    </div>
-                                    <div className="flex flex-col items-end gap-1">
-                                        {exercise.targetRpe && (
-                                            <span className="text-xs font-medium px-2 py-1 bg-primary/10 text-primary rounded-full whitespace-nowrap">
-                                                Target RPE: {exercise.targetRpe}
-                                            </span>
-                                        )}
-                                        {exercise.targetReps && (
-                                            <span className="text-xs font-medium px-2 py-1 bg-secondary text-muted-foreground rounded-full whitespace-nowrap">
-                                                Target: {exercise.targetReps}
-                                            </span>
-                                        )}
-                                    </div>
+                        <div key={i} className={`space-y-3 p-4 rounded-2xl border transition-all ${exercise.isCollapsed ? "bg-secondary/20 border-transparent" : "bg-card border-border/50 shadow-sm"}`}>
+                            <div className="flex items-center justify-between cursor-pointer" onClick={() => toggleCollapse(i)}>
+                                <div className="flex flex-col">
+                                    <h4 className="font-bold text-lg">{exercise.name}</h4>
+                                    {exercise.isCollapsed && (
+                                        <span className="text-xs text-muted-foreground">
+                                            {exercise.sets.filter(s => s.weight > 0 || s.reps > 0).length} sets completed
+                                        </span>
+                                    )}
                                 </div>
-                                {exercise.routineNotes && (
-                                    <div className="text-xs text-amber-500/90 bg-amber-500/10 p-2 rounded-lg mt-1">
-                                        💡 {exercise.routineNotes}
-                                    </div>
-                                )}
-                                <ExerciseHistory exerciseName={exercise.name} />
+                                <div className="flex items-center gap-2">
+                                    {exercise.isCollapsed ? <ChevronDown className="w-5 h-5 text-muted-foreground" /> : <ChevronUp className="w-5 h-5 text-muted-foreground" />}
+                                </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <div className="grid grid-cols-[auto_1fr_1fr_1fr_auto] gap-2 text-xs text-muted-foreground font-medium px-1">
-                                    <span className="w-6 text-center">#</span>
-                                    <span>kg</span>
-                                    <span>reps</span>
-                                    <span>RPE</span>
-                                    <span className="w-8"></span>
-                                </div>
-                                {exercise.sets.map((set, j) => (
-                                    <div key={j} className="grid grid-cols-[auto_1fr_1fr_1fr_auto] gap-2 items-center">
-                                        <span className="w-6 text-center text-sm font-medium text-muted-foreground">{j + 1}</span>
-                                        <input
-                                            inputMode="decimal"
-                                            type="number"
-                                            value={set.weight || ""}
-                                            onChange={(e) => updateSet(i, j, "weight", parseFloat(e.target.value))}
-                                            placeholder="0"
-                                            className="p-2 rounded-lg bg-background/50 border border-border/50 text-center focus:ring-2 focus:ring-emerald-500/50"
-                                        />
-                                        <input
-                                            inputMode="decimal"
-                                            type="number"
-                                            value={set.reps || ""}
-                                            onChange={(e) => updateSet(i, j, "reps", parseFloat(e.target.value))}
-                                            placeholder="0"
-                                            className="p-2 rounded-lg bg-background/50 border border-border/50 text-center focus:ring-2 focus:ring-emerald-500/50"
-                                        />
-                                        <input
-                                            inputMode="decimal"
-                                            type="number"
-                                            value={set.rpe || ""}
-                                            onChange={(e) => updateSet(i, j, "rpe", parseFloat(e.target.value))}
-                                            placeholder="-"
-                                            className="p-2 rounded-lg bg-background/50 border border-border/50 text-center focus:ring-2 focus:ring-emerald-500/50"
-                                        />
-                                        <button onClick={() => removeSet(i, j)} className="p-2 text-muted hover:text-destructive">
-                                            <Trash2 className="w-4 h-4" />
+                            {!exercise.isCollapsed && (
+                                <div className="space-y-4 pt-2">
+                                    {exercise.alternateName && (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                const newWorkout = [...workout];
+                                                const currentName = newWorkout[i].name;
+                                                newWorkout[i].name = newWorkout[i].alternateName!;
+                                                newWorkout[i].alternateName = currentName;
+                                                setWorkout(newWorkout);
+                                            }}
+                                            className="text-xs text-muted-foreground hover:text-primary text-left flex items-center gap-1"
+                                        >
+                                            <Activity className="w-3 h-3" />
+                                            Switch to {exercise.alternateName}
+                                        </button>
+                                    )}
+
+                                    {exercise.routineNotes && (
+                                        <div className="text-xs text-amber-500/90 bg-amber-500/10 p-2 rounded-lg">
+                                            💡 {exercise.routineNotes}
+                                        </div>
+                                    )}
+
+                                    <ExerciseHistory exerciseName={exercise.name} />
+
+                                    <div className="space-y-2">
+                                        <div className="grid grid-cols-[auto_1fr_1fr_1fr_auto] gap-2 text-xs text-muted-foreground font-medium px-1">
+                                            <span className="w-6 text-center">#</span>
+                                            <span>kg</span>
+                                            <span>reps</span>
+                                            <span>RPE</span>
+                                            <span className="w-8"></span>
+                                        </div>
+                                        {exercise.sets.map((set, j) => (
+                                            <div key={j} className="grid grid-cols-[auto_1fr_1fr_1fr_auto] gap-2 items-center">
+                                                <span className="w-6 text-center text-sm font-medium text-muted-foreground">{j + 1}</span>
+                                                <input
+                                                    inputMode="decimal"
+                                                    type="number"
+                                                    value={set.weight || ""}
+                                                    onChange={(e) => updateSet(i, j, "weight", parseFloat(e.target.value))}
+                                                    placeholder="0"
+                                                    className="p-2 rounded-lg bg-secondary/30 border-none text-center focus:ring-2 focus:ring-primary/50"
+                                                />
+                                                <input
+                                                    inputMode="decimal"
+                                                    type="number"
+                                                    value={set.reps || ""}
+                                                    onChange={(e) => updateSet(i, j, "reps", parseFloat(e.target.value))}
+                                                    placeholder="0"
+                                                    className="p-2 rounded-lg bg-secondary/30 border-none text-center focus:ring-2 focus:ring-primary/50"
+                                                />
+                                                <input
+                                                    inputMode="decimal"
+                                                    type="number"
+                                                    value={set.rpe || ""}
+                                                    onChange={(e) => updateSet(i, j, "rpe", parseFloat(e.target.value))}
+                                                    placeholder="-"
+                                                    className="p-2 rounded-lg bg-secondary/30 border-none text-center focus:ring-2 focus:ring-primary/50"
+                                                />
+                                                <button onClick={() => removeSet(i, j)} className="p-2 text-muted hover:text-destructive">
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        ))}
+                                        <button onClick={() => addSet(i)} className="text-xs text-primary font-medium flex items-center gap-1 mt-2 px-2 py-1 hover:bg-primary/10 rounded-md transition-colors w-fit">
+                                            <Plus className="w-3 h-3" /> Add Set
                                         </button>
                                     </div>
-                                ))}
-                                <button onClick={() => addSet(i)} className="text-xs text-emerald-500 font-medium flex items-center gap-1 mt-2">
-                                    <Plus className="w-3 h-3" /> Add Set
-                                </button>
-                            </div>
 
-                            <div className="pt-2">
-                                <textarea
-                                    value={exercise.notes || ""}
-                                    onChange={(e) => updateNotes(i, e.target.value)}
-                                    placeholder="Notes (e.g. Seat height, cues...)"
-                                    onFocus={(e) => {
-                                        setTimeout(() => {
-                                            e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                        }, 300);
-                                    }}
-                                    className="w-full p-2 text-sm rounded-lg bg-background/50 border border-border/50 focus:ring-2 focus:ring-primary min-h-[60px]"
-                                />
-                            </div>
+                                    <CollapsibleNote
+                                        value={exercise.notes || ""}
+                                        onChange={(val) => updateNotes(i, val)}
+                                        placeholder="Exercise notes..."
+                                    />
+                                </div>
+                            )}
                         </div>
                     ))}
 
                     <button
                         onClick={() => {
                             const name = prompt("Exercise Name:");
-                            if (name) setWorkout([...workout, { name, sets: [{ reps: 0, weight: 0 }] }]);
+                            if (name) setWorkout([...workout, { name, sets: [{ reps: 0, weight: 0 }], isCollapsed: false }]);
                         }}
                         className="w-full p-3 border border-dashed border-border rounded-xl text-muted-foreground hover:bg-secondary/50 transition-colors"
                     >
@@ -595,25 +586,20 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
 
             {/* Notes Input */}
             <div className="space-y-2">
-                <label className="text-sm font-medium text-muted-foreground">Notes (Optional)</label>
-                <textarea
+                <CollapsibleNote
                     value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
+                    onChange={setNotes}
                     placeholder="How did it go?"
-                    onFocus={(e) => {
-                        setTimeout(() => {
-                            e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        }, 300);
-                    }}
-                    className="w-full p-4 rounded-2xl bg-secondary/50 border border-border/10 focus:bg-secondary focus:ring-2 focus:ring-emerald-500/50 transition-all min-h-[80px] resize-none"
                 />
             </div>
 
-            <SaveButton
-                onClick={handleSave}
-                isSaving={isSaving}
-                label="Save Activity"
-            />
+            <div className="mt-8">
+                <SaveButton
+                    onClick={handleSave}
+                    isSaving={isSaving}
+                    label="Save Activity"
+                />
+            </div>
         </TrackerLayout>
     );
 }
