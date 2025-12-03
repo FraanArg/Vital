@@ -1,4 +1,4 @@
-import { LucideIcon, Briefcase, Moon, Droplets, Utensils, Book, Plus, Dumbbell, Timer, Footprints, Swords, Circle, Target, Waves, Trophy } from "lucide-react";
+import { Briefcase, Moon, Droplets, Utensils, Book, Plus, Dumbbell, Timer, Footprints, Swords, Circle, Target, Waves, Trophy } from "lucide-react";
 import WorkTracker from "../features/work/WorkTracker";
 import SleepTracker from "../features/sleep/SleepTracker";
 import WaterTracker from "../features/water/WaterTracker";

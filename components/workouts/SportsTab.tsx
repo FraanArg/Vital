@@ -89,7 +89,7 @@ export default function SportsTab() {
                         // But wait, sport.icon is a Component, mapping.icon is a string name.
                         // We need to resolve the component.
 
-                        let Icon = sport.icon;
+                        let Icon: any = sport.icon;
                         if (mapping?.icon && ICON_LIBRARY[mapping.icon]) {
                             Icon = ICON_LIBRARY[mapping.icon];
                         }

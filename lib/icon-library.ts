@@ -8,8 +8,7 @@ import {
     // Food
     Apple, Banana, Carrot, Cherry, Citrus, Croissant, Egg, Grape, IceCream, Milk, Nut, Pizza, Sandwich, Soup, Utensils, Wheat, Wine, Beer, Coffee,
     // Objects/Shapes
-    Star, Heart, Zap, Flame, Droplets, Moon, Sun, Cloud, Umbrella, Anchor, Key, Lock, Map, Compass, Gift, Bell, Book, Briefcase, Calculator, Camera, Car, CreditCard, DollarSign, Eye, Globe, Headphones, Home, Image, Laptop, Mail, Mic, Music, Package, Pen, Phone, Plane, Printer, Radio, Scissors, Search, Settings, ShoppingBag, ShoppingCart, Smartphone, Smile, Speaker, Tag, Thermometer, ThumbsUp, Trash, Truck, Tv, User, Video, Watch, Wifi, Wrench,
-    LucideIcon
+    Star, Heart, Zap, Flame, Droplets, Moon, Sun, Cloud, Umbrella, Anchor, Key, Lock, Map, Compass, Gift, Bell, Book, Briefcase, Calculator, Camera, Car, CreditCard, DollarSign, Eye, Globe, Headphones, Home, Image, Laptop, Mail, Mic, Music, Package, Pen, Phone, Plane, Printer, Radio, Scissors, Search, Settings, ShoppingBag, ShoppingCart, Smartphone, Smile, Speaker, Tag, Thermometer, ThumbsUp, Trash, Truck, Tv, User, Video, Watch, Wifi, Wrench
 } from "lucide-react";
 
 // React Icons
