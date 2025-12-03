@@ -4,9 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, BarChart2, User, Folder } from "lucide-react";
 import { clsx } from "clsx";
+import { useHaptic } from "../hooks/useHaptic";
 
 export default function BottomNav() {
     const pathname = usePathname();
+    const { trigger } = useHaptic();
 
     const links = [
         { href: "/", label: "Today", icon: LayoutDashboard },
@@ -25,6 +27,7 @@ export default function BottomNav() {
                         <Link
                             key={link.href}
                             href={link.href}
+                            onClick={() => trigger("light")}
                             className={clsx(
                                 "flex flex-col items-center justify-center w-full h-full gap-1 transition-colors",
                                 isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"

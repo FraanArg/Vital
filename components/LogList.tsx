@@ -9,6 +9,7 @@ import { Trash2, Search, ClipboardList } from "lucide-react";
 import { Skeleton } from "./ui/Skeleton";
 import { TRACKERS } from "../lib/tracker-registry";
 import { useToast } from "./ui/ToastContext";
+import { useHaptic } from "../hooks/useHaptic";
 
 import { Doc } from "../convex/_generated/dataModel";
 
@@ -21,6 +22,7 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const iconMappings = useQuery(api.icons.getIconMappings);
     const { toast } = useToast();
+    const { trigger } = useHaptic();
 
     // Calculate start and end of day
     const start = new Date(selectedDate);
@@ -49,6 +51,7 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
     });
 
     const handleDelete = (id: Id<"logs">) => {
+        trigger("medium");
         deleteLog({ id });
         toast("Log deleted", "success");
     };
@@ -111,15 +114,13 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
 
     if (logs === undefined) {
         return (
-            <div className="space-y-4">
+            <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                    <div key={i} className="bg-card p-4 rounded-2xl shadow-sm border border-border/50 flex items-center justify-between h-[72px]">
-                        <div className="flex items-center gap-3">
-                            <Skeleton className="w-10 h-10 rounded-full" />
-                            <div className="space-y-2">
-                                <Skeleton className="w-24 h-4" />
-                                <Skeleton className="w-16 h-3" />
-                            </div>
+                    <div key={i} className="bg-card p-4 rounded-2xl shadow-sm border border-border/50 flex items-center gap-4 h-[72px]">
+                        <Skeleton className="w-12 h-12 rounded-xl" />
+                        <div className="space-y-2 flex-1">
+                            <Skeleton className="w-32 h-4 rounded-lg" />
+                            <Skeleton className="w-20 h-3 rounded-lg" />
                         </div>
                     </div>
                 ))}
@@ -181,7 +182,10 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
                                         handleDelete(log._id as Id<"logs">);
                                     }
                                 }}
-                                onClick={() => onEdit?.(log)}
+                                onClick={() => {
+                                    trigger("light");
+                                    onEdit?.(log);
+                                }}
                                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
                                 animate={{ opacity: 1, y: 0, scale: 1, x: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
