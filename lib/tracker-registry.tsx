@@ -13,13 +13,13 @@ import { ICON_LIBRARY } from "./icon-library";
 export interface TrackerConfig {
     id: string;
     label: string;
-    icon: LucideIcon;
+    icon: React.ElementType;
     color: string; // Tailwind class for text color
     bgColor: string; // Tailwind class for background color
     component: React.ComponentType<{ onClose: () => void; selectedDate: Date; initialData?: Doc<"logs"> | null }>;
     matcher: (log: Doc<"logs">) => boolean;
     renderContent: (log: Doc<"logs">) => React.ReactNode;
-    getIcon?: (log: Doc<"logs">, iconMappings?: Doc<"icon_mappings">[]) => LucideIcon;
+    getIcon?: (log: Doc<"logs">, iconMappings?: Doc<"icon_mappings">[]) => React.ElementType;
 }
 
 export const TRACKERS: TrackerConfig[] = [
@@ -105,13 +105,13 @@ export const TRACKERS: TrackerConfig[] = [
         getIcon: (log, iconMappings) => {
             if (!log.exercise) return Dumbbell;
 
-            const defaultIcons: Record<string, LucideIcon> = {
-                padel: Swords,
-                football: Circle,
-                tennis: Target,
-                basketball: Circle,
-                swimming: Waves,
-                volleyball: Circle,
+            const defaultIcons: Record<string, React.ElementType> = {
+                padel: ICON_LIBRARY.Swords || Swords, // Using Swords as closest for Padel for now, or maybe TennisBall?
+                football: ICON_LIBRARY.Football || Circle,
+                tennis: ICON_LIBRARY.TennisBall || Target,
+                basketball: ICON_LIBRARY.Basketball || Circle,
+                swimming: ICON_LIBRARY.Swimmer || Waves,
+                volleyball: ICON_LIBRARY.Volleyball || Circle,
                 gym: Dumbbell,
                 run: Timer,
                 walk: Footprints,
