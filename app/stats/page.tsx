@@ -5,10 +5,13 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subDays } from "date-fns";
 import StatsHeader from "../../components/stats/StatsHeader";
-import ActivityRings from "../../components/stats/ActivityRings";
-import TrendCharts from "../../components/stats/TrendCharts";
+import dynamic from "next/dynamic";
+
 import ConsistencyGrid from "../../components/stats/ConsistencyGrid";
 import { Skeleton } from "../../components/ui/Skeleton";
+
+const ActivityRings = dynamic(() => import("../../components/stats/ActivityRings"), { ssr: false });
+const TrendCharts = dynamic(() => import("../../components/stats/TrendCharts"), { ssr: false });
 
 export default function StatisticsPage() {
     const [range, setRange] = useState<"week" | "month" | "year">("week");

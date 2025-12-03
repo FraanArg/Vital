@@ -3,8 +3,10 @@
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { startOfDay, endOfDay } from "date-fns";
-import ActivityRings from "./stats/ActivityRings";
+import dynamic from "next/dynamic";
 import { Skeleton } from "./ui/Skeleton";
+
+const ActivityRings = dynamic(() => import("./stats/ActivityRings"), { ssr: false });
 
 interface DailySummaryProps {
     selectedDate: Date;
