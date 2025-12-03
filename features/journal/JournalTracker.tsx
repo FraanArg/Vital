@@ -51,6 +51,11 @@ export default function JournalTracker({ onClose, selectedDate, initialData }: {
                 value={entry}
                 onChange={(e) => setEntry(e.target.value)}
                 placeholder="Write about your day..."
+                onFocus={(e) => {
+                    setTimeout(() => {
+                        e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 300);
+                }}
                 className="w-full h-32 p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary resize-none"
             />
             <button

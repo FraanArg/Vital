@@ -79,7 +79,12 @@ export default function FoodCombobox({ selectedItems, onItemsChange }: FoodCombo
                         setQuery(e.target.value);
                         setIsOpen(true);
                     }}
-                    onFocus={() => setIsOpen(true)}
+                    onFocus={(e) => {
+                        setIsOpen(true);
+                        setTimeout(() => {
+                            e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 300);
+                    }}
                     onBlur={() => {
                         // Delay to allow item click to register
                         setTimeout(() => setIsOpen(false), 200);

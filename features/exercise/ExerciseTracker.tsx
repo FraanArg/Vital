@@ -614,6 +614,11 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
                                     value={exercise.notes || ""}
                                     onChange={(e) => updateNotes(i, e.target.value)}
                                     placeholder="Notes (e.g. Seat height, cues...)"
+                                    onFocus={(e) => {
+                                        setTimeout(() => {
+                                            e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                        }, 300);
+                                    }}
                                     className="w-full p-2 text-sm rounded-lg bg-background/50 border border-border/50 focus:ring-2 focus:ring-primary min-h-[60px]"
                                 />
                             </div>
@@ -639,6 +644,11 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="How did it go?"
+                    onFocus={(e) => {
+                        setTimeout(() => {
+                            e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 300);
+                    }}
                     className="w-full p-4 rounded-2xl bg-secondary/50 border border-border/10 focus:bg-secondary focus:ring-2 focus:ring-emerald-500/50 transition-all min-h-[80px] resize-none"
                 />
             </div>
