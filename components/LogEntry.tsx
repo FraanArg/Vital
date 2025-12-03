@@ -61,7 +61,7 @@ export default function LogEntry({ selectedDate, activeTracker, onTrackerChange,
 
             <AnimatePresence>
                 {activeTracker && activeTrackerConfig && (
-                    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center md:pl-64 sm:p-4 pointer-events-none">
+                    <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center md:pl-64 sm:p-4 pointer-events-none">
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -77,7 +77,7 @@ export default function LogEntry({ selectedDate, activeTracker, onTrackerChange,
                             transition={{ type: "spring", damping: 25, stiffness: 350, mass: 0.5 }}
                             className="w-full sm:max-w-lg bg-card rounded-t-[2rem] sm:rounded-3xl shadow-2xl border border-border/50 max-h-[85vh] overflow-y-auto relative z-10 pointer-events-auto"
                         >
-                            <div className="p-6 pb-safe">
+                            <div className="p-6 pb-24">
                                 <div className="w-12 h-1.5 bg-muted/30 rounded-full mx-auto mb-6" />
                                 <div className="flex items-center justify-between mb-6">
                                     <div className="flex items-center gap-3">
