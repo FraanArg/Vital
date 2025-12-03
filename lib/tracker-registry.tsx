@@ -1,4 +1,4 @@
-import { Briefcase, Moon, Droplets, Utensils, Book, Plus, Dumbbell, Timer, Footprints, Swords, Circle, Target, Waves, Trophy } from "lucide-react";
+import { Briefcase, Moon, Droplets, Utensils, Book, Plus, Dumbbell } from "lucide-react";
 import WorkTracker from "../features/work/WorkTracker";
 import SleepTracker from "../features/sleep/SleepTracker";
 import WaterTracker from "../features/water/WaterTracker";
@@ -8,7 +8,9 @@ import JournalTracker from "../features/journal/JournalTracker";
 import CustomTracker from "../features/custom/CustomTracker";
 import { Doc } from "../convex/_generated/dataModel";
 import React from "react";
-import { ICON_LIBRARY } from "./icon-library";
+import ExerciseLogItem, { getExerciseIcon } from "../components/log-items/ExerciseLogItem";
+import FoodLogItem from "../components/log-items/FoodLogItem";
+import SleepLogItem from "../components/log-items/SleepLogItem";
 
 export interface TrackerConfig {
     id: string;
@@ -41,15 +43,7 @@ export const TRACKERS: TrackerConfig[] = [
         bgColor: "bg-purple-100 dark:bg-purple-900/30",
         component: SleepTracker,
         matcher: (log) => log.sleep !== undefined,
-        renderContent: (log) => (
-            <div className="flex flex-col" >
-                <span className="font-semibold text-sm"> Sleep: {log.sleep}h </span>
-                {
-                    log.sleep_start && log.sleep_end && (
-                        <span className="text-xs text-muted-foreground"> {log.sleep_start} - {log.sleep_end} </span>
-                    )}
-            </div>
-        )
+        renderContent: (log) => <SleepLogItem log={log} />
     },
     {
         id: "water",
@@ -69,20 +63,7 @@ export const TRACKERS: TrackerConfig[] = [
         bgColor: "bg-orange-100 dark:bg-orange-900/30",
         component: FoodTracker,
         matcher: (log) => log.meal !== undefined || log.food !== undefined,
-        renderContent: (log) => {
-            if (log.meal) {
-                const typeName = log.meal.type.charAt(0).toUpperCase() + log.meal.type.slice(1).replace('_', ' ');
-                return (
-                    <div className="flex flex-col" >
-                        <span className="font-semibold text-sm flex items-center gap-2" >
-                            {typeName} < span className="text-xs text-muted font-normal" > {log.meal.time} </span>
-                        </span>
-                        < span className="text-xs text-muted-foreground" > {log.meal.items.join(", ")} </span>
-                    </div>
-                );
-            }
-            return `Food: ${log.food}`;
-        }
+        renderContent: (log) => <FoodLogItem log={log} />
     },
     {
         id: "journal",
@@ -102,82 +83,8 @@ export const TRACKERS: TrackerConfig[] = [
         bgColor: "bg-red-100 dark:bg-red-900/30",
         component: ExerciseTracker,
         matcher: (log) => log.exercise !== undefined,
-        getIcon: (log, iconMappings) => {
-            if (!log.exercise) return Dumbbell;
-
-            const defaultIcons: Record<string, React.ElementType> = {
-                padel: ICON_LIBRARY.Swords || Swords, // Using Swords as closest for Padel for now, or maybe TennisBall?
-                football: ICON_LIBRARY.Football || Circle,
-                tennis: ICON_LIBRARY.TennisBall || Target,
-                basketball: ICON_LIBRARY.Basketball || Circle,
-                swimming: ICON_LIBRARY.Swimmer || Waves,
-                volleyball: ICON_LIBRARY.Volleyball || Circle,
-                gym: Dumbbell,
-                run: Timer,
-                walk: Footprints,
-            };
-
-            const customMapping = iconMappings?.find(m => m.type === "sport" && m.key === log.exercise!.type);
-            let Icon = defaultIcons[log.exercise.type] || Trophy;
-
-            if (customMapping && ICON_LIBRARY[customMapping.icon]) {
-                Icon = ICON_LIBRARY[customMapping.icon];
-            }
-            return Icon;
-        },
-        renderContent: (log) => {
-            if (!log.exercise) return null;
-            const typeName = log.exercise.type.charAt(0).toUpperCase() + log.exercise.type.slice(1);
-
-            const getEndTime = (start: string, duration: number) => {
-                const [h, m] = start.split(':').map(Number);
-                const totalMinutes = h * 60 + m + duration;
-                const endH = Math.floor(totalMinutes / 60) % 24;
-                const endM = totalMinutes % 60;
-                return `${endH.toString().padStart(2, '0')}:${endM.toString().padStart(2, '0')}`;
-            };
-
-            const timeDisplay = log.exercise.time
-                ? `${log.exercise.time} - ${getEndTime(log.exercise.time, log.exercise.duration)}`
-                : `${log.exercise.duration}m`;
-
-            if (log.exercise.type === "gym" && log.exercise.workout) {
-                const exerciseCount = log.exercise.workout.length;
-                const exerciseNames = log.exercise.workout.map(w => w.name).join(", ");
-                return (
-                    <div className="flex flex-col" >
-                        <span className="font-semibold text-sm flex items-center gap-2" >
-                            {typeName} < span className="text-xs text-muted font-normal" > {timeDisplay} </span>
-                        </span>
-                        < span className="text-xs text-muted-foreground" >
-                            {exerciseCount} exercises: {exerciseNames.substring(0, 30)} {exerciseNames.length > 30 ? '...' : ''}
-                        </span>
-                        {
-                            log.exercise.notes && (
-                                <span className="text-xs text-muted-foreground italic mt-1" >& quot; {log.exercise.notes}& quot; </span>
-                            )
-                        }
-                    </div>
-                );
-            }
-            return (
-                <div className="flex flex-col" >
-                    <span className="font-semibold text-sm flex items-center gap-2" >
-                        {typeName} < span className="text-xs text-muted font-normal" > {timeDisplay} </span>
-                    </span>
-                    {
-                        log.exercise.distance && (
-                            <span className="text-xs text-muted-foreground" > {log.exercise.distance} km </span>
-                        )
-                    }
-                    {
-                        log.exercise.notes && (
-                            <span className="text-xs text-muted-foreground italic mt-1" >& quot; {log.exercise.notes}& quot; </span>
-                        )
-                    }
-                </div>
-            );
-        }
+        getIcon: getExerciseIcon,
+        renderContent: (log) => <ExerciseLogItem log={log} />
     },
     {
         id: "custom",

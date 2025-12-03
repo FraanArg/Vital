@@ -5,8 +5,10 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Doc } from "../../convex/_generated/dataModel";
 import FoodCombobox from "../../components/FoodCombobox";
-import { Clock } from "lucide-react";
+import { Clock, Utensils, Plus, Trash2 } from "lucide-react";
 import SuggestionRow from "../../components/SuggestionRow";
+import TrackerLayout from "../../components/ui/TrackerLayout";
+import SaveButton from "../../components/ui/SaveButton";
 
 const MEAL_ROWS = [
     [
@@ -31,18 +33,25 @@ const HOURS = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0')
 const MINUTES = ["00", "15", "30", "45"];
 
 export default function FoodTracker({ onClose, selectedDate, initialData }: { onClose: () => void, selectedDate: Date, initialData?: Doc<"logs"> | null }) {
+    const [activeTab, setActiveTab] = useState<"meal" | "quick">("meal");
     const [mealType, setMealType] = useState<string | null>(initialData?.meal?.type || null);
     const [selectedHour, setSelectedHour] = useState(initialData?.meal?.time?.split(':')[0] || "12");
     const [selectedMinute, setSelectedMinute] = useState(initialData?.meal?.time?.split(':')[1] || "00");
     const [items, setItems] = useState<string[]>(initialData?.meal?.items || []);
+    const [quickLog, setQuickLog] = useState(initialData?.food || "");
+    const [newItem, setNewItem] = useState("");
     const [isSaving, setIsSaving] = useState(false);
 
     const createLog = useMutation(api.logs.createLog);
     const updateLog = useMutation(api.logs.updateLog);
+    const suggestions = useQuery(api.suggestions.getSuggestions, { type: "food" });
 
     // Auto-select meal and time based on current time ONLY if not editing
     useEffect(() => {
-        if (initialData) return;
+        if (initialData) {
+            if (initialData.food) setActiveTab("quick");
+            return;
+        }
 
         const now = new Date();
         const currentHour = now.getHours();
@@ -69,128 +78,195 @@ export default function FoodTracker({ onClose, selectedDate, initialData }: { on
         }
     }, [initialData]);
 
-    const save = async () => {
-        if (mealType && items.length > 0) {
-            setIsSaving(true);
-            try {
-                const logData = {
-                    meal: {
-                        type: mealType,
-                        items: items,
-                        time: `${selectedHour}:${selectedMinute}`
-                    },
-                    date: selectedDate.toISOString()
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            if (activeTab === "meal") {
+                if (!mealType || items.length === 0) return;
+                const mealData = {
+                    type: mealType,
+                    items: items,
+                    time: `${selectedHour}:${selectedMinute}`
                 };
 
                 if (initialData) {
                     await updateLog({
                         id: initialData._id,
-                        ...logData
+                        meal: mealData,
+                        date: selectedDate.toISOString()
                     });
                 } else {
-                    await createLog(logData);
+                    await createLog({
+                        meal: mealData,
+                        date: selectedDate.toISOString()
+                    });
                 }
-                onClose();
-            } catch (error: any) {
-                console.error("Failed to save meal:", error);
-                alert(`Failed to save meal: ${error.message || "Unknown error"}`);
-                setIsSaving(false);
+            } else {
+                if (!quickLog.trim()) return;
+                if (initialData) {
+                    await updateLog({
+                        id: initialData._id,
+                        food: quickLog,
+                        date: selectedDate.toISOString()
+                    });
+                } else {
+                    await createLog({
+                        food: quickLog,
+                        date: selectedDate.toISOString()
+                    });
+                }
             }
+            onClose();
+        } catch (error: any) {
+            console.error("Failed to save meal:", error);
+            alert(`Failed to save meal: ${error.message || "Unknown error"}`);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const addItem = () => {
+        if (newItem.trim()) {
+            setItems([...items, newItem.trim()]);
+            setNewItem("");
         }
     };
 
     return (
-        <div className="space-y-6 pb-4">
-            <div className="text-center space-y-2">
-                <h3 className="text-lg font-medium text-muted-foreground">Log Meal</h3>
-                <div className="flex items-center justify-center gap-2">
-                    <div className="relative">
-                        <select
-                            value={selectedHour}
-                            onChange={(e) => setSelectedHour(e.target.value)}
-                            className="appearance-none bg-secondary hover:bg-secondary/80 transition-colors text-xl font-semibold py-2 pl-4 pr-8 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
-                        >
-                            {HOURS.map(h => (
-                                <option key={h} value={h}>{h}</option>
-                            ))}
-                        </select>
-                        <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-                        </div>
-                    </div>
-                    <span className="text-xl font-bold text-muted-foreground">:</span>
-                    <div className="relative">
-                        <select
-                            value={selectedMinute}
-                            onChange={(e) => setSelectedMinute(e.target.value)}
-                            className="appearance-none bg-secondary hover:bg-secondary/80 transition-colors text-xl font-semibold py-2 pl-4 pr-8 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
-                        >
-                            {MINUTES.map(m => (
-                                <option key={m} value={m}>{m}</option>
-                            ))}
-                        </select>
-                        <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-                        </div>
-                    </div>
-                </div>
+        <TrackerLayout
+            title="Food & Meals"
+            icon={Utensils}
+            iconColor="text-orange-600 dark:text-orange-400"
+            iconBgColor="bg-orange-100 dark:bg-orange-900/30"
+            onClose={onClose}
+        >
+            <div className="flex p-1 bg-secondary rounded-xl mb-4">
+                <button
+                    onClick={() => setActiveTab("meal")}
+                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === "meal" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                    Detailed Meal
+                </button>
+                <button
+                    onClick={() => setActiveTab("quick")}
+                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === "quick" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                    Quick Log
+                </button>
             </div>
 
-            <SuggestionRow
-                suggestions={useQuery(api.suggestions.getSuggestions, { type: "food" })?.map(s => ({ name: s.name })) || []}
-                type="food"
-                onSelect={(name) => {
-                    if (!items.includes(name)) {
-                        setItems([...items, name]);
-                    }
-                }}
-            />
-
-            {/* Meal Type - Explicit Rows */}
-            <div className="space-y-2">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider pl-1">Meal Type</label>
-                <div className="space-y-2">
-                    {MEAL_ROWS.map((row, rowIndex) => (
-                        <div key={rowIndex} className="flex gap-2">
-                            {row.map((type) => (
-                                <button
-                                    key={type.id}
-                                    onClick={() => setMealType(type.id)}
-                                    className={`flex-1 flex items-center gap-3 p-3 rounded-xl transition-all border border-transparent ${mealType === type.id
-                                        ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20 scale-[1.02]"
-                                        : "bg-secondary/50 hover:bg-secondary text-muted-foreground hover:border-border/50"
-                                        }`}
+            {activeTab === "meal" ? (
+                <div className="space-y-6">
+                    <div className="text-center space-y-2">
+                        <div className="flex items-center justify-center gap-2">
+                            <div className="relative">
+                                <select
+                                    value={selectedHour}
+                                    onChange={(e) => setSelectedHour(e.target.value)}
+                                    className="appearance-none bg-secondary hover:bg-secondary/80 transition-colors text-xl font-semibold py-2 pl-4 pr-8 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
                                 >
-                                    <span className="text-xl">{type.icon}</span>
-                                    <span className="text-xs font-bold uppercase tracking-wide text-left truncate">{type.label}</span>
-                                </button>
+                                    {HOURS.map(h => (
+                                        <option key={h} value={h}>{h}</option>
+                                    ))}
+                                </select>
+                                <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                                </div>
+                            </div>
+                            <span className="text-xl font-bold text-muted-foreground">:</span>
+                            <div className="relative">
+                                <select
+                                    value={selectedMinute}
+                                    onChange={(e) => setSelectedMinute(e.target.value)}
+                                    className="appearance-none bg-secondary hover:bg-secondary/80 transition-colors text-xl font-semibold py-2 pl-4 pr-8 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
+                                >
+                                    {MINUTES.map(m => (
+                                        <option key={m} value={m}>{m}</option>
+                                    ))}
+                                </select>
+                                <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Meal Type - Explicit Rows */}
+                    <div className="space-y-2">
+                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider pl-1">Meal Type</label>
+                        <div className="space-y-2">
+                            {MEAL_ROWS.map((row, rowIndex) => (
+                                <div key={rowIndex} className="flex gap-2">
+                                    {row.map((type) => (
+                                        <button
+                                            key={type.id}
+                                            onClick={() => setMealType(type.id)}
+                                            className={`flex-1 flex items-center gap-3 p-3 rounded-xl transition-all border border-transparent ${mealType === type.id
+                                                ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20 scale-[1.02]"
+                                                : "bg-secondary/50 hover:bg-secondary text-muted-foreground hover:border-border/50"
+                                                }`}
+                                        >
+                                            <span className="text-xl">{type.icon}</span>
+                                            <span className="text-xs font-bold uppercase tracking-wide text-left truncate">{type.label}</span>
+                                        </button>
+                                    ))}
+                                </div>
                             ))}
                         </div>
-                    ))}
+                    </div>
+
+                    {/* Food Selection */}
+                    <div className="space-y-2 relative z-10">
+                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider pl-1">Items</label>
+
+                        <div className="flex gap-2 mb-2">
+                            <input
+                                value={newItem}
+                                onChange={(e) => setNewItem(e.target.value)}
+                                onKeyDown={(e) => e.key === "Enter" && addItem()}
+                                placeholder="Add item manually..."
+                                className="flex-1 p-3 rounded-xl bg-secondary/50 border border-border/10 focus:bg-secondary focus:ring-2 focus:ring-orange-500/50 transition-all"
+                            />
+                            <button onClick={addItem} className="p-3 bg-secondary hover:bg-secondary/80 rounded-xl">
+                                <Plus className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <FoodCombobox selectedItems={items} onItemsChange={setItems} />
+
+                        <SuggestionRow
+                            suggestions={suggestions?.map(s => ({ name: s.name })) || []}
+                            type="food"
+                            onSelect={(name) => {
+                                if (!items.includes(name)) {
+                                    setItems([...items, name]);
+                                }
+                            }}
+                        />
+                    </div>
                 </div>
-            </div>
+            ) : (
+                <div className="space-y-4">
+                    <textarea
+                        value={quickLog}
+                        onChange={(e) => setQuickLog(e.target.value)}
+                        placeholder="Quickly describe your meal..."
+                        className="w-full p-4 rounded-2xl bg-secondary/50 border border-border/10 focus:bg-secondary focus:ring-2 focus:ring-orange-500/50 transition-all min-h-[120px] resize-none"
+                    />
+                    <SuggestionRow
+                        suggestions={suggestions?.map(s => ({ name: s.name })) || []}
+                        type="food"
+                        onSelect={(name) => setQuickLog(prev => prev ? `${prev}, ${name}` : name)}
+                    />
+                </div>
+            )}
 
-            {/* Food Selection */}
-            <div className="space-y-2 relative z-10">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider pl-1">Items</label>
-                <FoodCombobox selectedItems={items} onItemsChange={setItems} />
-            </div>
-
-            <button
-                type="button"
-                onClick={save}
-                disabled={!mealType || items.length === 0 || isSaving}
-                className="w-full p-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-2xl disabled:opacity-50 font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all active:scale-95 flex items-center justify-center gap-2"
-            >
-                {isSaving ? (
-                    <>
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        <span>Saving...</span>
-                    </>
-                ) : (
-                    "Save Meal"
-                )}
-            </button>
-        </div>
+            <SaveButton
+                onClick={handleSave}
+                disabled={activeTab === "meal" ? (!mealType || items.length === 0) : !quickLog.trim()}
+                isSaving={isSaving}
+                label="Save Meal"
+            />
+        </TrackerLayout>
     );
 }

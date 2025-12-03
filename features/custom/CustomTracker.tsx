@@ -1,93 +1,113 @@
 "use client";
-import { useState } from 'react';
+import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
-
 import { Doc } from "../../convex/_generated/dataModel";
+import { Plus, Trash2, Sliders } from "lucide-react";
+import TrackerLayout from "../../components/ui/TrackerLayout";
+import SaveButton from "../../components/ui/SaveButton";
 
 export default function CustomTracker({ onClose, selectedDate, initialData }: { onClose: () => void, selectedDate: Date, initialData?: Doc<"logs"> | null }) {
-    const [name, setName] = useState(initialData?.custom?.[0]?.name || '');
-    const [value, setValue] = useState(initialData?.custom?.[0]?.value?.toString() || '');
-    const [unit, setUnit] = useState(initialData?.custom?.[0]?.unit || '');
+    const [fields, setFields] = useState<{ name: string; value: number; unit: string }[]>(
+        initialData?.custom || [{ name: "", value: 0, unit: "" }]
+    );
+    const [isSaving, setIsSaving] = useState(false);
 
-    const createLog = useMutation(api.logs.createLog).withOptimisticUpdate((localStore, args) => {
-        const { date, ...logData } = args;
-        const logDate = new Date(date);
-        const start = new Date(logDate);
-        start.setHours(0, 0, 0, 0);
-        const end = new Date(logDate);
-        end.setHours(23, 59, 59, 999);
-
-        const queryArgs = { from: start.toISOString(), to: end.toISOString() };
-        const existingLogs = localStore.getQuery(api.logs.getLogs, queryArgs);
-
-        if (existingLogs) {
-            const newLog: any = {
-                _id: crypto.randomUUID(),
-                _creationTime: Date.now(),
-                userId: "temp-optimistic-id",
-                date: date,
-                ...logData
-            };
-            localStore.setQuery(api.logs.getLogs, queryArgs, [...existingLogs, newLog]);
-        }
-    });
+    const createLog = useMutation(api.logs.createLog);
     const updateLog = useMutation(api.logs.updateLog);
 
-    const save = async () => {
-        if (name && value) {
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            const validFields = fields.filter(f => f.name.trim() !== "");
+            if (validFields.length === 0) return;
+
             if (initialData) {
-                await updateLog({
-                    id: initialData._id,
-                    custom: [{ name, value: Number(value), unit }],
-                    date: selectedDate.toISOString()
-                });
+                await updateLog({ id: initialData._id, custom: validFields, date: selectedDate.toISOString() });
             } else {
-                await createLog({
-                    custom: [{ name, value: Number(value), unit }],
-                    date: selectedDate.toISOString()
-                });
+                await createLog({ custom: validFields, date: selectedDate.toISOString() });
             }
             onClose();
+        } catch (error) {
+            console.error("Failed to save custom log:", error);
+        } finally {
+            setIsSaving(false);
         }
     };
 
+    const addField = () => {
+        setFields([...fields, { name: "", value: 0, unit: "" }]);
+    };
+
+    const removeField = (index: number) => {
+        setFields(fields.filter((_, i) => i !== index));
+    };
+
+    const updateField = (index: number, key: keyof typeof fields[0], value: string | number) => {
+        const newFields = [...fields];
+        newFields[index] = { ...newFields[index], [key]: value };
+        setFields(newFields);
+    };
+
     return (
-        <div className="space-y-4">
-            <h3 className="text-xl font-semibold">Custom Tracker</h3>
-            <div className="space-y-3">
-                <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Tracker Name (e.g. Meditation)"
-                    className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary"
-                />
-                <div className="flex gap-2">
-                    <input
-                        type="number"
-                        value={value}
-                        onChange={(e) => setValue(e.target.value)}
-                        placeholder="Value"
-                        className="flex-1 p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary"
-                    />
-                    <input
-                        type="text"
-                        value={unit}
-                        onChange={(e) => setUnit(e.target.value)}
-                        placeholder="Unit (e.g. min)"
-                        className="w-24 p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary"
-                    />
-                </div>
+        <TrackerLayout
+            title="Custom Tracker"
+            icon={Sliders}
+            iconColor="text-gray-500"
+            iconBgColor="bg-gray-500/10"
+            onClose={onClose}
+        >
+            <div className="space-y-4">
+                {fields.map((field, index) => (
+                    <div key={index} className="p-4 bg-secondary/30 rounded-2xl space-y-3 relative group">
+                        <div className="flex gap-2">
+                            <input
+                                value={field.name}
+                                onChange={(e) => updateField(index, "name", e.target.value)}
+                                placeholder="Metric Name (e.g. Meditation)"
+                                className="flex-1 p-3 rounded-xl bg-background border-none focus:ring-2 focus:ring-primary"
+                            />
+                            {fields.length > 1 && (
+                                <button
+                                    onClick={() => removeField(index)}
+                                    className="p-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-colors"
+                                >
+                                    <Trash2 className="w-5 h-5" />
+                                </button>
+                            )}
+                        </div>
+                        <div className="flex gap-2">
+                            <input
+                                type="number"
+                                value={field.value}
+                                onChange={(e) => updateField(index, "value", parseFloat(e.target.value))}
+                                className="w-24 p-3 rounded-xl bg-background border-none focus:ring-2 focus:ring-primary text-center font-bold"
+                            />
+                            <input
+                                value={field.unit}
+                                onChange={(e) => updateField(index, "unit", e.target.value)}
+                                placeholder="Unit (e.g. min)"
+                                className="flex-1 p-3 rounded-xl bg-background border-none focus:ring-2 focus:ring-primary"
+                            />
+                        </div>
+                    </div>
+                ))}
+
+                <button
+                    onClick={addField}
+                    className="w-full p-4 border-2 border-dashed border-border rounded-2xl text-muted-foreground hover:text-foreground hover:border-foreground/50 transition-all flex items-center justify-center gap-2"
+                >
+                    <Plus className="w-5 h-5" />
+                    <span>Add Another Metric</span>
+                </button>
             </div>
-            <button
-                type="button"
-                onClick={save}
-                disabled={!name || !value}
-                className="w-full p-3 bg-primary text-primary-foreground rounded-xl disabled:opacity-50"
-            >
-                Save Custom Log
-            </button>
-        </div>
+
+            <SaveButton
+                onClick={handleSave}
+                isSaving={isSaving}
+                label="Save Custom Log"
+                disabled={fields.every(f => !f.name.trim())}
+            />
+        </TrackerLayout>
     );
 }

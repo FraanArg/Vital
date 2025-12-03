@@ -4,48 +4,19 @@ import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Doc } from "../../convex/_generated/dataModel";
-import { Dumbbell, Trophy, Activity, Footprints, Timer, Plus, Trash2, ChevronDown, ChevronUp, Circle, Waves, Swords, Target, Settings, Loader2 } from "lucide-react";
+import { Dumbbell, Trophy, Activity, Plus, Trash2, Settings } from "lucide-react";
 import RoutineManager from "./RoutineManager";
 import IconPicker from "../../components/IconPicker";
 import { ICON_LIBRARY } from "../../lib/icon-library";
 import SuggestionRow from "../../components/SuggestionRow";
+import TrackerLayout from "../../components/ui/TrackerLayout";
 import ExerciseHistory from "../../components/workouts/ExerciseHistory";
-
-const ACTIVITIES = [
-    { id: "sports", label: "Sports", icon: Trophy },
-    { id: "gym", label: "Gym", icon: Dumbbell },
-    { id: "run", label: "Running", icon: Timer },
-    { id: "walk", label: "Walking", icon: Footprints },
-];
-
-const SPORTS = [
-    { id: "padel", label: "Padel", icon: Swords }, // Competition/Rackets
-    { id: "football", label: "Football", icon: Circle }, // Ball
-    { id: "tennis", label: "Tennis", icon: Target }, // Accuracy/Ball
-    { id: "basketball", label: "Basketball", icon: Circle }, // Ball
-    { id: "swimming", label: "Swimming", icon: Waves },
-    { id: "volleyball", label: "Volleyball", icon: Circle },
-];
+import SaveButton from "../../components/ui/SaveButton";
+import { DEFAULT_SPORTS, ACTIVITIES } from "../../lib/constants";
 
 export default function ExerciseTracker({ onClose, selectedDate, initialData }: { onClose: () => void, selectedDate: Date, initialData?: Doc<"logs"> | null }) {
     const [activity, setActivity] = useState<string | null>(initialData?.exercise?.type || null);
-    const [subActivity, setSubActivity] = useState<string | null>(initialData?.exercise?.type === "sports" ? initialData.exercise.type : null); // Logic might need adjustment if "sports" is not the type but the category
-    // Actually, activity is "sports" | "gym" | "run" | "walk".
-    // If initialData.exercise.type is "padel", activity should be "sports" and subActivity "padel"?
-    // Or is "padel" a top level type in the backend?
-    // Looking at schema: type: v.string().
-    // Looking at ExerciseTracker logic: finalType = activity === "sports" ? subActivity : activity.
-    // So if saved as "padel", we need to reverse map it.
-
-    // Let's check how it's saved.
-    // const finalType = activity === "sports" ? subActivity : activity;
-    // So "padel" is saved as type.
-
-    // Reverse mapping logic:
-    // If type is in SPORTS list, activity="sports", subActivity=type.
-    // If type is "gym", activity="gym".
-    // If type is "run", activity="run".
-    // If type is "walk", activity="walk".
+    const [subActivity, setSubActivity] = useState<string | null>(initialData?.exercise?.type === "sports" ? initialData.exercise.type : null);
 
     const [duration, setDuration] = useState(initialData?.exercise?.duration || 60);
     const [distance, setDistance] = useState<number | "">(initialData?.exercise?.distance || "");
@@ -242,8 +213,6 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
         _id?: string;
     }
 
-    // ... (existing code)
-
     // Activity Selection View
     if (!activity) {
         return (
@@ -274,8 +243,6 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
     }
 
     // Icon Customization
-
-
     const getCustomIcon = (key: string, defaultIcon: any) => {
         const mapping = iconMappings?.find(m => m.type === "sport" && m.key === key);
         return mapping && ICON_LIBRARY[mapping.icon] ? ICON_LIBRARY[mapping.icon] : defaultIcon;
@@ -291,18 +258,16 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
         setShowIconPicker(null);
     };
 
-
-
-    // Merge defaults with dynamic sports, avoiding duplicates by ID/Name
+    // Merge defaults with dynamic sports, prioritizing dynamic sports (custom overrides)
     const allSports: SportItem[] = [
-        ...SPORTS.map(s => ({ ...s, isCustom: false })),
         ...(dynamicSports || []).map(s => ({
-            id: s.name.toLowerCase(), // Use name as ID for simplicity
+            id: s.name.toLowerCase(),
             label: s.name,
             icon: ICON_LIBRARY[s.icon] || Trophy,
             isCustom: true,
             _id: s._id
-        }))
+        })),
+        ...DEFAULT_SPORTS.map(s => ({ ...s, isCustom: false })),
     ].filter((sport, index, self) =>
         index === self.findIndex((t) => t.id === sport.id)
     );
@@ -319,7 +284,6 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                     {allSports.map((sport) => {
-                        // For custom sports, the icon is already resolved. For defaults, we check for overrides.
                         const Icon = sport.isCustom ? sport.icon : getCustomIcon(sport.id, sport.icon);
 
                         return (
@@ -399,7 +363,6 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
                 </div>
 
                 <div className="grid gap-3 max-h-[40vh] overflow-y-auto">
-                    {/* We can still show a simple list here or just a link */}
                     <RoutineManager onSelect={handleRoutineSelect} onClose={onClose} />
                 </div>
 
@@ -426,26 +389,19 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
 
     // Main Logging View
     return (
-        <div className="space-y-6 pb-4">
-            <div className="flex items-center justify-between">
-                <button
-                    onClick={() => {
-                        if (activity === "gym" && gymMode === "log") {
-                            setGymMode("select");
-                        } else if (activity === "sports") {
-                            setSubActivity(null);
-                        } else {
-                            setActivity(null);
-                        }
-                    }}
-                    className="text-sm text-muted-foreground hover:text-foreground"
-                >
-                    ← Back
-                </button>
-                <h3 className="font-semibold capitalize">{activity === "sports" ? subActivity : activity}</h3>
-                <div className="w-8" /> {/* Spacer */}
-            </div>
-
+        <TrackerLayout
+            title={activity === "sports" ? (subActivity ? subActivity.charAt(0).toUpperCase() + subActivity.slice(1) : "Sports") : (activity ? activity.charAt(0).toUpperCase() + activity.slice(1) : "Exercise")}
+            onClose={onClose}
+            onBack={() => {
+                if (activity === "gym" && gymMode === "log") {
+                    setGymMode("select");
+                } else if (activity === "sports") {
+                    setSubActivity(null);
+                } else {
+                    setActivity(null);
+                }
+            }}
+        >
             {/* Duration / Time Input */}
             <div className="space-y-4">
                 <div className="flex justify-center p-1 bg-secondary rounded-xl">
@@ -653,13 +609,11 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
                 />
             </div>
 
-            <button
+            <SaveButton
                 onClick={handleSave}
-                disabled={isSaving}
-                className="w-full p-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all active:scale-95 disabled:opacity-70 disabled:scale-100 flex items-center justify-center gap-2"
-            >
-                {isSaving ? <Loader2 className="w-6 h-6 animate-spin" /> : "Save Activity"}
-            </button>
-        </div>
+                isSaving={isSaving}
+                label="Save Activity"
+            />
+        </TrackerLayout>
     );
 }

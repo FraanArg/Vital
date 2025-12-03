@@ -93,6 +93,7 @@ body {
 }
 
 /* Aurora Background Animation */
+/* Aurora Background Animation */
 body::before {
   content: '';
   position: fixed;
@@ -114,6 +115,15 @@ body::before {
   animation: aurora 60s linear infinite;
   z-index: -1;
   pointer-events: none;
+  will-change: transform;
+  /* Performance hint */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+    background: var(--background);
+  }
 }
 
 @keyframes aurora {

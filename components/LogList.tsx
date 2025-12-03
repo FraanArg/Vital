@@ -69,46 +69,44 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
 
         // Sort chronologically
         return filtered?.sort((a, b) => {
-            const getTime = (log: Doc<"logs">) => {
-                if (log.sleep_start) return log.sleep_start;
-                if (log.meal?.time) return log.meal.time;
-                if (log.exercise?.time) return log.exercise.time;
-                // Default fallback for items without explicit time (like Journal or simple Food)
-                // We can try to infer or just put them at the end/start
-                // For now, let's use a default "00:00" if undefined so they appear first? 
-                // Or maybe "23:59" to appear last?
-                // Actually, creation time might be better if available, but we only have _creationTime which is a timestamp.
-                // Let's use _creationTime as a fallback for sorting if explicit time is missing.
-                // But we need to compare strings "HH:MM" vs timestamps? No.
-                // Let's convert "HH:MM" to minutes from midnight for comparison.
-                return "12:00"; // Default middle of day?
-            };
-
             const getMinutes = (log: Doc<"logs">) => {
-                let timeStr = "12:00";
+                let timeStr: string | null = null;
                 if (log.sleep_start) timeStr = log.sleep_start;
                 else if (log.meal?.time) timeStr = log.meal.time;
                 else if (log.exercise?.time) timeStr = log.exercise.time;
-                else {
-                    // Fallback using creation time if available to sort relatively?
-                    // But mixing explicit times with creation times is tricky.
-                    // Let's just stick to a default for now.
-                    return 9999; // Put at the end?
+
+                if (timeStr) {
+                    const [h, m] = timeStr.split(':').map(Number);
+                    return h * 60 + m;
                 }
 
-                const [h, m] = timeStr.split(':').map(Number);
-                return h * 60 + m;
+                // Fallback: use creation time to place them relatively correctly
+                // We map creation time to a "minute" value. 
+                // Since creation time is a large timestamp, we can just return a value that puts it at the end or start?
+                // Better: if no time, use 0 (start of day) or 1440 (end of day).
+                // Let's assume items without time (like Journal) happen "throughout" or at the end.
+                // Let's use creation time to sort amongst themselves.
+                return -1; // Items without explicit time go first? Or last? Let's say first.
             };
 
             const timeA = getMinutes(a);
             const timeB = getMinutes(b);
 
-            // If times are equal (or both default), maybe sort by creation time?
-            if (timeA === timeB) {
+            if (timeA !== -1 && timeB !== -1) {
+                return timeA - timeB;
+            }
+
+            if (timeA === -1 && timeB === -1) {
                 return a._creationTime - b._creationTime;
             }
 
-            return timeA - timeB;
+            // If one has time and other doesn't, prioritize the one with time?
+            // Or maybe items without time (Journal) should be at the bottom?
+            // Let's put items without time at the bottom (larger value).
+            if (timeA === -1) return 1;
+            if (timeB === -1) return -1;
+
+            return 0;
         });
     }, [logs, searchQuery]);
 
