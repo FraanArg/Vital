@@ -72,8 +72,9 @@ export default function StatisticsPage() {
 
     if (!logs || !consistencyLogs) {
         return (
-            <div className="min-h-screen p-4 sm:p-8 pb-24 flex flex-col items-center">
+            <div className="min-h-screen p-4 sm:p-8 pb-24 flex flex-col items-center justify-center">
                 <div className="w-full max-w-4xl space-y-8">
+                    <div className="text-center text-muted-foreground mb-4">Loading statistics...</div>
                     <div className="flex justify-between items-center">
                         <Skeleton className="h-10 w-48" />
                         <Skeleton className="h-8 w-64 rounded-xl" />
@@ -94,7 +95,7 @@ export default function StatisticsPage() {
 
     return (
         <div className="min-h-screen p-4 sm:p-8 pb-24 flex flex-col items-center">
-            <div className="w-full max-w-4xl animate-fade-in">
+            <div className="w-full max-w-4xl">
                 <StatsHeader range={range} setRange={setRange} />
 
                 <ActivityRings averages={averages} />
