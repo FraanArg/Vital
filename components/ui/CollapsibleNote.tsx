@@ -15,7 +15,8 @@ export default function CollapsibleNote({ value, onChange, placeholder = "Add a 
 
     useEffect(() => {
         if (value.length > 0 && !isOpen) {
-            setIsOpen(true);
+            const timer = setTimeout(() => setIsOpen(true), 0);
+            return () => clearTimeout(timer);
         }
     }, [value, isOpen]);
 
