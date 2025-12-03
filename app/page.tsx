@@ -6,7 +6,7 @@ import { api } from "../convex/_generated/api";
 import { format, startOfDay, endOfDay } from "date-fns";
 import LogEntry from "../components/LogEntry";
 import LogList from "../components/LogList";
-import dynamic from "next/dynamic";
+
 import DateSelector from "../components/DateSelector";
 import SmartSuggestions from "../components/SmartSuggestions";
 import Insights from "../components/Insights";
@@ -16,16 +16,7 @@ import OfflineIndicator from "../components/OfflineIndicator";
 import StreakCounter from "../components/StreakCounter";
 import DailyProgress from "../components/DailyProgress";
 
-const StatsOverview = dynamic(() => import("../components/StatsOverview"), {
-  loading: () => (
-    <div className="grid grid-cols-3 gap-4 mb-8">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="p-4 rounded-2xl bg-card border border-border/50 shadow-sm flex flex-col items-center justify-center text-center h-[106px] animate-pulse bg-muted/20" />
-      ))}
-    </div>
-  ),
-  ssr: false
-});
+import DailySummary from "../components/DailySummary";
 
 // Prefetch adjacent days
 function PrefetchDays({ date }: { date: Date }) {
@@ -100,7 +91,7 @@ export default function Home() {
           <SmartSuggestions />
           <Insights />
 
-          <StatsOverview selectedDate={selectedDate} />
+          <DailySummary selectedDate={selectedDate} />
 
           <LogEntry
             selectedDate={selectedDate}
