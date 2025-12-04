@@ -86,6 +86,7 @@ export default function FoodDatabasePage() {
                                             {editingIconId === food._id && (
                                                 <IconPicker
                                                     currentIcon={food.icon || "🍽️"}
+                                                    foodName={food.name}
                                                     onSelect={(icon) => handleIconUpdate(food._id, icon)}
                                                     onClose={() => setEditingIconId(null)}
                                                 />

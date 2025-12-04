@@ -1,25 +1,20 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X } from "lucide-react";
-import { FOOD_ICONS, ALL_FOOD_ICONS } from "../../lib/food-icons";
+import { X, Sparkles } from "lucide-react";
+import { FOOD_ICONS, ALL_FOOD_ICONS, getSuggestedIcon } from "../../lib/food-icons";
 
 interface IconPickerProps {
     currentIcon: string;
+    foodName?: string;
     onSelect: (icon: string) => void;
     onClose: () => void;
 }
 
-export default function IconPicker({ currentIcon, onSelect, onClose }: IconPickerProps) {
-    const [search, setSearch] = useState("");
+export default function IconPicker({ currentIcon, foodName, onSelect, onClose }: IconPickerProps) {
     const [activeCategory, setActiveCategory] = useState<string>("Fruits");
     const containerRef = useRef<HTMLDivElement>(null);
 
-    // Filter icons based on search
-    const filteredIcons = search
-        ? ALL_FOOD_ICONS.filter(icon => true) // Emojis are hard to search by text without a mapping. For now, just show all or maybe implement a mapping later.
-        // Actually, let's just show all if search is empty, or maybe filter categories?
-        // Searching emojis is tricky without a name map. Let's stick to categories for now.
-        : null;
+    const suggestedIcon = foodName ? getSuggestedIcon(foodName) : null;
 
     // Handle click outside
     useEffect(() => {
@@ -47,6 +42,26 @@ export default function IconPicker({ currentIcon, onSelect, onClose }: IconPicke
                     <X className="w-4 h-4 text-muted-foreground" />
                 </button>
             </div>
+
+            {suggestedIcon && (
+                <div className="p-3 bg-primary/5 border-b border-border/50 flex items-center gap-3">
+                    <div className="p-2 bg-primary/10 rounded-full">
+                        <Sparkles className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                        <p className="text-xs font-medium text-primary">Suggested for &quot;{foodName}&quot;</p>
+                    </div>
+                    <button
+                        onClick={() => {
+                            onSelect(suggestedIcon);
+                            onClose();
+                        }}
+                        className="w-10 h-10 flex items-center justify-center text-2xl rounded-xl bg-background border border-border/50 hover:scale-110 transition-transform shadow-sm"
+                    >
+                        {suggestedIcon}
+                    </button>
+                </div>
+            )}
 
             <div className="flex overflow-x-auto p-2 gap-1 border-b border-border/50 no-scrollbar">
                 {Object.keys(FOOD_ICONS).map(category => (

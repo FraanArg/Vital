@@ -1,4 +1,4 @@
-import { Clock, ChevronDown, Check } from "lucide-react";
+import { Clock, ChevronDown } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
