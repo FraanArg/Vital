@@ -6,7 +6,6 @@ import LogList from "./LogList";
 import dynamic from "next/dynamic";
 import SmartSuggestions from "./SmartSuggestions";
 import DailySummary from "./DailySummary";
-import WeeklyOverview from "./WeeklyOverview";
 import { Doc } from "../convex/_generated/dataModel";
 
 const Insights = dynamic(() => import("./Insights"), { ssr: false });
@@ -31,7 +30,6 @@ export default function DailyDashboard({
             {/* Left Column: Overview (3 cols) */}
             <div className="lg:col-span-3 space-y-6">
                 <DailySummary selectedDate={selectedDate} />
-                <WeeklyOverview selectedDate={selectedDate} />
                 <Insights />
             </div>
 

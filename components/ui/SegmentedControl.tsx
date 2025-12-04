@@ -23,13 +23,13 @@ export function SegmentedControl<T extends string>({
                     <button
                         key={option}
                         onClick={() => onChange(option)}
-                        className={`relative z-10 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${isSelected ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+                        className={`relative z-10 px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${isSelected ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                             }`}
                     >
                         {isSelected && (
                             <motion.div
                                 layoutId="segmented-control-indicator"
-                                className="absolute inset-0 bg-background shadow-sm rounded-lg -z-10"
+                                className="absolute inset-0 bg-primary shadow-sm rounded-lg -z-10"
                                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
                             />
                         )}
