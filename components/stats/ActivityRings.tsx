@@ -51,53 +51,51 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
             {/* Rings Visualization */}
             <div className="bg-card rounded-3xl p-6 border border-border/50 shadow-sm flex items-center justify-center min-h-[250px]">
                 <div className="relative w-[200px] h-[200px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                            {rings.map((ring) => {
-                                const rawPercentage = (ring.value / ring.goal) * 100;
-                                const percentage = isNaN(rawPercentage) || !isFinite(rawPercentage) ? 0 : Math.min(100, rawPercentage);
-                                const data = [
-                                    { value: percentage, fill: ring.color },
-                                    { value: 100 - percentage, fill: "transparent" } // Transparent remainder
-                                ];
-                                // Background ring
-                                const bgData = [{ value: 100, fill: ring.bg }];
+                    <PieChart width={200} height={200}>
+                        {rings.map((ring) => {
+                            const rawPercentage = (ring.value / ring.goal) * 100;
+                            const percentage = isNaN(rawPercentage) || !isFinite(rawPercentage) ? 0 : Math.min(100, rawPercentage);
+                            const data = [
+                                { value: percentage, fill: ring.color },
+                                { value: 100 - percentage, fill: "transparent" } // Transparent remainder
+                            ];
+                            // Background ring
+                            const bgData = [{ value: 100, fill: ring.bg }];
 
-                                return (
-                                    <g key={ring.label}>
-                                        <Pie
-                                            data={bgData}
-                                            dataKey="value"
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={ring.radius - 8}
-                                            outerRadius={ring.radius}
-                                            startAngle={90}
-                                            endAngle={-270}
-                                            stroke="none"
-                                            isAnimationActive={false}
-                                        />
-                                        <Pie
-                                            data={data}
-                                            dataKey="value"
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={ring.radius - 8}
-                                            outerRadius={ring.radius}
-                                            startAngle={90}
-                                            endAngle={90 - (360 * percentage) / 100}
-                                            cornerRadius={10}
-                                            stroke="none"
-                                        >
-                                            {data.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={entry.fill} />
-                                            ))}
-                                        </Pie>
-                                    </g>
-                                );
-                            })}
-                        </PieChart>
-                    </ResponsiveContainer>
+                            return (
+                                <g key={ring.label}>
+                                    <Pie
+                                        data={bgData}
+                                        dataKey="value"
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={ring.radius - 8}
+                                        outerRadius={ring.radius}
+                                        startAngle={90}
+                                        endAngle={-270}
+                                        stroke="none"
+                                        isAnimationActive={false}
+                                    />
+                                    <Pie
+                                        data={data}
+                                        dataKey="value"
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={ring.radius - 8}
+                                        outerRadius={ring.radius}
+                                        startAngle={90}
+                                        endAngle={90 - (360 * percentage) / 100}
+                                        cornerRadius={10}
+                                        stroke="none"
+                                    >
+                                        {data.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                                        ))}
+                                    </Pie>
+                                </g>
+                            );
+                        })}
+                    </PieChart>
 
                     {/* Center Text */}
                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
