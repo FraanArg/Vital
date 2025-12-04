@@ -26,7 +26,7 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
             goal: GOALS.exercise,
             color: "#ef4444", // Red
             bg: "rgba(239, 68, 68, 0.2)",
-            radius: 80,
+            radius: 95,
             unit: "m"
         },
         {
@@ -35,7 +35,7 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
             goal: GOALS.work,
             color: "#22c55e", // Green
             bg: "rgba(34, 197, 94, 0.2)",
-            radius: 60,
+            radius: 75,
             unit: "h"
         },
         {
@@ -44,7 +44,7 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
             goal: GOALS.sleep,
             color: "#3b82f6", // Blue
             bg: "rgba(59, 130, 246, 0.2)",
-            radius: 40,
+            radius: 55,
             unit: "h"
         }
     ];
@@ -69,7 +69,7 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
                                     dataKey="value"
                                     cx="50%"
                                     cy="50%"
-                                    innerRadius={ring.radius - 8}
+                                    innerRadius={ring.radius - 12}
                                     outerRadius={ring.radius}
                                     startAngle={90}
                                     endAngle={-270}
@@ -92,7 +92,7 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
                                         dataKey="value"
                                         cx="50%"
                                         cy="50%"
-                                        innerRadius={ring.radius - 8}
+                                        innerRadius={ring.radius - 12}
                                         outerRadius={ring.radius}
                                         startAngle={90}
                                         endAngle={-270}
