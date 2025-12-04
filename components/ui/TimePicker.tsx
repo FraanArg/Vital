@@ -20,7 +20,16 @@ export default function TimePicker({ value, onChange, className = "" }: TimePick
                     type="time"
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
-                    className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
+                    onClick={() => {
+                        try {
+                            if (inputRef.current && "showPicker" in HTMLInputElement.prototype) {
+                                inputRef.current.showPicker();
+                            }
+                        } catch (e) {
+                            console.error("showPicker failed", e);
+                        }
+                    }}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     aria-label="Select time"
                 />
             </div>
