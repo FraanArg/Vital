@@ -90,6 +90,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   position: relative;
+  font-feature-settings: "cv05", "cv08";
 }
 
 /* Aurora Background Animation */
