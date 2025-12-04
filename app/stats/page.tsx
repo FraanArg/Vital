@@ -35,10 +35,11 @@ export default function StatisticsPage() {
     });
 
     // Fetch longer history for consistency grid (last 90 days)
-    const consistencyStart = useMemo(() => subDays(new Date(), 90), []);
+    const now = useMemo(() => new Date(), []);
+    const consistencyStart = useMemo(() => subDays(now, 90), [now]);
     const consistencyLogs = useQuery(api.logs.getStats, {
         from: consistencyStart.toISOString(),
-        to: new Date().toISOString()
+        to: now.toISOString()
     });
 
 
