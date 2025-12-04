@@ -15,6 +15,7 @@ import {
     Area
 } from "recharts";
 import { format, parseISO } from "date-fns";
+import { SegmentedControl } from "../ui/SegmentedControl";
 
 interface ChartData {
     date: string;
@@ -72,20 +73,12 @@ export default function TrendCharts({ data, range }: TrendChartsProps) {
         <div className="w-full bg-card rounded-3xl p-6 shadow-sm border border-border/50 mb-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
                 <h3 className="text-lg font-semibold">Trends</h3>
-                <div className="flex flex-wrap gap-1 bg-secondary/30 p-1 rounded-xl">
-                    {(Object.keys(config) as Array<keyof typeof config>).map((tab) => (
-                        <button
-                            key={tab}
-                            onClick={() => setActiveTab(tab)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${activeTab === tab
-                                ? "bg-background text-foreground shadow-sm"
-                                : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-                                }`}
-                        >
-                            {config[tab].label}
-                        </button>
-                    ))}
-                </div>
+                <SegmentedControl
+                    options={Object.keys(config) as Array<keyof typeof config>}
+                    value={activeTab}
+                    onChange={setActiveTab}
+                    labels={Object.fromEntries(Object.entries(config).map(([k, v]) => [k, v.label])) as Record<string, string>}
+                />
             </div>
 
             <div className="h-[300px] w-full">
