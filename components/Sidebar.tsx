@@ -18,7 +18,7 @@ export default function Sidebar() {
     const pathname = usePathname();
 
     return (
-        <aside className="hidden md:flex flex-col w-64 border-r border-border bg-card p-6 h-full">
+        <aside className="hidden md:flex flex-col w-64 border-r border-white/20 bg-background/60 backdrop-blur-xl p-6 h-full relative z-50">
             <div className="flex items-center gap-3 px-2 mb-8">
                 <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center">
                     <span className="text-primary-foreground font-bold">V</span>
@@ -37,9 +37,9 @@ export default function Sidebar() {
                         <Link
                             key={link.href}
                             href={link.href}
-                            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group active:scale-95 ${isActive
-                                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 font-medium"
-                                : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                            className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 group active:scale-95 ${isActive
+                                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 font-medium"
+                                : "text-muted-foreground hover:bg-white/50 hover:text-foreground"
                                 }`}
                         >
                             <Icon className={`w-5 h-5 ${isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground"}`} />
