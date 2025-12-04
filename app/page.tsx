@@ -71,7 +71,7 @@ export default function Home() {
   return (
     <div className="flex flex-col h-full bg-background">
       <div className="flex-1 overflow-y-auto pb-24 sm:pb-8">
-        <div className="container mx-auto p-4 space-y-6">
+        <div className="w-full max-w-[1600px] mx-auto p-4 lg:p-8 space-y-6">
           <header className="flex items-center justify-between py-2 pt-safe">
             <h1 className="text-2xl font-bold tracking-tight">Vital</h1>
             <div className="flex items-center gap-2">
