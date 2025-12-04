@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Sparkles } from "lucide-react";
 import { FOOD_ICONS, ALL_FOOD_ICONS, getSuggestedIcon } from "../../lib/food-icons";
@@ -12,9 +12,25 @@ interface IconPickerProps {
 
 export default function IconPicker({ currentIcon, foodName, onSelect, onClose }: IconPickerProps) {
     const [activeCategory, setActiveCategory] = useState<string>("Fruits");
+    const [position, setPosition] = useState<'top' | 'bottom'>('bottom');
     const containerRef = useRef<HTMLDivElement>(null);
 
     const suggestedIcon = foodName ? getSuggestedIcon(foodName) : null;
+
+    // Handle positioning
+    useLayoutEffect(() => {
+        if (containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            const spaceBelow = window.innerHeight - rect.top;
+            const spaceAbove = rect.top;
+
+            // If it goes off screen (rect.bottom > window.innerHeight) and there is more space above, flip it
+            if (rect.bottom > window.innerHeight && spaceAbove > spaceBelow) {
+                // eslint-disable-next-line react-hooks/set-state-in-effect
+                setPosition('top');
+            }
+        }
+    }, []);
 
     // Handle click outside
     useEffect(() => {
@@ -29,10 +45,10 @@ export default function IconPicker({ currentIcon, foodName, onSelect, onClose }:
 
     return (
         <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="absolute z-50 mt-2 w-[320px] bg-card border border-border/50 rounded-2xl shadow-xl overflow-hidden"
+            initial={{ opacity: 0, scale: 0.95, y: position === 'bottom' ? 10 : -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: position === 'bottom' ? 10 : -10 }}
+            className={`absolute z-50 w-[320px] bg-card border border-border/50 rounded-2xl shadow-xl overflow-hidden ${position === 'bottom' ? 'mt-2 top-full' : 'mb-2 bottom-full'}`}
             ref={containerRef}
             style={{ left: "50%", translateX: "-50%" }}
         >
