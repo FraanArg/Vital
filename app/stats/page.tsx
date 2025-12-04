@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subDays } from "date-fns";
+import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subDays, format } from "date-fns";
 import StatsHeader from "../../components/stats/StatsHeader";
 import dynamic from "next/dynamic";
 
@@ -46,13 +46,47 @@ export default function StatisticsPage() {
 
     const processedData = useMemo(() => {
         if (!logs) return null;
-        return logs.map(log => ({
-            date: log.date,
-            work: log.work || 0,
-            sleep: log.sleep || 0,
-            water: log.water || 0,
-            mood: log.mood || 0,
-            exerciseDuration: log.exercise?.duration || 0,
+
+        interface AggregatedDay {
+            date: string;
+            work: number;
+            sleep: number;
+            water: number;
+            mood: number;
+            exerciseDuration: number;
+            moodCount: number;
+        }
+
+        const aggregated = logs.reduce((acc, log) => {
+            const dateKey = format(new Date(log.date), "yyyy-MM-dd");
+            if (!acc[dateKey]) {
+                acc[dateKey] = {
+                    date: dateKey,
+                    work: 0,
+                    sleep: 0,
+                    water: 0,
+                    mood: 0,
+                    exerciseDuration: 0,
+                    moodCount: 0,
+                };
+            }
+
+            acc[dateKey].work += log.work || 0;
+            acc[dateKey].sleep += log.sleep || 0;
+            acc[dateKey].water += log.water || 0;
+            acc[dateKey].exerciseDuration += log.exercise?.duration || 0;
+
+            if (log.mood) {
+                acc[dateKey].mood += log.mood;
+                acc[dateKey].moodCount += 1;
+            }
+
+            return acc;
+        }, {} as Record<string, AggregatedDay>);
+
+        return Object.values(aggregated).map((day) => ({
+            ...day,
+            mood: day.moodCount > 0 ? Number((day.mood / day.moodCount).toFixed(1)) : 0,
         })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     }, [logs]);
 

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useLayoutEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { X, Sparkles } from "lucide-react";
-import { FOOD_ICONS, ALL_FOOD_ICONS, getSuggestedIcon } from "../../lib/food-icons";
+import { FOOD_ICONS, getSuggestedIcon } from "../../lib/food-icons";
 
 interface IconPickerProps {
     currentIcon: string;
