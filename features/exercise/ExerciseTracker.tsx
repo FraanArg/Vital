@@ -18,6 +18,7 @@ import CollapsibleNote from "../../components/ui/CollapsibleNote";
 export default function ExerciseTracker({ onClose, selectedDate, initialData }: { onClose: () => void, selectedDate: Date, initialData?: Doc<"logs"> | null }) {
     const [activity, setActivity] = useState<string | null>(initialData?.exercise?.type || null);
     const [subActivity, setSubActivity] = useState<string | null>(initialData?.exercise?.type === "sports" ? initialData.exercise.type : null);
+    const [footballMode, setFootballMode] = useState(false);
 
     const [duration, setDuration] = useState(initialData?.exercise?.duration || 60);
     const [distance, setDistance] = useState<number | "">(initialData?.exercise?.distance || "");
@@ -278,8 +279,7 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
         index === self.findIndex((t) => t.id === sport.id)
     );
 
-    // Football Subcategories
-    const [footballMode, setFootballMode] = useState(false);
+
 
     const FOOTBALL_TYPES = [
         { id: "Football 5 Match", label: "Football 5 Match", icon: Circle },
