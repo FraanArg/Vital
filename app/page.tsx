@@ -18,6 +18,7 @@ import StreakCounter from "../components/StreakCounter";
 import DailyProgress from "../components/DailyProgress";
 
 import DailySummary from "../components/DailySummary";
+import WeeklyOverview from "../components/WeeklyOverview";
 
 // Prefetch adjacent days
 function PrefetchDays({ date }: { date: Date }) {
@@ -99,6 +100,7 @@ export default function Home() {
             {/* Left Column: Overview (3 cols) */}
             <div className="lg:col-span-3 space-y-6">
               <DailySummary selectedDate={selectedDate} />
+              <WeeklyOverview selectedDate={selectedDate} />
               <Insights />
             </div>
 

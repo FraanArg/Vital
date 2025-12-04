@@ -108,7 +108,7 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
                         </PieChart>
                     </ResponsiveContainer>
                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        <span className="text-5xl font-thin text-foreground">
+                        <span className="text-4xl font-thin text-foreground">
                             {Math.round(averagePercentage)}%
                         </span>
                         <span className="text-xs font-black uppercase tracking-widest text-muted-foreground mt-1">AVG</span>

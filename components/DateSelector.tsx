@@ -170,7 +170,7 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
                                 layout
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                className={`flex flex-col justify-center px-4 min-w-[120px] h-24 rounded-[32px] transition-all relative border ${isSelected
+                                className={`flex flex-col justify-center px-4 min-w-[100px] flex-1 w-full h-24 rounded-[32px] transition-all relative border ${isSelected
                                     ? "bg-primary text-primary-foreground border-primary shadow-md"
                                     : "bg-card text-card-foreground hover:bg-secondary border-border/50"
                                     }`}

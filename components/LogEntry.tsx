@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { TRACKERS } from '../lib/tracker-registry';
 import { useHaptic } from '../hooks/useHaptic';
 import { Doc } from "../convex/_generated/dataModel";
-import { Plus } from "lucide-react";
 
 interface LogEntryProps {
     selectedDate: Date;
@@ -36,10 +35,9 @@ export default function LogEntry({ selectedDate, activeTracker, onTrackerChange,
 
     return (
         <div className="w-full mb-8">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 auto-rows-[120px]">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {TRACKERS.map((tracker) => {
                     const Icon = tracker.icon;
-                    const isWide = tracker.id === "sleep" || tracker.id === "exercise";
 
                     return (
                         <button
@@ -49,26 +47,18 @@ export default function LogEntry({ selectedDate, activeTracker, onTrackerChange,
                                 trigger("light");
                                 onTrackerChange(tracker.id);
                             }}
-                            className={`relative overflow-hidden rounded-[32px] border border-border/50 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all group p-5 flex flex-col justify-between ${isWide ? "col-span-2" : "col-span-1"
-                                } ${tracker.bgColor.replace("bg-", "bg-opacity-20 hover:bg-opacity-30 bg-")}`}
+                            className={`relative overflow-hidden rounded-[32px] border border-border/50 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all group p-4 aspect-square flex flex-col items-center justify-center gap-3 ${tracker.bgColor.replace("bg-", "bg-opacity-20 hover:bg-opacity-30 bg-")}`}
                         >
                             {/* Background Gradient */}
                             <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-transparent to-white/10 dark:to-black/10`} />
 
-                            <div className={`p-3 rounded-2xl w-fit transition-colors ${tracker.color.replace("text-", "bg-white/50 dark:bg-black/20 text-")}`}>
-                                <Icon className="w-6 h-6" />
+                            <div className={`p-3 rounded-2xl transition-colors ${tracker.color.replace("text-", "bg-white/50 dark:bg-black/20 text-")}`}>
+                                <Icon className="w-8 h-8" />
                             </div>
 
-                            <div className="flex items-center justify-between w-full">
-                                <span className={`text-lg font-bold tracking-tight ${tracker.color}`}>
-                                    {tracker.label}
-                                </span>
-                                {isWide && (
-                                    <div className="p-1.5 rounded-full bg-background/20 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <Plus className="w-4 h-4" />
-                                    </div>
-                                )}
-                            </div>
+                            <span className={`text-sm font-bold tracking-tight ${tracker.color}`}>
+                                {tracker.label}
+                            </span>
                         </button>
                     );
                 })}
