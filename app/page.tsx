@@ -7,9 +7,10 @@ import { format, startOfDay, endOfDay } from "date-fns";
 import LogEntry from "../components/LogEntry";
 import LogList from "../components/LogList";
 
+import dynamic from "next/dynamic";
 import DateSelector from "../components/DateSelector";
 import SmartSuggestions from "../components/SmartSuggestions";
-import Insights from "../components/Insights";
+const Insights = dynamic(() => import("../components/Insights"), { ssr: false });
 
 
 import OfflineIndicator from "../components/OfflineIndicator";

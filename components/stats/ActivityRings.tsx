@@ -54,7 +54,8 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                             {rings.map((ring) => {
-                                const percentage = Math.min(100, (ring.value / ring.goal) * 100);
+                                const rawPercentage = (ring.value / ring.goal) * 100;
+                                const percentage = isNaN(rawPercentage) || !isFinite(rawPercentage) ? 0 : Math.min(100, rawPercentage);
                                 const data = [
                                     { value: percentage, fill: ring.color },
                                     { value: 100 - percentage, fill: "transparent" } // Transparent remainder

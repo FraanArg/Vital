@@ -41,7 +41,7 @@ export default function StatisticsPage() {
         to: new Date().toISOString()
     });
 
-    console.log("Stats Page Debug:", { logs, consistencyLogs, range, start, end });
+
 
     const processedData = useMemo(() => {
         if (!logs) return null;
