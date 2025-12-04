@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { motion } from "framer-motion";
 
@@ -54,6 +55,10 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
         return acc + percentage;
     }, 0) / rings.length;
 
+    const [hoveredRing, setHoveredRing] = useState<string | null>(null);
+
+    const activeRing = rings.find(r => r.label === hoveredRing);
+
     return (
         <div className="flex flex-col gap-6 mb-8">
             {/* Rings Visualization */}
@@ -75,6 +80,9 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
                                     endAngle={-270}
                                     stroke="none"
                                     isAnimationActive={false}
+                                    onMouseEnter={() => setHoveredRing(ring.label)}
+                                    onMouseLeave={() => setHoveredRing(null)}
+                                    style={{ opacity: hoveredRing && hoveredRing !== ring.label ? 0.3 : 1, transition: 'opacity 0.3s' }}
                                 />
                             ))}
                             {/* Progress rings */}
@@ -98,6 +106,9 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
                                         endAngle={-270}
                                         cornerRadius={10}
                                         stroke="none"
+                                        onMouseEnter={() => setHoveredRing(ring.label)}
+                                        onMouseLeave={() => setHoveredRing(null)}
+                                        style={{ opacity: hoveredRing && hoveredRing !== ring.label ? 0.3 : 1, transition: 'opacity 0.3s', cursor: 'pointer' }}
                                     >
                                         {progressData.map((entry, idx) => (
                                             <Cell key={`cell-${idx}`} fill={entry.fill} />
@@ -107,11 +118,27 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
                             })}
                         </PieChart>
                     </ResponsiveContainer>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        <span className="text-4xl font-thin text-foreground">
-                            {Math.round(averagePercentage)}%
-                        </span>
-                        <span className="text-xs font-black uppercase tracking-widest text-muted-foreground mt-1">AVG</span>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-all duration-300">
+                        {activeRing ? (
+                            <>
+                                <span className="text-4xl font-thin text-foreground" style={{ color: activeRing.color }}>
+                                    {Math.round(activeRing.value * 10) / 10}
+                                </span>
+                                <span className="text-xs font-black uppercase tracking-widest text-muted-foreground mt-1">
+                                    {activeRing.unit}
+                                </span>
+                                <span className="text-[10px] font-medium text-muted-foreground mt-1 opacity-70">
+                                    {activeRing.label}
+                                </span>
+                            </>
+                        ) : (
+                            <>
+                                <span className="text-4xl font-thin text-foreground">
+                                    {Math.round(averagePercentage)}%
+                                </span>
+                                <span className="text-xs font-black uppercase tracking-widest text-muted-foreground mt-1">AVG</span>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

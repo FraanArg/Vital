@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import LogEntry from "./LogEntry";
 import LogList from "./LogList";
 import dynamic from "next/dynamic";
-import SmartSuggestions from "./SmartSuggestions";
+import SmartStack from "./SmartStack";
 import DailySummary from "./DailySummary";
 import { Doc } from "../convex/_generated/dataModel";
 
@@ -42,7 +42,7 @@ export default function DailyDashboard({
                     onTrackerChange={onTrackerChange}
                     editingLog={editingLog}
                 />
-                <SmartSuggestions />
+                <SmartStack />
             </div>
 
             {/* Right Column: History (3 cols) */}

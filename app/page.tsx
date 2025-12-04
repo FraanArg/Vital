@@ -11,6 +11,7 @@ import DailyProgress from "../components/DailyProgress";
 import StreakCounter from "../components/StreakCounter";
 import OfflineIndicator from "../components/OfflineIndicator";
 import DateSelector from "../components/DateSelector";
+import LiveActivity from "../components/LiveActivity";
 import { TRACKERS } from "../lib/tracker-registry";
 import { Doc } from "../convex/_generated/dataModel";
 
@@ -96,6 +97,8 @@ export default function Home() {
           </header>
 
           <DateSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
+
+          <LiveActivity />
 
           {viewMode === "daily" ? (
             <DailyDashboard
