@@ -55,7 +55,7 @@ export default function Insights() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.3 }}
-                    className="bg-gradient-to-br from-card/50 to-primary/5 backdrop-blur-sm border border-border/50 p-4 rounded-2xl flex items-center gap-4 shadow-sm relative overflow-hidden"
+                    className="bg-gradient-to-br from-card/50 to-primary/5 backdrop-blur-sm border border-border/50 p-4 rounded-[32px] flex items-center gap-4 shadow-sm relative overflow-hidden"
                 >
                     <div className="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] -z-10" />
                     <div className={`p-2 rounded-xl bg-background/80 shadow-sm ${currentInsight.color}`}>

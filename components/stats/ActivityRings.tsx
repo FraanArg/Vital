@@ -57,7 +57,7 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
     return (
         <div className="flex flex-col gap-6 mb-8">
             {/* Rings Visualization */}
-            <div className="bg-card rounded-3xl p-6 border border-border/50 shadow-sm flex items-center justify-center min-h-[250px]">
+            <div className="bg-card rounded-[32px] p-6 border border-border/50 shadow-sm flex items-center justify-center min-h-[250px]">
                 <div className="relative w-[200px] h-[200px]">
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
@@ -123,7 +123,7 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
                         key={ring.label}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-card rounded-2xl p-3 border border-border/50 shadow-sm flex flex-col items-center justify-center text-center gap-1"
+                        className="bg-card rounded-[32px] p-3 border border-border/50 shadow-sm flex flex-col items-center justify-center text-center gap-1"
                     >
                         <div className="flex items-center gap-2 mb-1">
                             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: ring.color }} />

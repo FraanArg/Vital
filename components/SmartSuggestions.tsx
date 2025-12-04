@@ -42,7 +42,7 @@ export default function SmartSuggestions() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, height: 0 }}
-                className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 p-4 rounded-2xl mb-6 flex items-start gap-3 relative overflow-hidden"
+                className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 p-4 rounded-[32px] mb-6 flex items-start gap-3 relative overflow-hidden"
             >
                 <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl" />
                 <div className="p-2 bg-primary/20 rounded-full shrink-0">

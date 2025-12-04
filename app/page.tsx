@@ -104,7 +104,7 @@ export default function Home() {
 
             {/* Center Column: Action (6 cols) */}
             <div className="lg:col-span-6 space-y-6">
-              <div className="bg-card rounded-3xl p-6 shadow-sm border border-border/50">
+              <div className="bg-card rounded-[32px] p-6 shadow-sm border border-border/50">
                 <h3 className="text-xl font-black tracking-tight mb-4">Log Activity</h3>
                 <LogEntry
                   selectedDate={selectedDate}

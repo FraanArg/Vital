@@ -114,7 +114,7 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
         return (
             <div className="space-y-3">
                 {[1, 2, 3].map((i) => (
-                    <div key={i} className="bg-card p-4 rounded-2xl shadow-sm border border-border/50 flex items-center gap-4 h-[72px]">
+                    <div key={i} className="bg-card p-4 rounded-[32px] shadow-sm border border-border/50 flex items-center gap-4 h-[72px]">
                         <Skeleton className="w-12 h-12 rounded-xl" />
                         <div className="space-y-2 flex-1">
                             <Skeleton className="w-32 h-4 rounded-lg" />
