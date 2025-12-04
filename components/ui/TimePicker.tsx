@@ -12,35 +12,28 @@ export default function TimePicker({ value, onChange, className = "" }: TimePick
 
     return (
         <div className={`relative ${className}`}>
-            <button
-                type="button"
-                onClick={() => {
-                    try {
-                        if (inputRef.current) {
-                            if ("showPicker" in HTMLInputElement.prototype) {
-                                inputRef.current.showPicker();
-                            } else {
-                                inputRef.current.click();
-                            }
-                        }
-                    } catch (e) {
-                        console.error("TimePicker trigger failed", e);
-                    }
-                }}
-                className="relative flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors text-foreground font-medium text-lg group w-full"
-            >
+            <div className="relative flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors text-foreground font-medium text-lg group w-full">
                 <Clock className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
                 <span>{value}</span>
-            </button>
-            <input
-                ref={inputRef}
-                type="time"
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                className="sr-only"
-                aria-label="Select time"
-                tabIndex={-1}
-            />
+                <input
+                    ref={inputRef}
+                    type="time"
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    onClick={(e) => {
+                        // Try to force picker open if browser supports it
+                        try {
+                            if ("showPicker" in HTMLInputElement.prototype) {
+                                e.currentTarget.showPicker();
+                            }
+                        } catch (err) {
+                            // Ignore error, native behavior should take over since we are clicking the input
+                        }
+                    }}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                    aria-label="Select time"
+                />
+            </div>
         </div>
     );
 }
