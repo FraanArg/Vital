@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Doc } from "../../convex/_generated/dataModel";
-import { Dumbbell, Trophy, Activity, Plus, Trash2, Settings, ChevronDown, ChevronUp, Check } from "lucide-react";
+import { Dumbbell, Trophy, Activity, Plus, Trash2, Settings, ChevronDown, ChevronUp, Check, Circle } from "lucide-react";
 import RoutineManager from "./RoutineManager";
 import IconPicker from "../../components/IconPicker";
 import { ICON_LIBRARY } from "../../lib/icon-library";
@@ -278,6 +278,47 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
         index === self.findIndex((t) => t.id === sport.id)
     );
 
+    // Football Subcategories
+    const [footballMode, setFootballMode] = useState(false);
+
+    const FOOTBALL_TYPES = [
+        { id: "Football 5 Match", label: "Football 5 Match", icon: Circle },
+        { id: "Football 6 Match", label: "Football 6 Match", icon: Circle },
+        { id: "Football 8 Match", label: "Football 8 Match", icon: Circle },
+        { id: "Football League Match", label: "Football League Match", icon: Trophy },
+        { id: "Football Club Training", label: "Football Club Training", icon: Activity },
+    ];
+
+    // Football Selection View
+    if (activity === "sports" && footballMode) {
+        return (
+            <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-4">
+                    <button onClick={() => setFootballMode(false)} className="text-sm text-muted-foreground hover:text-foreground">
+                        ← Back
+                    </button>
+                    <h3 className="font-semibold">Select Football Type</h3>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3">
+                    {FOOTBALL_TYPES.map((type) => (
+                        <button
+                            key={type.id}
+                            onClick={() => {
+                                setSubActivity(type.id);
+                                setFootballMode(false);
+                            }}
+                            className="w-full p-4 rounded-2xl border border-border/50 flex items-center gap-4 transition-all hover:scale-[1.02] active:scale-[0.98] bg-secondary/50 hover:bg-secondary"
+                        >
+                            <type.icon className="w-6 h-6 text-foreground" />
+                            <span className="font-medium">{type.label}</span>
+                        </button>
+                    ))}
+                </div>
+            </div>
+        );
+    }
+
     // Sports Sub-selection
     if (activity === "sports" && !subActivity) {
         return (
@@ -296,7 +337,13 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
                         return (
                             <div key={sport.id} className="relative group">
                                 <button
-                                    onClick={() => setSubActivity(sport.id)}
+                                    onClick={() => {
+                                        if (sport.id === "football") {
+                                            setFootballMode(true);
+                                        } else {
+                                            setSubActivity(sport.id);
+                                        }
+                                    }}
                                     className="w-full p-4 rounded-2xl border border-border/50 flex flex-col items-center gap-2 transition-all hover:scale-105 active:scale-95 bg-secondary/50 hover:bg-secondary"
                                 >
                                     {/* @ts-ignore - Icon type compatibility */}
