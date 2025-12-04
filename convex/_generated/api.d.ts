@@ -15,6 +15,7 @@ import type * as foodItems from "../foodItems.js";
 import type * as gamification from "../gamification.js";
 import type * as icons from "../icons.js";
 import type * as logs from "../logs.js";
+import type * as reports from "../reports.js";
 import type * as routines from "../routines.js";
 import type * as sports from "../sports.js";
 import type * as suggestions from "../suggestions.js";
@@ -33,6 +34,7 @@ declare const fullApi: ApiFromModules<{
   gamification: typeof gamification;
   icons: typeof icons;
   logs: typeof logs;
+  reports: typeof reports;
   routines: typeof routines;
   sports: typeof sports;
   suggestions: typeof suggestions;

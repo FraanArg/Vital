@@ -3,16 +3,18 @@
 import { useState } from "react";
 import { useUser, useClerk } from "@clerk/nextjs";
 import SyncData from "../../components/SyncData";
-import { Settings, Shield, Mail, Loader2, Trash2 } from "lucide-react";
+import { Settings, Shield, Mail, Loader2, Trash2, FileText } from "lucide-react";
 import Image from "next/image";
 import { ThemeToggle } from "../../components/ThemeToggle";
 import DataExport from "../../components/DataExport";
+import ExportDialog from "../../components/reports/ExportDialog";
 import { db } from "../../lib/db";
 
 export default function ProfilePage() {
     const { user, isLoaded } = useUser();
     const { openUserProfile, openSignIn } = useClerk();
     const [isLoading, setIsLoading] = useState(false);
+    const [showExportDialog, setShowExportDialog] = useState(false);
 
     const handleSignIn = () => {
         setIsLoading(true);
@@ -125,6 +127,20 @@ export default function ProfilePage() {
 
                         <div className="flex items-center justify-between pt-4 border-t border-border/50">
                             <div>
+                                <p className="font-medium">Nutritionist Report</p>
+                                <p className="text-sm text-muted-foreground">Generate a printable summary</p>
+                            </div>
+                            <button
+                                onClick={() => setShowExportDialog(true)}
+                                className="px-4 py-2 bg-primary/10 text-primary hover:bg-primary/20 rounded-lg font-medium transition-colors flex items-center gap-2"
+                            >
+                                <FileText className="w-4 h-4" />
+                                Generate
+                            </button>
+                        </div>
+
+                        <div className="flex items-center justify-between pt-4 border-t border-border/50">
+                            <div>
                                 <p className="font-medium">Export / Import</p>
                                 <p className="text-sm text-muted-foreground">Backup your data to JSON</p>
                             </div>
@@ -146,6 +162,8 @@ export default function ProfilePage() {
                     </div>
                 </section>
             </div>
+
+            <ExportDialog isOpen={showExportDialog} onClose={() => setShowExportDialog(false)} />
         </div>
     );
 }
