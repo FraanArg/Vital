@@ -4,7 +4,6 @@ import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { startOfWeek, endOfWeek, format, eachDayOfInterval, isSameDay } from "date-fns";
 import { BarChart, Bar, XAxis, ResponsiveContainer, Cell } from "recharts";
-import { motion } from "framer-motion";
 
 interface WeeklyOverviewProps {
     selectedDate: Date;
