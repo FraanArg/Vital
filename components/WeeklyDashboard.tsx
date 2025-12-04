@@ -36,13 +36,21 @@ export default function WeeklyDashboard({ selectedDate }: WeeklyDashboardProps) 
 
     const days = eachDayOfInterval({ start, end });
     const chartData = days.map(day => {
-        const dayLog = logs?.find(l => isSameDay(new Date(l.date), day));
+        const dayLogs = logs?.filter(l => isSameDay(new Date(l.date), day)) || [];
+
+        const dayTotals = dayLogs.reduce((acc, log) => ({
+            work: acc.work + (log.work || 0),
+            sleep: acc.sleep + (log.sleep || 0),
+            exercise: acc.exercise + (log.exercise?.duration || 0),
+            water: acc.water + (log.water || 0),
+        }), { work: 0, sleep: 0, exercise: 0, water: 0 });
+
         return {
             day: format(day, "EEE"),
-            work: dayLog?.work || 0,
-            sleep: dayLog?.sleep || 0,
-            exercise: dayLog?.exercise?.duration || 0,
-            water: dayLog?.water || 0,
+            work: dayTotals.work,
+            sleep: dayTotals.sleep,
+            exercise: dayTotals.exercise,
+            water: dayTotals.water,
         };
     });
 
