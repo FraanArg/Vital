@@ -18,7 +18,6 @@ import StreakCounter from "../components/StreakCounter";
 import DailyProgress from "../components/DailyProgress";
 
 import DailySummary from "../components/DailySummary";
-import WeeklyOverview from "../components/dashboard/WeeklyOverview";
 
 // Prefetch adjacent days
 function PrefetchDays({ date }: { date: Date }) {
@@ -89,10 +88,11 @@ export default function Home() {
             </div>
           </header>
 
+          <DateSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
+
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Left Column: Daily Focus */}
             <div className="lg:col-span-5 space-y-6">
-              <DateSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
               <DailySummary selectedDate={selectedDate} />
 
               <div className="bg-card rounded-3xl p-6 shadow-sm border border-border/50">
@@ -108,10 +108,6 @@ export default function Home() {
 
             {/* Right Column: Weekly Context & History */}
             <div className="lg:col-span-7 space-y-6">
-              <div className="hidden lg:block">
-                <WeeklyOverview selectedDate={selectedDate} onDateSelect={setSelectedDate} />
-              </div>
-
               <SmartSuggestions />
               <Insights />
 

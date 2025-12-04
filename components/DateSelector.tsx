@@ -1,11 +1,11 @@
 "use client";
 
 import { useRef } from "react";
-import { format, addDays, subDays, isSameDay, startOfDay } from "date-fns";
+import { format, addDays, subDays, isSameDay, startOfDay, endOfDay } from "date-fns";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 import { motion } from "framer-motion";
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "../lib/db";
+import { useQuery } from "convex/react";
+import { api } from "../convex/_generated/api";
 
 interface DateSelectorProps {
     selectedDate: Date;
@@ -15,26 +15,48 @@ interface DateSelectorProps {
 export default function DateSelector({ selectedDate, onDateChange }: DateSelectorProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
 
-    // Query logs to find days with any activity (streaks)
-    const streakLogs = useLiveQuery(async () => {
-        const end = addDays(selectedDate, 4);
-        const start = subDays(selectedDate, 4);
-        return await db.logs
-            .where('date')
-            .between(start, end, true, true)
-            .toArray();
-    }, [selectedDate]);
-
-    // Create a set of date strings for easy lookup
-    const streakDates = new Set(
-        streakLogs?.map(log => startOfDay(log.date).toISOString())
-    );
-
     // Generate a sliding window of dates centered around the selected date
     const dates = [];
     for (let i = -3; i <= 3; i++) {
         dates.push(addDays(selectedDate, i));
     }
+
+    // Fetch stats for the visible range
+    const start = startOfDay(dates[0]).toISOString();
+    const end = endOfDay(dates[dates.length - 1]).toISOString();
+
+    const logs = useQuery(api.logs.getStats, { from: start, to: end });
+
+    // Helper to get completion status for a day
+    const getDayStatus = (date: Date) => {
+        if (!logs) return { score: 0, color: "bg-secondary" };
+
+        const dayLogs = logs.filter(l => isSameDay(new Date(l.date), date));
+        if (dayLogs.length === 0) return { score: 0, color: "bg-secondary" };
+
+        // Simple scoring based on goals met
+        const waterGoal = 2.0;
+        const sleepGoal = 7.0;
+        const workoutGoal = 1;
+
+        const water = dayLogs.reduce((acc, l) => acc + (l.water || 0), 0);
+        const sleep = dayLogs.reduce((acc, l) => acc + (l.sleep || 0), 0);
+        const workout = dayLogs.some(l => l.exercise);
+
+        let goalsMet = 0;
+        if (water >= waterGoal) goalsMet++;
+        if (sleep >= sleepGoal) goalsMet++;
+        if (workout) goalsMet++;
+
+        const score = goalsMet / 3;
+
+        let color = "bg-secondary";
+        if (score === 1) color = "bg-green-500";
+        else if (score > 0.6) color = "bg-yellow-500";
+        else if (score > 0) color = "bg-orange-500";
+
+        return { score, color };
+    };
 
     const handlePrevDay = () => {
         onDateChange(subDays(selectedDate, 1));
@@ -137,7 +159,7 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
                 >
                     {dates.map((date) => {
                         const isSelected = isSameDay(date, selectedDate);
-                        const hasStreak = streakDates.has(startOfDay(date).toISOString());
+                        const status = getDayStatus(date);
 
                         return (
                             <motion.button
@@ -148,7 +170,7 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
                                 layout
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                className={`flex flex-col items-center justify-center min-w-[4rem] h-20 rounded-2xl transition-all relative border ${isSelected
+                                className={`flex flex-col items-center justify-center min-w-[4rem] h-24 rounded-2xl transition-all relative border ${isSelected
                                     ? "bg-primary text-primary-foreground border-primary shadow-md"
                                     : "bg-card text-card-foreground hover:bg-secondary border-border/50"
                                     }`}
@@ -156,14 +178,18 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
                                 <span className={`text-xs font-medium mb-1 ${isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
                                     {format(date, "EEE")}
                                 </span>
-                                <span className={`text-xl font-bold ${isSelected ? "text-primary-foreground" : ""}`}>
+                                <span className={`text-xl font-bold mb-2 ${isSelected ? "text-primary-foreground" : ""}`}>
                                     {format(date, "d")}
                                 </span>
 
-                                {/* Streak Dot */}
-                                {hasStreak && (
-                                    <div className={`absolute bottom-2 w-1.5 h-1.5 rounded-full ${isSelected ? "bg-white" : "bg-primary"}`} />
-                                )}
+                                {/* Progress Bar */}
+                                <div className="w-8 h-1.5 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
+                                    <motion.div
+                                        className={`h-full ${status.score > 0 ? status.color : 'bg-transparent'}`}
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${status.score * 100}%` }}
+                                    />
+                                </div>
                             </motion.button>
                         );
                     })}
