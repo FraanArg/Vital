@@ -80,9 +80,19 @@ export default function WeeklyDashboard({ selectedDate }: WeeklyDashboardProps) 
                                     dy={10}
                                 />
                                 <YAxis
+                                    yAxisId="left"
                                     axisLine={false}
                                     tickLine={false}
                                     tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
+                                    label={{ value: 'Hours', angle: -90, position: 'insideLeft', style: { fill: 'var(--muted-foreground)', fontSize: 10 } }}
+                                />
+                                <YAxis
+                                    yAxisId="right"
+                                    orientation="right"
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
+                                    label={{ value: 'Minutes', angle: 90, position: 'insideRight', style: { fill: 'var(--muted-foreground)', fontSize: 10 } }}
                                 />
                                 <Tooltip
                                     contentStyle={{
@@ -92,9 +102,9 @@ export default function WeeklyDashboard({ selectedDate }: WeeklyDashboardProps) 
                                     }}
                                     cursor={{ fill: "var(--secondary)", opacity: 0.3, radius: 8 }}
                                 />
-                                <Bar dataKey="work" name="Work (h)" fill="#22c55e" radius={[4, 4, 4, 4]} barSize={12} />
-                                <Bar dataKey="sleep" name="Sleep (h)" fill="#3b82f6" radius={[4, 4, 4, 4]} barSize={12} />
-                                <Bar dataKey="exercise" name="Exercise (m)" fill="#ef4444" radius={[4, 4, 4, 4]} barSize={12} />
+                                <Bar yAxisId="left" dataKey="work" name="Work (h)" fill="#22c55e" radius={[4, 4, 4, 4]} barSize={12} />
+                                <Bar yAxisId="left" dataKey="sleep" name="Sleep (h)" fill="#3b82f6" radius={[4, 4, 4, 4]} barSize={12} />
+                                <Bar yAxisId="right" dataKey="exercise" name="Exercise (m)" fill="#ef4444" radius={[4, 4, 4, 4]} barSize={12} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
