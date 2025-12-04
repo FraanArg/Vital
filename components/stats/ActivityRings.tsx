@@ -47,7 +47,7 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
     ];
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="flex flex-col gap-6 mb-8">
             {/* Rings Visualization */}
             <div className="bg-card rounded-3xl p-6 border border-border/50 shadow-sm flex items-center justify-center min-h-[250px]">
                 <div className="relative w-[200px] h-[200px]">
@@ -105,26 +105,22 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
             </div>
 
             {/* Legend / Details */}
-            <div className="grid grid-rows-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {rings.map((ring) => (
                     <motion.div
                         key={ring.label}
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm flex items-center justify-between"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="bg-card rounded-2xl p-3 border border-border/50 shadow-sm flex flex-col items-center justify-center text-center gap-1"
                     >
-                        <div className="flex items-center gap-3">
-                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: ring.color }} />
-                            <div>
-                                <div className="font-semibold">{ring.label}</div>
-                                <div className="text-xs text-muted-foreground">Goal: {ring.goal}{ring.label === "Move" ? "m" : "h"}</div>
-                            </div>
+                        <div className="flex items-center gap-2 mb-1">
+                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: ring.color }} />
+                            <div className="font-semibold text-sm">{ring.label}</div>
                         </div>
-                        <div className="text-right">
-                            <div className="text-xl font-bold" style={{ color: ring.color }}>
-                                {Math.round(ring.value * 10) / 10}<span className="text-sm font-medium text-muted-foreground ml-1">{ring.label === "Move" ? "min" : "h"}</span>
-                            </div>
+                        <div className="text-lg font-bold leading-none" style={{ color: ring.color }}>
+                            {Math.round(ring.value * 10) / 10}<span className="text-xs font-medium text-muted-foreground ml-0.5">{ring.label === "Move" ? "m" : "h"}</span>
                         </div>
+                        <div className="text-[10px] text-muted-foreground">Goal: {ring.goal}</div>
                     </motion.div>
                 ))}
             </div>

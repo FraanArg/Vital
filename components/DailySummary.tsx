@@ -23,9 +23,9 @@ export default function DailySummary({ selectedDate }: DailySummaryProps) {
 
     if (!logs) {
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="flex flex-col gap-6 mb-8">
                 <Skeleton className="h-[250px] rounded-3xl" />
-                <div className="space-y-4">
+                <div className="grid grid-cols-3 gap-4">
                     <Skeleton className="h-20 rounded-2xl" />
                     <Skeleton className="h-20 rounded-2xl" />
                     <Skeleton className="h-20 rounded-2xl" />
