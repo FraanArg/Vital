@@ -18,6 +18,7 @@ import StreakCounter from "../components/StreakCounter";
 import DailyProgress from "../components/DailyProgress";
 
 import DailySummary from "../components/DailySummary";
+import WeeklyOverview from "../components/dashboard/WeeklyOverview";
 
 // Prefetch adjacent days
 function PrefetchDays({ date }: { date: Date }) {
@@ -71,7 +72,7 @@ export default function Home() {
   return (
     <div className="flex flex-col h-full bg-background">
       <div className="flex-1 overflow-y-auto pb-24 sm:pb-8">
-        <div className="container max-w-md mx-auto p-4 space-y-6">
+        <div className="container mx-auto p-4 space-y-6">
           <header className="flex items-center justify-between py-2 pt-safe">
             <h1 className="text-2xl font-bold tracking-tight">Vital</h1>
             <div className="flex items-center gap-2">
@@ -88,27 +89,42 @@ export default function Home() {
             </div>
           </header>
 
-          <DateSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
-          <SmartSuggestions />
-          <Insights />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Left Column: Daily Focus */}
+            <div className="lg:col-span-5 space-y-6">
+              <DateSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
+              <DailySummary selectedDate={selectedDate} />
 
-          <DailySummary selectedDate={selectedDate} />
-
-          <LogEntry
-            selectedDate={selectedDate}
-            activeTracker={activeTracker}
-            onTrackerChange={handleTrackerChange}
-            editingLog={editingLog}
-          />
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">History</h2>
-              <span className="text-xs text-muted-foreground">
-                {format(selectedDate, "MMMM d, yyyy")}
-              </span>
+              <div className="bg-card rounded-3xl p-6 shadow-sm border border-border/50">
+                <h3 className="text-lg font-semibold mb-4">Log Activity</h3>
+                <LogEntry
+                  selectedDate={selectedDate}
+                  activeTracker={activeTracker}
+                  onTrackerChange={handleTrackerChange}
+                  editingLog={editingLog}
+                />
+              </div>
             </div>
-            <LogList selectedDate={selectedDate} onEdit={handleEdit} />
+
+            {/* Right Column: Weekly Context & History */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="hidden lg:block">
+                <WeeklyOverview selectedDate={selectedDate} onDateSelect={setSelectedDate} />
+              </div>
+
+              <SmartSuggestions />
+              <Insights />
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">History</h2>
+                  <span className="text-xs text-muted-foreground">
+                    {format(selectedDate, "MMMM d, yyyy")}
+                  </span>
+                </div>
+                <LogList selectedDate={selectedDate} onEdit={handleEdit} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
