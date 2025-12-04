@@ -12,27 +12,35 @@ export default function TimePicker({ value, onChange, className = "" }: TimePick
 
     return (
         <div className={`relative ${className}`}>
-            <div className="relative flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors text-foreground font-medium text-lg group">
+            <button
+                type="button"
+                onClick={() => {
+                    try {
+                        if (inputRef.current) {
+                            if ("showPicker" in HTMLInputElement.prototype) {
+                                inputRef.current.showPicker();
+                            } else {
+                                inputRef.current.click();
+                            }
+                        }
+                    } catch (e) {
+                        console.error("TimePicker trigger failed", e);
+                    }
+                }}
+                className="relative flex items-center gap-2 px-4 py-2 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors text-foreground font-medium text-lg group w-full"
+            >
                 <Clock className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
                 <span>{value}</span>
-                <input
-                    ref={inputRef}
-                    type="time"
-                    value={value}
-                    onChange={(e) => onChange(e.target.value)}
-                    onClick={() => {
-                        try {
-                            if (inputRef.current && "showPicker" in HTMLInputElement.prototype) {
-                                inputRef.current.showPicker();
-                            }
-                        } catch (e) {
-                            console.error("showPicker failed", e);
-                        }
-                    }}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                    aria-label="Select time"
-                />
-            </div>
+            </button>
+            <input
+                ref={inputRef}
+                type="time"
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                className="sr-only"
+                aria-label="Select time"
+                tabIndex={-1}
+            />
         </div>
     );
 }
