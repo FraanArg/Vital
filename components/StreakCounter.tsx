@@ -30,7 +30,7 @@ export default function StreakCounter() {
             >
                 <Flame className="w-4 h-4 text-orange-500 fill-orange-500" />
             </motion.div>
-            <span className="text-sm font-bold text-orange-600 dark:text-orange-400">
+            <span className="text-2xl font-black text-orange-600 dark:text-orange-400">
                 {streakData.currentStreak}
             </span>
         </div>

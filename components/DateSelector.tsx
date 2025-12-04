@@ -108,9 +108,9 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
             onTouchEnd={onTouchEnd}
         >
             <div className="flex items-center justify-between mb-6 px-2">
-                <h2 className="text-2xl font-bold tracking-tight">
+                <h2 className="text-4xl font-black tracking-tight">
                     {isToday(selectedDate) ? "Today" : format(selectedDate, "EEEE d")}
-                    <span className="text-muted-foreground font-normal ml-2 text-lg">
+                    <span className="text-muted-foreground font-light ml-2 text-2xl">
                         {format(selectedDate, "MMMM yyyy")}
                     </span>
                 </h2>
@@ -118,7 +118,7 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
                     <button
                         onClick={() => onDateChange(new Date())}
                         aria-label="Go to today"
-                        className={`text-sm font-medium px-4 py-2 rounded-full transition-all ${isToday(selectedDate)
+                        className={`text-sm font-bold px-4 py-2 rounded-full transition-all ${isToday(selectedDate)
                             ? "bg-primary text-primary-foreground shadow-md"
                             : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                             }`}
@@ -170,22 +170,22 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
                                 layout
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                className={`flex flex-col justify-center px-4 min-w-[120px] h-20 rounded-2xl transition-all relative border ${isSelected
+                                className={`flex flex-col justify-center px-4 min-w-[120px] h-24 rounded-2xl transition-all relative border ${isSelected
                                     ? "bg-primary text-primary-foreground border-primary shadow-md"
                                     : "bg-card text-card-foreground hover:bg-secondary border-border/50"
                                     }`}
                             >
-                                <div className="w-full flex items-center justify-between mb-2">
-                                    <span className={`text-xs font-medium ${isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+                                <div className="w-full flex items-center justify-between mb-1">
+                                    <span className={`text-xs font-black uppercase tracking-widest ${isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
                                         {format(date, "EEE")}
                                     </span>
-                                    <span className={`text-xl font-bold ${isSelected ? "text-primary-foreground" : ""}`}>
+                                    <span className={`text-4xl font-thin ${isSelected ? "text-primary-foreground" : ""}`}>
                                         {format(date, "d")}
                                     </span>
                                 </div>
 
                                 {/* Progress Bar */}
-                                <div className="w-full h-1.5 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
+                                <div className="w-full h-1.5 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden mt-2">
                                     <motion.div
                                         className={`h-full ${status.score > 0 ? status.color : 'bg-transparent'}`}
                                         initial={{ width: 0 }}

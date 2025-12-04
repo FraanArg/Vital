@@ -74,7 +74,7 @@ export default function Home() {
         <div className="w-full max-w-[1600px] mx-auto p-4 lg:p-8 space-y-6">
           <header className="flex items-center justify-between py-2 pt-safe">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">
+              <h1 className="text-4xl font-black tracking-tighter">
                 Good {new Date().getHours() < 12 ? "Morning" : new Date().getHours() < 18 ? "Afternoon" : "Evening"}, Friend
               </h1>
               <p className="text-muted-foreground text-sm">Ready to seize the day?</p>
@@ -105,7 +105,7 @@ export default function Home() {
             {/* Center Column: Action (6 cols) */}
             <div className="lg:col-span-6 space-y-6">
               <div className="bg-card rounded-3xl p-6 shadow-sm border border-border/50">
-                <h3 className="text-lg font-semibold mb-4">Log Activity</h3>
+                <h3 className="text-xl font-black tracking-tight mb-4">Log Activity</h3>
                 <LogEntry
                   selectedDate={selectedDate}
                   activeTracker={activeTracker}

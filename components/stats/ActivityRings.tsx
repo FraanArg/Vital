@@ -1,6 +1,6 @@
 "use client";
 
-import { PieChart, Pie, Cell } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { motion } from "framer-motion";
 
 interface ActivityRingsProps {
@@ -26,7 +26,8 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
             goal: GOALS.exercise,
             color: "#ef4444", // Red
             bg: "rgba(239, 68, 68, 0.2)",
-            radius: 80
+            radius: 80,
+            unit: "m"
         },
         {
             label: "Work",
@@ -34,7 +35,8 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
             goal: GOALS.work,
             color: "#22c55e", // Green
             bg: "rgba(34, 197, 94, 0.2)",
-            radius: 60
+            radius: 60,
+            unit: "h"
         },
         {
             label: "Sleep",
@@ -42,30 +44,51 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
             goal: GOALS.sleep,
             color: "#3b82f6", // Blue
             bg: "rgba(59, 130, 246, 0.2)",
-            radius: 40
+            radius: 40,
+            unit: "h"
         }
     ];
+
+    const averagePercentage = rings.reduce((acc, ring) => {
+        const percentage = Math.min(100, (ring.value / ring.goal) * 100);
+        return acc + percentage;
+    }, 0) / rings.length;
 
     return (
         <div className="flex flex-col gap-6 mb-8">
             {/* Rings Visualization */}
             <div className="bg-card rounded-3xl p-6 border border-border/50 shadow-sm flex items-center justify-center min-h-[250px]">
                 <div className="relative w-[200px] h-[200px]">
-                    <PieChart width={200} height={200}>
-                        {rings.map((ring) => {
-                            const rawPercentage = (ring.value / ring.goal) * 100;
-                            const percentage = isNaN(rawPercentage) || !isFinite(rawPercentage) ? 0 : Math.min(100, rawPercentage);
-                            const data = [
-                                { value: percentage, fill: ring.color },
-                                { value: 100 - percentage, fill: "transparent" } // Transparent remainder
-                            ];
-                            // Background ring
-                            const bgData = [{ value: 100, fill: ring.bg }];
-
-                            return (
-                                <g key={ring.label}>
+                    <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                            {/* Background rings */}
+                            {rings.map((ring, index) => (
+                                <Pie
+                                    key={`bg-ring-${index}`}
+                                    data={[{ value: 100, fill: ring.bg }]}
+                                    dataKey="value"
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={ring.radius - 8}
+                                    outerRadius={ring.radius}
+                                    startAngle={90}
+                                    endAngle={-270}
+                                    stroke="none"
+                                    isAnimationActive={false}
+                                />
+                            ))}
+                            {/* Progress rings */}
+                            {rings.map((ring, index) => {
+                                const rawPercentage = (ring.value / ring.goal) * 100;
+                                const percentage = isNaN(rawPercentage) || !isFinite(rawPercentage) ? 0 : Math.min(100, rawPercentage);
+                                const progressData = [
+                                    { value: percentage, fill: ring.color },
+                                    { value: 100 - percentage, fill: "transparent" } // Transparent remainder
+                                ];
+                                return (
                                     <Pie
-                                        data={bgData}
+                                        key={`progress-ring-${index}`}
+                                        data={progressData}
                                         dataKey="value"
                                         cx="50%"
                                         cy="50%"
@@ -73,39 +96,28 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
                                         outerRadius={ring.radius}
                                         startAngle={90}
                                         endAngle={-270}
-                                        stroke="none"
-                                        isAnimationActive={false}
-                                    />
-                                    <Pie
-                                        data={data}
-                                        dataKey="value"
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={ring.radius - 8}
-                                        outerRadius={ring.radius}
-                                        startAngle={90}
-                                        endAngle={90 - (360 * percentage) / 100}
                                         cornerRadius={10}
                                         stroke="none"
                                     >
-                                        {data.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                                        {progressData.map((entry, idx) => (
+                                            <Cell key={`cell-${idx}`} fill={entry.fill} />
                                         ))}
                                     </Pie>
-                                </g>
-                            );
-                        })}
-                    </PieChart>
-
-                    {/* Center Text */}
+                                );
+                            })}
+                        </PieChart>
+                    </ResponsiveContainer>
                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">Avg</span>
+                        <span className="text-5xl font-thin text-foreground">
+                            {Math.round(averagePercentage)}%
+                        </span>
+                        <span className="text-xs font-black uppercase tracking-widest text-muted-foreground mt-1">AVG</span>
                     </div>
                 </div>
             </div>
 
             {/* Legend / Details */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
                 {rings.map((ring) => (
                     <motion.div
                         key={ring.label}
@@ -115,12 +127,17 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
                     >
                         <div className="flex items-center gap-2 mb-1">
                             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: ring.color }} />
-                            <div className="font-semibold text-sm">{ring.label}</div>
+                            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{ring.label}</span>
                         </div>
-                        <div className="text-lg font-bold leading-none" style={{ color: ring.color }}>
-                            {Math.round(ring.value * 10) / 10}<span className="text-xs font-medium text-muted-foreground ml-0.5">{ring.label === "Move" ? "m" : "h"}</span>
+                        <div className="flex items-baseline gap-1">
+                            <span className="text-3xl font-thin text-foreground">
+                                {Math.round(ring.value * 10) / 10}
+                            </span>
+                            <span className="text-xs text-muted-foreground font-medium">{ring.unit}</span>
                         </div>
-                        <div className="text-[10px] text-muted-foreground">Goal: {ring.goal}</div>
+                        <span className="text-[10px] text-muted-foreground">
+                            Goal: {ring.goal}
+                        </span>
                     </motion.div>
                 ))}
             </div>
