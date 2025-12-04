@@ -91,10 +91,14 @@ export default function Home() {
           <DateSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            {/* Left Column: Daily Focus */}
-            <div className="lg:col-span-5 space-y-6">
+            {/* Left Column: Overview (3 cols) */}
+            <div className="lg:col-span-3 space-y-6">
               <DailySummary selectedDate={selectedDate} />
+              <Insights />
+            </div>
 
+            {/* Center Column: Action (6 cols) */}
+            <div className="lg:col-span-6 space-y-6">
               <div className="bg-card rounded-3xl p-6 shadow-sm border border-border/50">
                 <h3 className="text-lg font-semibold mb-4">Log Activity</h3>
                 <LogEntry
@@ -104,13 +108,11 @@ export default function Home() {
                   editingLog={editingLog}
                 />
               </div>
+              <SmartSuggestions />
             </div>
 
-            {/* Right Column: Weekly Context & History */}
-            <div className="lg:col-span-7 space-y-6">
-              <SmartSuggestions />
-              <Insights />
-
+            {/* Right Column: History (3 cols) */}
+            <div className="lg:col-span-3 space-y-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold">History</h2>

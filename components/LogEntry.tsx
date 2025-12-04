@@ -35,7 +35,7 @@ export default function LogEntry({ selectedDate, activeTracker, onTrackerChange,
 
     return (
         <div className="w-full mb-8">
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
                 {TRACKERS.map((tracker) => {
                     const Icon = tracker.icon;
                     return (
