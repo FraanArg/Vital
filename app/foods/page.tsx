@@ -6,14 +6,17 @@ import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { Search, Trash2, Utensils } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import IconPicker from "../../components/ui/IconPicker";
 
 export default function FoodDatabasePage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [mounted, setMounted] = useState(false);
+    const [editingIconId, setEditingIconId] = useState<Id<"foodItems"> | null>(null);
 
     const foods = useQuery(api.foodItems.list);
     const removeFood = useMutation(api.foodItems.remove);
     const seedDefaults = useMutation(api.foodItems.seedDefaults);
+    const updateIcon = useMutation(api.foodItems.updateIcon);
 
     useEffect(() => {
         setTimeout(() => setMounted(true), 0);
@@ -27,6 +30,11 @@ export default function FoodDatabasePage() {
         if (confirm("Are you sure you want to delete this food item?")) {
             await removeFood({ id });
         }
+    };
+
+    const handleIconUpdate = async (id: Id<"foodItems">, icon: string) => {
+        await updateIcon({ id, icon });
+        setEditingIconId(null);
     };
 
     if (!mounted) return null;
@@ -64,11 +72,25 @@ export default function FoodDatabasePage() {
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
-                                className="bg-card p-4 rounded-xl shadow-sm border border-border/50 flex items-center justify-between group hover:shadow-md transition-all"
+                                className="bg-card p-4 rounded-xl shadow-sm border border-border/50 flex items-center justify-between group hover:shadow-md transition-all relative"
                             >
                                 <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-xl">
-                                        {food.icon || "🍽️"}
+                                    <div className="relative">
+                                        <button
+                                            onClick={() => setEditingIconId(editingIconId === food._id ? null : food._id)}
+                                            className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-2xl hover:bg-secondary/80 transition-colors"
+                                        >
+                                            {food.icon || "🍽️"}
+                                        </button>
+                                        <AnimatePresence>
+                                            {editingIconId === food._id && (
+                                                <IconPicker
+                                                    currentIcon={food.icon || "🍽️"}
+                                                    onSelect={(icon) => handleIconUpdate(food._id, icon)}
+                                                    onClose={() => setEditingIconId(null)}
+                                                />
+                                            )}
+                                        </AnimatePresence>
                                     </div>
                                     <div>
                                         <h3 className="font-semibold text-lg">{food.name}</h3>

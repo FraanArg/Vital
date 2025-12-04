@@ -64,6 +64,45 @@ export const incrementUsage = mutation({
     },
 });
 
+export const updateIcon = mutation({
+    args: {
+        id: v.id("foodItems"),
+        icon: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) throw new Error("Unauthenticated");
+
+        const item = await ctx.db.get(args.id);
+        if (!item) return;
+
+        // If it's a system item (no userId), we can't edit it directly.
+        // We should clone it to the user's items with the new icon.
+        if (!item.userId) {
+            const existingUserItem = await ctx.db
+                .query("foodItems")
+                .withIndex("by_user_name", (q) => q.eq("userId", identity.subject).eq("name", item.name))
+                .first();
+
+            if (existingUserItem) {
+                await ctx.db.patch(existingUserItem._id, { icon: args.icon });
+            } else {
+                await ctx.db.insert("foodItems", {
+                    userId: identity.subject,
+                    name: item.name,
+                    category: item.category,
+                    usage_count: item.usage_count, // Preserve usage count or reset? Let's preserve for sorting.
+                    icon: args.icon,
+                });
+            }
+        } else {
+            // It's a user item, just update it
+            if (item.userId !== identity.subject) throw new Error("Unauthorized");
+            await ctx.db.patch(args.id, { icon: args.icon });
+        }
+    },
+});
+
 export const remove = mutation({
     args: { id: v.id("foodItems") },
     handler: async (ctx, args) => {
