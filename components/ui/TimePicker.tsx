@@ -66,39 +66,47 @@ export default function TimePicker({ value, onChange, className = "" }: TimePick
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute top-full left-0 right-0 mt-2 p-2 bg-card border border-border/50 rounded-2xl shadow-xl z-50 flex gap-2 h-[200px]"
+                        className="absolute top-full left-0 right-0 mt-2 bg-card border border-border/50 rounded-2xl shadow-xl z-50 overflow-hidden"
                     >
-                        {/* Hours Column */}
-                        <div className="flex-1 flex flex-col gap-1 overflow-y-auto no-scrollbar snap-y snap-mandatory">
-                            <div className="text-xs font-medium text-muted-foreground text-center py-1 sticky top-0 bg-card z-10">Hr</div>
-                            {hourOptions.map((h) => (
-                                <button
-                                    key={h}
-                                    type="button"
-                                    onClick={() => handleTimeChange('hour', h)}
-                                    className={`p-2 rounded-lg text-sm font-medium transition-colors snap-start ${h === hours ? "bg-primary text-primary-foreground" : "hover:bg-secondary text-foreground"}`}
-                                >
-                                    {h.toString().padStart(2, '0')}
-                                </button>
-                            ))}
+                        {/* Headers */}
+                        <div className="flex border-b border-border/50 bg-secondary/30">
+                            <div className="flex-1 text-xs font-medium text-muted-foreground text-center py-2">Hr</div>
+                            <div className="w-[1px] bg-border/50" />
+                            <div className="flex-1 text-xs font-medium text-muted-foreground text-center py-2">Min</div>
                         </div>
 
-                        {/* Divider */}
-                        <div className="w-[1px] bg-border/50 my-2" />
+                        {/* Scrollable Lists */}
+                        <div className="flex h-[200px]">
+                            {/* Hours Column */}
+                            <div className="flex-1 flex flex-col gap-1 overflow-y-auto no-scrollbar p-2 snap-y snap-mandatory">
+                                {hourOptions.map((h) => (
+                                    <button
+                                        key={h}
+                                        type="button"
+                                        onClick={() => handleTimeChange('hour', h)}
+                                        className={`p-2 rounded-lg text-sm font-medium transition-colors snap-start shrink-0 ${h === hours ? "bg-primary text-primary-foreground" : "hover:bg-secondary text-foreground"}`}
+                                    >
+                                        {h.toString().padStart(2, '0')}
+                                    </button>
+                                ))}
+                            </div>
 
-                        {/* Minutes Column */}
-                        <div className="flex-1 flex flex-col gap-1 overflow-y-auto no-scrollbar snap-y snap-mandatory">
-                            <div className="text-xs font-medium text-muted-foreground text-center py-1 sticky top-0 bg-card z-10">Min</div>
-                            {minuteOptions.map((m) => (
-                                <button
-                                    key={m}
-                                    type="button"
-                                    onClick={() => handleTimeChange('minute', m)}
-                                    className={`p-2 rounded-lg text-sm font-medium transition-colors snap-start ${m === minutes ? "bg-primary text-primary-foreground" : "hover:bg-secondary text-foreground"}`}
-                                >
-                                    {m.toString().padStart(2, '0')}
-                                </button>
-                            ))}
+                            {/* Divider */}
+                            <div className="w-[1px] bg-border/50 my-2" />
+
+                            {/* Minutes Column */}
+                            <div className="flex-1 flex flex-col gap-1 overflow-y-auto no-scrollbar p-2 snap-y snap-mandatory">
+                                {minuteOptions.map((m) => (
+                                    <button
+                                        key={m}
+                                        type="button"
+                                        onClick={() => handleTimeChange('minute', m)}
+                                        className={`p-2 rounded-lg text-sm font-medium transition-colors snap-start shrink-0 ${m === minutes ? "bg-primary text-primary-foreground" : "hover:bg-secondary text-foreground"}`}
+                                    >
+                                        {m.toString().padStart(2, '0')}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </motion.div>
                 )}
