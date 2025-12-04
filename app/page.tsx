@@ -73,7 +73,12 @@ export default function Home() {
       <div className="flex-1 overflow-y-auto pb-24 sm:pb-8">
         <div className="w-full max-w-[1600px] mx-auto p-4 lg:p-8 space-y-6">
           <header className="flex items-center justify-between py-2 pt-safe">
-            <h1 className="text-2xl font-bold tracking-tight">Vital</h1>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">
+                Good {new Date().getHours() < 12 ? "Morning" : new Date().getHours() < 18 ? "Afternoon" : "Evening"}, Friend
+              </h1>
+              <p className="text-muted-foreground text-sm">Ready to seize the day?</p>
+            </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => window.location.reload()}
