@@ -122,7 +122,10 @@ export default function ReportView({ data, startDate, endDate, userName = "Usuar
                                         <div className="space-y-1">
                                             {sortedMealTypes.map(type => (
                                                 <div key={type} className="flex items-baseline gap-1 text-[10px] leading-tight">
-                                                    <span className="font-bold text-gray-700 min-w-[60px] shrink-0">{getMealLabel(type)}:</span>
+                                                    <span className="font-bold text-gray-700 min-w-[85px] shrink-0">
+                                                        {getMealLabel(type)}
+                                                        {mealsByType[type][0].time && <span className="font-normal text-gray-500 ml-1">({mealsByType[type][0].time})</span>}:
+                                                    </span>
                                                     <span className="text-gray-600">
                                                         {mealsByType[type].map((meal, idx) => (
                                                             <span key={idx}>
@@ -144,14 +147,24 @@ export default function ReportView({ data, startDate, endDate, userName = "Usuar
                                 <td className="py-2 pr-2 align-top">
                                     {day.exercise.length > 0 ? (
                                         <ul className="space-y-0.5">
-                                            {day.exercise.map((ex, idx) => (
-                                                <li key={idx} className="text-[10px] leading-tight">
-                                                    <span className="font-medium text-gray-800">{ex.activity}</span>
-                                                    <span className="text-gray-500 ml-1">
-                                                        ({ex.duration}m{ex.intensity ? `, ${ex.intensity}` : ''})
-                                                    </span>
-                                                </li>
-                                            ))}
+                                            {day.exercise.map((ex, idx) => {
+                                                // Simplify Gym/Workout entries
+                                                const isGym = ex.activity.toLowerCase().includes("gym") ||
+                                                    ex.activity.toLowerCase().includes("workout") ||
+                                                    ex.activity.toLowerCase().includes("entrenamiento") ||
+                                                    ex.activity.toLowerCase().includes("pesas");
+
+                                                const activityName = isGym ? "Gimnasio" : ex.activity;
+
+                                                return (
+                                                    <li key={idx} className="text-[10px] leading-tight">
+                                                        <span className="font-medium text-gray-800">{activityName}</span>
+                                                        <span className="text-gray-500 ml-1">
+                                                            ({ex.duration}m{ex.intensity ? `, ${ex.intensity}` : ''})
+                                                        </span>
+                                                    </li>
+                                                );
+                                            })}
                                         </ul>
                                     ) : (
                                         <span className="text-gray-300 text-[10px] italic">-</span>
