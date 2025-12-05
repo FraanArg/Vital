@@ -106,129 +106,113 @@ export default function ReportView({ data, startDate, endDate, userName = "Usuar
                 </div>
             </div>
 
-            {/* Compact Table */}
-            <table className="w-full border-collapse text-left">
-                <thead>
-                    <tr className="border-b border-gray-200 text-[9px] uppercase tracking-widest text-gray-400 font-medium">
-                        <th className="py-2 w-24 font-normal">Fecha</th>
-                        <th className="py-2 font-normal">Alimentación</th>
-                        <th className="py-2 w-40 font-normal">Actividad</th>
-                        <th className="py-2 w-16 text-right font-normal">Agua</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                    {data.map((day) => {
-                        const date = new Date(day.date);
-                        const hasData = day.food?.length > 0 || day.water > 0 || day.exercise?.length > 0;
+            {/* Grid Layout */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                {data.map((day) => {
+                    const date = new Date(day.date);
+                    const hasData = day.food?.length > 0 || day.water > 0 || day.exercise?.length > 0;
 
-                        if (!hasData) return null;
+                    if (!hasData) return null;
 
-                        // Group meals
-                        const mealsByType: Record<string, MealItem[]> = {};
-                        day.food?.forEach(meal => {
-                            const type = meal.type || "other";
-                            if (!mealsByType[type]) mealsByType[type] = [];
-                            mealsByType[type].push(meal);
-                        });
+                    // Group meals
+                    const mealsByType: Record<string, MealItem[]> = {};
+                    day.food?.forEach(meal => {
+                        const type = meal.type || "other";
+                        if (!mealsByType[type]) mealsByType[type] = [];
+                        mealsByType[type].push(meal);
+                    });
 
-                        // Sort types based on MEAL_ORDER
-                        const sortedMealTypes = Object.keys(mealsByType).sort((a, b) => {
-                            const idxA = MEAL_ORDER.indexOf(a);
-                            const idxB = MEAL_ORDER.indexOf(b);
-                            if (idxA === -1 && idxB === -1) return 0;
-                            if (idxA === -1) return 1;
-                            if (idxB === -1) return -1;
-                            return idxA - idxB;
-                        });
+                    // Sort types based on MEAL_ORDER
+                    const sortedMealTypes = Object.keys(mealsByType).sort((a, b) => {
+                        const idxA = MEAL_ORDER.indexOf(a);
+                        const idxB = MEAL_ORDER.indexOf(b);
+                        if (idxA === -1 && idxB === -1) return 0;
+                        if (idxA === -1) return 1;
+                        if (idxB === -1) return -1;
+                        return idxA - idxB;
+                    });
 
-                        return (
-                            <tr key={day.date} className="break-inside-avoid hover:bg-gray-50/80 transition-colors group">
-                                {/* Date Column */}
-                                <td className="py-3 pr-4 align-top">
-                                    <div className="flex flex-col">
-                                        <span className="font-bold text-gray-900 text-sm leading-none mb-0.5">
-                                            {format(date, "d", { locale: es })}
-                                        </span>
-                                        <span className="text-[10px] text-gray-400 uppercase tracking-wide font-medium">
-                                            {format(date, "EEE", { locale: es })}
-                                        </span>
+                    return (
+                        <div key={day.date} className="break-inside-avoid border-b border-gray-100 pb-4 mb-2 last:border-0">
+                            {/* Day Header */}
+                            <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-baseline gap-2">
+                                    <span className="font-bold text-gray-900 text-lg leading-none">
+                                        {format(date, "EEEE d", { locale: es })}
+                                    </span>
+                                    <span className="text-[10px] text-gray-400 uppercase tracking-wide font-medium">
+                                        {format(date, "MMMM", { locale: es })}
+                                    </span>
+                                </div>
+
+                                {/* Water Badge */}
+                                {day.water > 0 && (
+                                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-bold text-[10px]">
+                                        <Droplets className="w-3 h-3" />
+                                        {day.water < 10
+                                            ? `${day.water}L`
+                                            : `${(day.water / 1000).toFixed(1)}L`
+                                        }
                                     </div>
-                                </td>
+                                )}
+                            </div>
 
-                                {/* Food Column */}
-                                <td className="py-3 pr-4 align-top">
-                                    {day.food?.length > 0 ? (
-                                        <div className="space-y-1.5">
-                                            {sortedMealTypes.map(type => {
-                                                const firstMeal = mealsByType[type]?.[0];
-                                                return (
-                                                    <div key={type} className="flex items-baseline gap-2 text-[11px] leading-snug">
-                                                        <div className="min-w-[120px] shrink-0 flex items-baseline justify-between mr-2">
-                                                            <span className="font-semibold text-gray-700">{getMealLabel(type)}</span>
-                                                            {firstMeal?.time && <span className="font-mono text-[9px] text-gray-400">{firstMeal.time}</span>}
-                                                        </div>
-                                                        <span className="text-gray-600 block flex-1">
-                                                            {mealsByType[type]?.map((meal, idx) => (
-                                                                <span key={idx}>
-                                                                    {idx > 0 && <span className="text-gray-300 mx-1">•</span>}
-                                                                    <span className="text-gray-800">
-                                                                        {meal.items ? meal.items.join(", ") : meal.name}
-                                                                    </span>
-                                                                    {meal.calories && meal.calories > 0 && <span className="text-gray-400 text-[9px] ml-1">({meal.calories})</span>}
-                                                                </span>
-                                                            ))}
-                                                        </span>
+                            {/* Content Grid */}
+                            <div className="space-y-3">
+                                {/* Food Section */}
+                                {day.food?.length > 0 && (
+                                    <div className="space-y-1.5">
+                                        {sortedMealTypes.map(type => {
+                                            const firstMeal = mealsByType[type]?.[0];
+                                            return (
+                                                <div key={type} className="flex items-baseline gap-2 text-[11px] leading-snug group">
+                                                    <div className="min-w-[85px] shrink-0 flex items-baseline justify-between mr-1">
+                                                        <span className="font-semibold text-gray-700">{getMealLabel(type)}</span>
+                                                        {firstMeal?.time && <span className="font-mono text-[9px] text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">{firstMeal.time}</span>}
                                                     </div>
-                                                );
-                                            })}
-                                        </div>
-                                    ) : (
-                                        <span className="text-gray-300 text-[10px] italic font-light">-</span>
-                                    )}
-                                </td>
+                                                    <span className="text-gray-600 block flex-1">
+                                                        {mealsByType[type]?.map((meal, idx) => (
+                                                            <span key={idx}>
+                                                                {idx > 0 && <span className="text-gray-300 mx-1">•</span>}
+                                                                <span className="text-gray-800">
+                                                                    {meal.items ? meal.items.join(", ") : meal.name}
+                                                                </span>
+                                                                {meal.calories && meal.calories > 0 && <span className="text-gray-400 text-[9px] ml-1">({meal.calories})</span>}
+                                                            </span>
+                                                        ))}
+                                                    </span>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
 
-                                {/* Exercise Column */}
-                                <td className="py-3 pr-2 align-top">
-                                    {day.exercise?.length > 0 ? (
-                                        <ul className="space-y-1">
+                                {/* Exercise Section */}
+                                {day.exercise?.length > 0 && (
+                                    <div className="pt-2 border-t border-dashed border-gray-100">
+                                        <ul className="flex flex-wrap gap-3">
                                             {day.exercise.map((ex, idx) => {
                                                 const activity = ex.type || "";
                                                 const translatedActivity = translateActivity(activity);
 
                                                 return (
-                                                    <li key={idx} className="text-[10px] leading-tight flex flex-col">
+                                                    <li key={idx} className="text-[10px] flex items-center gap-1.5 text-gray-600 bg-gray-50 px-2 py-1 rounded-md">
+                                                        <Dumbbell className="w-3 h-3 text-gray-400" />
                                                         <span className="font-semibold text-gray-800">{translatedActivity}</span>
-                                                        <span className="text-gray-400 text-[9px] font-medium">
-                                                            {ex.duration} min {ex.intensity && `• ${ex.intensity}`}
+                                                        <span className="text-gray-400 text-[9px]">
+                                                            {ex.duration}m
                                                         </span>
                                                     </li>
                                                 );
                                             })}
                                         </ul>
-                                    ) : (
-                                        <span className="text-gray-300 text-[10px] italic font-light">-</span>
-                                    )}
-                                </td>
-
-                                {/* Water Column */}
-                                <td className="py-3 align-top text-right">
-                                    {day.water > 0 ? (
-                                        <div className="inline-flex items-center justify-end gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-bold text-[10px]">
-                                            <Droplets className="w-2.5 h-2.5" />
-                                            {day.water < 10
-                                                ? `${day.water}L`
-                                                : `${(day.water / 1000).toFixed(1)}L`
-                                            }
-                                        </div>
-                                    ) : (
-                                        <span className="text-gray-300 text-[10px]">-</span>
-                                    )}
-                                </td>
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
 
             {/* Footer */}
             <div className="mt-8 pt-4 border-t border-gray-100 flex justify-between items-center text-[9px] text-gray-400 print:fixed print:bottom-4 print:left-8 print:right-8">
