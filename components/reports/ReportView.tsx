@@ -163,7 +163,7 @@ export default function ReportView({ data, startDate, endDate, userName = "Usuar
                                                 const firstMeal = mealsByType[type]?.[0];
                                                 return (
                                                     <div key={type} className="flex items-baseline gap-2 text-[11px] leading-snug">
-                                                        <div className="min-w-[80px] shrink-0 flex items-baseline justify-between">
+                                                        <div className="min-w-[120px] shrink-0 flex items-baseline justify-between mr-2">
                                                             <span className="font-semibold text-gray-700">{getMealLabel(type)}</span>
                                                             {firstMeal?.time && <span className="font-mono text-[9px] text-gray-400">{firstMeal.time}</span>}
                                                         </div>
