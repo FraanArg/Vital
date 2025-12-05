@@ -114,9 +114,9 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
         if (!filteredLogs) return [];
 
         const groups: { label: string; logs: typeof filteredLogs }[] = [
-            { label: "Evening", logs: [] },
-            { label: "Afternoon", logs: [] },
             { label: "Morning", logs: [] },
+            { label: "Afternoon", logs: [] },
+            { label: "Evening", logs: [] },
         ];
 
         filteredLogs.forEach((log) => {
@@ -127,8 +127,8 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
             else if (log.meal?.time) hours = parseInt(log.meal.time.split(':')[0]);
             else if (log.exercise?.time) hours = parseInt(log.exercise.time.split(':')[0]);
 
-            if (hours >= 5 && hours < 12) groups.find(g => g.label === "Morning")?.logs.push(log);
-            else if (hours >= 12 && hours < 18) groups.find(g => g.label === "Afternoon")?.logs.push(log);
+            if (hours < 12) groups.find(g => g.label === "Morning")?.logs.push(log);
+            else if (hours < 18) groups.find(g => g.label === "Afternoon")?.logs.push(log);
             else groups.find(g => g.label === "Evening")?.logs.push(log);
         });
 
