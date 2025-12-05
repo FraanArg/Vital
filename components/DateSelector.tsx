@@ -108,7 +108,7 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
             onTouchEnd={onTouchEnd}
         >
             <div className="flex items-center justify-between mb-6 px-2">
-                <h2 className="text-4xl font-black tracking-tight">
+                <h2 className="text-2xl md:text-4xl font-black tracking-tight">
                     {isToday(selectedDate) ? "Today" : format(selectedDate, "EEEE d")}
                     <span className="text-muted-foreground font-light ml-2 text-2xl">
                         {format(selectedDate, "MMMM yyyy")}
@@ -179,7 +179,7 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
                                     <span className={`text-xs font-black uppercase tracking-widest ${isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
                                         {format(date, "EEE")}
                                     </span>
-                                    <span className={`text-4xl font-thin ${isSelected ? "text-primary-foreground" : ""}`}>
+                                    <span className={`text-2xl md:text-4xl font-thin ${isSelected ? "text-primary-foreground" : ""}`}>
                                         {format(date, "d")}
                                     </span>
                                 </div>

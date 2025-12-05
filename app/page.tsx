@@ -69,7 +69,7 @@ export default function Home() {
         <div className="w-full max-w-[1600px] mx-auto p-4 lg:p-8 space-y-6">
           <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-2 pt-safe">
             <div>
-              <h1 className="text-4xl font-black tracking-tighter">
+              <h1 className="text-2xl md:text-4xl font-black tracking-tighter">
                 Good {new Date().getHours() < 12 ? "Morning" : new Date().getHours() < 18 ? "Afternoon" : "Evening"}, Friend
               </h1>
               <p className="text-muted-foreground text-sm">Ready to seize the day?</p>

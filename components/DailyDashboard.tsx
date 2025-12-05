@@ -26,7 +26,7 @@ export default function DailyDashboard({
     onEdit
 }: DailyDashboardProps) {
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-8">
             {/* Left Column: Overview (3 cols) */}
             <div className="lg:col-span-3 space-y-6">
                 <DailySummary selectedDate={selectedDate} />
