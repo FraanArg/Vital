@@ -95,12 +95,6 @@ const getMoodLabel = (mood: number) => {
 };
 
 export default function ReportView({ data, startDate, endDate, userName = "Usuario" }: ReportViewProps) {
-    // Calculate Weekly Averages
-    const totalWater = data.reduce((acc, day) => acc + (day.water || 0), 0);
-    const avgWater = totalWater / (data.length || 1);
-    const totalWorkouts = data.reduce((acc, day) => acc + (day.exercise?.length || 0), 0);
-    const avgSleep = data.reduce((acc, day) => acc + (day.sleep || 0), 0) / (data.filter(d => d.sleep).length || 1);
-
     return (
         <div className="bg-white text-black p-8 max-w-[297mm] mx-auto min-h-screen print:p-0 print:max-w-none font-sans text-xs selection:bg-blue-100 flex flex-col">
             {/* Header */}
@@ -117,43 +111,6 @@ export default function ReportView({ data, startDate, endDate, userName = "Usuar
                     <p className="text-sm font-medium text-gray-900 font-mono">
                         {format(startDate, "d MMM", { locale: es })} — {format(endDate, "d MMM, yyyy", { locale: es })}
                     </p>
-                </div>
-            </div>
-
-            {/* Weekly Snapshot */}
-            <div className="mb-8 bg-gray-50 rounded-xl p-4 border border-gray-100 flex justify-between items-center">
-                <div>
-                    <h3 className="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">Resumen Semanal</h3>
-                    <div className="flex gap-6">
-                        <div className="flex items-center gap-2">
-                            <div className="p-1.5 bg-blue-100 text-blue-600 rounded-full"><Droplets className="w-3 h-3" /></div>
-                            <div>
-                                <p className="text-lg font-bold text-gray-900 leading-none">{(avgWater / 1000).toFixed(1)}L</p>
-                                <p className="text-[9px] text-gray-500">Promedio Agua</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="p-1.5 bg-orange-100 text-orange-600 rounded-full"><Dumbbell className="w-3 h-3" /></div>
-                            <div>
-                                <p className="text-lg font-bold text-gray-900 leading-none">{totalWorkouts}</p>
-                                <p className="text-[9px] text-gray-500">Entrenamientos</p>
-                            </div>
-                        </div>
-                        {avgSleep > 0 && (
-                            <div className="flex items-center gap-2">
-                                <div className="p-1.5 bg-indigo-100 text-indigo-600 rounded-full">
-                                    <span className="text-[10px] leading-none">🌙</span>
-                                </div>
-                                <div>
-                                    <p className="text-lg font-bold text-gray-900 leading-none">{avgSleep.toFixed(1)}h</p>
-                                    <p className="text-[9px] text-gray-500">Promedio Sueño</p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
-                <div className="text-right">
-                    <p className="text-[10px] text-gray-400 italic">&quot;La constancia es la clave del éxito.&quot;</p>
                 </div>
             </div>
 
@@ -228,7 +185,7 @@ export default function ReportView({ data, startDate, endDate, userName = "Usuar
                                                 <div key={type} className="flex items-baseline gap-2 text-[11px] leading-snug group">
                                                     <div className="min-w-[120px] shrink-0 flex items-baseline justify-between mr-2">
                                                         <span className="font-semibold text-gray-700">{getMealLabel(type)}</span>
-                                                        {firstMeal?.time && <span className="font-mono text-[9px] text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">{firstMeal.time}</span>}
+                                                        {firstMeal?.time && <span className="font-mono text-[9px] text-gray-400">{firstMeal.time}</span>}
                                                     </div>
                                                     <span className="text-gray-600 block flex-1">
                                                         {mealsByType[type]?.map((meal, idx) => (
@@ -272,14 +229,6 @@ export default function ReportView({ data, startDate, endDate, userName = "Usuar
                         </div>
                     );
                 })}
-            </div>
-
-            {/* Nutritionist Notes Section */}
-            <div className="mt-8 border-t-2 border-gray-900 pt-6 break-inside-avoid">
-                <h3 className="text-sm font-bold text-gray-900 mb-4 font-serif">Notas del Nutricionista</h3>
-                <div className="w-full h-32 border border-gray-200 rounded-lg bg-gray-50/50 p-4">
-                    <p className="text-gray-400 text-[10px] italic">Espacio reservado para observaciones, recomendaciones y ajustes del plan...</p>
-                </div>
             </div>
 
             {/* Footer */}
