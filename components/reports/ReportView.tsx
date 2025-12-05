@@ -13,7 +13,7 @@ interface MealItem {
 }
 
 interface ExerciseItem {
-    activity: string;
+    type: string;
     duration: number;
     intensity?: string;
     notes?: string;
@@ -152,7 +152,7 @@ export default function ReportView({ data, startDate, endDate, userName = "Usuar
                                         <ul className="space-y-0.5">
                                             {day.exercise.map((ex, idx) => {
                                                 // Simplify Gym/Workout entries
-                                                const activity = ex.activity || "";
+                                                const activity = ex.type || ""; // Use type from schema
                                                 const isGym = activity.toLowerCase().includes("gym") ||
                                                     activity.toLowerCase().includes("workout") ||
                                                     activity.toLowerCase().includes("entrenamiento") ||
@@ -179,7 +179,10 @@ export default function ReportView({ data, startDate, endDate, userName = "Usuar
                                 <td className="py-2 align-top text-right">
                                     {day.water > 0 ? (
                                         <span className="font-bold text-blue-600 text-[11px]">
-                                            {(day.water / 1000).toFixed(1)}L
+                                            {day.water < 10
+                                                ? `${day.water}L` // Assume Liters if value is small
+                                                : `${(day.water / 1000).toFixed(1)}L` // Convert ml to L
+                                            }
                                         </span>
                                     ) : (
                                         <span className="text-gray-300 text-[10px]">-</span>
