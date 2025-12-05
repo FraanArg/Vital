@@ -53,6 +53,9 @@ export const generateReport = query({
             if (args.types.includes("exercise") && log.exercise) {
                 groupedLogs[dateStr].exercise.push(log.exercise);
             }
+            // Always include context data if available
+            if (log.sleep) groupedLogs[dateStr].sleep = log.sleep;
+            if (log.mood) groupedLogs[dateStr].mood = log.mood;
         });
 
         // Convert to array and sort by date
