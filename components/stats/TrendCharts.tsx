@@ -69,6 +69,18 @@ export default function TrendCharts({ data, range }: TrendChartsProps) {
 
     const currentConfig = config[activeTab];
 
+    // Avoid rendering chart with empty data (causes dimension errors)
+    if (!data || data.length === 0) {
+        return (
+            <div className="w-full bg-card rounded-3xl p-6 shadow-sm border border-border/50 mb-8">
+                <h3 className="text-lg font-semibold mb-4">Trends</h3>
+                <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                    No data available for this period
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="w-full bg-card rounded-3xl p-6 shadow-sm border border-border/50 mb-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">

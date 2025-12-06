@@ -63,8 +63,8 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
         <div className="flex flex-col gap-6 mb-8">
             {/* Rings Visualization */}
             <div className="bg-card rounded-[32px] p-6 border border-border/50 shadow-sm flex items-center justify-center min-h-[250px]">
-                <div className="relative w-[200px] h-[200px]">
-                    <ResponsiveContainer width="100%" height="100%">
+                <div className="relative w-[200px] h-[200px]" style={{ minWidth: 200, minHeight: 200 }}>
+                    <ResponsiveContainer width="100%" height="100%" minWidth={200} minHeight={200}>
                         <PieChart>
                             {/* Background rings */}
                             {rings.map((ring, index) => (
