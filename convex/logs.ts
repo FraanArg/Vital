@@ -103,6 +103,15 @@ export const updateLog = mutation({
             throw new Error("Unauthorized");
         }
 
+        // Save snapshot for undo
+        await ctx.db.insert("logHistory", {
+            userId,
+            logId: id,
+            action: "update",
+            snapshot: existing,
+            createdAt: new Date().toISOString(),
+        });
+
         await ctx.db.patch(id, updates);
     },
 });
@@ -163,6 +172,15 @@ export const deleteLog = mutation({
         if (log.userId !== userId) {
             throw new Error("Unauthorized");
         }
+
+        // Save snapshot for undo
+        await ctx.db.insert("logHistory", {
+            userId,
+            logId: args.id,
+            action: "delete",
+            snapshot: log,
+            createdAt: new Date().toISOString(),
+        });
 
         await ctx.db.delete(args.id);
     },

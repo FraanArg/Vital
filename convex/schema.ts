@@ -97,5 +97,14 @@ export default defineSchema({
         height: v.optional(v.number()), // cm
         updatedAt: v.string(),
     }).index("by_user", ["userId"]),
+
+    // History for undo functionality
+    logHistory: defineTable({
+        userId: v.string(),
+        logId: v.string(), // Original log ID
+        action: v.string(), // "update" or "delete"
+        snapshot: v.any(), // Full log data before change
+        createdAt: v.string(),
+    }).index("by_user_time", ["userId", "createdAt"]),
 });
 

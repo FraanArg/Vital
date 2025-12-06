@@ -13,6 +13,7 @@ import type * as data from "../data.js";
 import type * as exercises from "../exercises.js";
 import type * as foodItems from "../foodItems.js";
 import type * as gamification from "../gamification.js";
+import type * as history from "../history.js";
 import type * as icons from "../icons.js";
 import type * as insights from "../insights.js";
 import type * as logs from "../logs.js";
@@ -34,6 +35,7 @@ declare const fullApi: ApiFromModules<{
   exercises: typeof exercises;
   foodItems: typeof foodItems;
   gamification: typeof gamification;
+  history: typeof history;
   icons: typeof icons;
   insights: typeof insights;
   logs: typeof logs;
