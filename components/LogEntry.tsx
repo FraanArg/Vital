@@ -34,8 +34,8 @@ export default function LogEntry({ selectedDate, activeTracker, onTrackerChange,
     }, [handleClose]);
 
     return (
-        <div className="w-full mb-8">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        <div className="w-full">
+            <div className="grid grid-cols-4 lg:grid-cols-8 gap-2">
                 {TRACKERS.map((tracker) => {
                     const Icon = tracker.icon;
 
@@ -47,16 +47,13 @@ export default function LogEntry({ selectedDate, activeTracker, onTrackerChange,
                                 trigger("light");
                                 onTrackerChange(tracker.id);
                             }}
-                            className={`relative overflow-hidden rounded-[32px] border border-border/50 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all group p-4 aspect-square flex flex-col items-center justify-center gap-3 ${tracker.bgColor.replace("bg-", "bg-opacity-20 hover:bg-opacity-30 bg-")}`}
+                            className={`relative overflow-hidden rounded-2xl border border-border/50 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all group p-3 flex flex-col items-center justify-center gap-1.5 ${tracker.bgColor.replace("bg-", "bg-opacity-20 hover:bg-opacity-30 bg-")}`}
                         >
-                            {/* Background Gradient */}
-                            <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-transparent to-white/10 dark:to-black/10`} />
-
-                            <div className={`p-3 rounded-2xl transition-colors ${tracker.color.replace("text-", "bg-white/50 dark:bg-black/20 text-")}`}>
-                                <Icon className="w-8 h-8" />
+                            <div className={`p-2 rounded-xl transition-colors ${tracker.color.replace("text-", "bg-white/50 dark:bg-black/20 text-")}`}>
+                                <Icon className="w-5 h-5" />
                             </div>
 
-                            <span className={`text-sm font-bold tracking-tight ${tracker.color}`}>
+                            <span className={`text-xs font-semibold tracking-tight ${tracker.color}`}>
                                 {tracker.label}
                             </span>
                         </button>
