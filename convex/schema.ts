@@ -32,6 +32,7 @@ export default defineSchema({
             }))),
             notes: v.optional(v.string()), // General workout notes
             time: v.optional(v.string()), // Start time e.g. "18:00"
+            end_time: v.optional(v.string()), // End time e.g. "19:30"
         })),
         journal: v.optional(v.string()),
         custom: v.optional(v.array(v.object({

@@ -31,6 +31,7 @@ export const createLog = mutation({
             }))),
             notes: v.optional(v.string()),
             time: v.optional(v.string()),
+            end_time: v.optional(v.string()),
         })),
         journal: v.optional(v.string()),
         custom: v.optional(v.array(v.object({
@@ -80,6 +81,7 @@ export const updateLog = mutation({
             }))),
             notes: v.optional(v.string()),
             time: v.optional(v.string()),
+            end_time: v.optional(v.string()),
         })),
         journal: v.optional(v.string()),
         custom: v.optional(v.array(v.object({

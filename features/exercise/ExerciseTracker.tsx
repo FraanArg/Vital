@@ -25,10 +25,11 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
     const [notes, setNotes] = useState(initialData?.exercise?.notes || "");
     const [intensity, setIntensity] = useState<"low" | "mid" | "high">(initialData?.exercise?.intensity || "mid");
 
-    // Time tracking
-    const [timeMode, setTimeMode] = useState<"duration" | "range">("duration");
-    const [startTime, setStartTime] = useState("18:00");
-    const [endTime, setEndTime] = useState("19:30");
+    // Time tracking - detect if editing has time range
+    const hasTimeRange = initialData?.exercise?.time && initialData?.exercise?.end_time;
+    const [timeMode, setTimeMode] = useState<"duration" | "range">(hasTimeRange ? "range" : "duration");
+    const [startTime, setStartTime] = useState(initialData?.exercise?.time || "18:00");
+    const [endTime, setEndTime] = useState(initialData?.exercise?.end_time || "19:30");
 
     // Calculate duration from range
     useEffect(() => {
@@ -113,6 +114,7 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
                 intensity: intensity,
                 notes: notes.trim() || undefined,
                 time: timeMode === "range" ? startTime : undefined,
+                end_time: timeMode === "range" ? endTime : undefined,
             };
 
             if ((finalType === "run" || finalType === "walk") && distance) {
