@@ -14,6 +14,18 @@ const ActivityRings = dynamic(() => import("../../components/stats/ActivityRings
 const TrendCharts = dynamic(() => import("../../components/stats/TrendCharts"), { ssr: false });
 const InsightsSection = dynamic(() => import("../../components/insights/InsightsSection"), { ssr: false });
 
+// New stats components
+const NutritionBreakdown = dynamic(() => import("../../components/stats/NutritionBreakdown"), { ssr: false });
+const SleepAnalysis = dynamic(() => import("../../components/stats/SleepAnalysis"), { ssr: false });
+const ExerciseBreakdown = dynamic(() => import("../../components/stats/ExerciseBreakdown"), { ssr: false });
+const TimePatterns = dynamic(() => import("../../components/stats/TimePatterns"), { ssr: false });
+const PersonalBests = dynamic(() => import("../../components/stats/PersonalBests"), { ssr: false });
+const Achievements = dynamic(() => import("../../components/stats/Achievements"), { ssr: false });
+const WeekComparison = dynamic(() => import("../../components/stats/WeekComparison"), { ssr: false });
+const MonthlySummary = dynamic(() => import("../../components/stats/MonthlySummary"), { ssr: false });
+const FoodFrequency = dynamic(() => import("../../components/stats/FoodFrequency"), { ssr: false });
+const ActivityCalendar = dynamic(() => import("../../components/stats/ActivityCalendar"), { ssr: false });
+
 export default function StatisticsPage() {
     const [range, setRange] = useState<"week" | "month" | "year">("week");
 
@@ -111,7 +123,7 @@ export default function StatisticsPage() {
     if (!logs || !consistencyLogs) {
         return (
             <div className="min-h-screen p-4 sm:p-8 pb-24 flex flex-col items-center justify-center">
-                <div className="w-full max-w-4xl space-y-8">
+                <div className="w-full max-w-5xl space-y-8">
                     <div className="text-center text-muted-foreground mb-4">Loading statistics...</div>
                     <div className="flex justify-between items-center">
                         <Skeleton className="h-10 w-48" />
@@ -133,19 +145,48 @@ export default function StatisticsPage() {
 
     return (
         <div className="min-h-screen p-4 sm:p-8 pb-24 flex flex-col items-center">
-            <div className="w-full max-w-4xl space-y-8">
+            <div className="w-full max-w-5xl space-y-6">
                 <StatsHeader range={range} setRange={setRange} />
 
-                <ActivityRings averages={averages} />
+                {/* Monthly Summary - Featured */}
+                <MonthlySummary />
+
+                {/* Overview Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <ActivityRings averages={averages} />
+                    <WeekComparison />
+                </div>
+
+                {/* Personal Bests & Achievements */}
+                <PersonalBests />
+                <Achievements />
+
+                {/* Detailed Analysis */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <SleepAnalysis />
+                    <TimePatterns />
+                </div>
+
+                <ExerciseBreakdown />
+
+                {/* Nutrition */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <NutritionBreakdown />
+                    <FoodFrequency />
+                </div>
+
+                {/* Trends & Charts */}
+                <TrendCharts data={processedData || []} range={range} />
+
+                {/* Calendar Views */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <ActivityCalendar />
+                    <ConsistencyGrid logs={consistencyLogs} />
+                </div>
 
                 {/* AI Insights Section */}
                 <InsightsSection />
-
-                <TrendCharts data={processedData || []} range={range} />
-
-                <ConsistencyGrid logs={consistencyLogs} />
             </div>
         </div>
     );
 }
-

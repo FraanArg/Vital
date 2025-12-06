@@ -20,6 +20,7 @@ import type * as logs from "../logs.js";
 import type * as reports from "../reports.js";
 import type * as routines from "../routines.js";
 import type * as sports from "../sports.js";
+import type * as stats from "../stats.js";
 import type * as suggestions from "../suggestions.js";
 import type * as userProfile from "../userProfile.js";
 
@@ -42,6 +43,7 @@ declare const fullApi: ApiFromModules<{
   reports: typeof reports;
   routines: typeof routines;
   sports: typeof sports;
+  stats: typeof stats;
   suggestions: typeof suggestions;
   userProfile: typeof userProfile;
 }>;
