@@ -71,9 +71,23 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
         return filtered?.sort((a, b) => {
             const getMinutes = (log: Doc<"logs">) => {
                 let timeStr: string | null = null;
-                if (log.sleep_start) timeStr = log.sleep_start;
-                else if (log.meal?.time) timeStr = log.meal.time;
-                else if (log.exercise?.time) timeStr = log.exercise.time;
+
+                // For sleep, check if it's overnight (start >= 20:00 or < 5:00)
+                // If so, use end time for sorting since that's when you woke up on this day
+                if (log.sleep_start && log.sleep_end) {
+                    const startHour = parseInt(log.sleep_start.split(':')[0]);
+                    if (startHour >= 20 || startHour < 5) {
+                        timeStr = log.sleep_end; // Use wake-up time
+                    } else {
+                        timeStr = log.sleep_start;
+                    }
+                } else if (log.sleep_start) {
+                    timeStr = log.sleep_start;
+                } else if (log.meal?.time) {
+                    timeStr = log.meal.time;
+                } else if (log.exercise?.time) {
+                    timeStr = log.exercise.time;
+                }
 
                 if (timeStr) {
                     const [h, m] = timeStr.split(':').map(Number);
@@ -122,10 +136,25 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
         filteredLogs.forEach((log) => {
             let hours = new Date(log._creationTime).getHours();
 
-            // Try to use specific time fields if available
-            if (log.sleep_start) hours = parseInt(log.sleep_start.split(':')[0]);
-            else if (log.meal?.time) hours = parseInt(log.meal.time.split(':')[0]);
-            else if (log.exercise?.time) hours = parseInt(log.exercise.time.split(':')[0]);
+            // For sleep logs, use end time if it's an overnight sleep (start >= 20:00 means overnight)
+            // This ensures overnight sleep (e.g., 23:00 - 07:00) appears in Morning on the day you wake up
+            if (log.sleep_start && log.sleep_end) {
+                const startHour = parseInt(log.sleep_start.split(':')[0]);
+                const endHour = parseInt(log.sleep_end.split(':')[0]);
+                // If sleep started late evening (>= 20:00) or very early morning (< 5:00),
+                // use the end time for grouping since that's when you woke up
+                if (startHour >= 20 || startHour < 5) {
+                    hours = endHour;
+                } else {
+                    hours = startHour;
+                }
+            } else if (log.sleep_start) {
+                hours = parseInt(log.sleep_start.split(':')[0]);
+            } else if (log.meal?.time) {
+                hours = parseInt(log.meal.time.split(':')[0]);
+            } else if (log.exercise?.time) {
+                hours = parseInt(log.exercise.time.split(':')[0]);
+            }
 
             if (hours < 12) groups.find(g => g.label === "Morning")?.logs.push(log);
             else if (hours < 18) groups.find(g => g.label === "Afternoon")?.logs.push(log);

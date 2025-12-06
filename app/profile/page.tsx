@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUser, useClerk } from "@clerk/nextjs";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
 import SyncData from "../../components/SyncData";
-import { Settings, Shield, Mail, Loader2, Trash2, FileText } from "lucide-react";
+import { Settings, Shield, Mail, Loader2, Trash2, FileText, Heart, Check } from "lucide-react";
 import Image from "next/image";
 import { ThemeToggle } from "../../components/ThemeToggle";
 import DataExport from "../../components/DataExport";
@@ -15,6 +17,42 @@ export default function ProfilePage() {
     const { openUserProfile, openSignIn } = useClerk();
     const [isLoading, setIsLoading] = useState(false);
     const [showExportDialog, setShowExportDialog] = useState(false);
+
+    // Biometrics state
+    const [age, setAge] = useState<number | "">("");
+    const [weight, setWeight] = useState<number | "">("");
+    const [height, setHeight] = useState<number | "">("");
+    const [isSavingProfile, setIsSavingProfile] = useState(false);
+    const [profileSaved, setProfileSaved] = useState(false);
+
+    const profile = useQuery(api.userProfile.get);
+    const upsertProfile = useMutation(api.userProfile.upsert);
+
+    // Load existing profile
+    useEffect(() => {
+        if (profile) {
+            if (profile.age) setAge(profile.age);
+            if (profile.weight) setWeight(profile.weight);
+            if (profile.height) setHeight(profile.height);
+        }
+    }, [profile]);
+
+    const handleSaveProfile = async () => {
+        setIsSavingProfile(true);
+        try {
+            await upsertProfile({
+                age: age === "" ? undefined : age,
+                weight: weight === "" ? undefined : weight,
+                height: height === "" ? undefined : height,
+            });
+            setProfileSaved(true);
+            setTimeout(() => setProfileSaved(false), 2000);
+        } catch (error) {
+            console.error("Failed to save profile:", error);
+        } finally {
+            setIsSavingProfile(false);
+        }
+    };
 
     const handleSignIn = () => {
         setIsLoading(true);
@@ -103,6 +141,70 @@ export default function ProfilePage() {
             </div>
 
             <div className="grid gap-6">
+                {/* Health Profile */}
+                <section className="bg-card p-6 rounded-2xl border border-border/50 shadow-sm">
+                    <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                        <Heart className="w-5 h-5 text-red-500" />
+                        Health Profile
+                    </h2>
+                    <p className="text-sm text-muted-foreground mb-4">
+                        Add your details for personalized AI insights on nutrition and recovery.
+                    </p>
+
+                    <div className="grid grid-cols-3 gap-4 mb-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground">Age</label>
+                            <input
+                                type="number"
+                                inputMode="numeric"
+                                value={age}
+                                onChange={(e) => setAge(e.target.value ? parseInt(e.target.value) : "")}
+                                placeholder="25"
+                                className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary text-center"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground">Weight (kg)</label>
+                            <input
+                                type="number"
+                                inputMode="decimal"
+                                value={weight}
+                                onChange={(e) => setWeight(e.target.value ? parseFloat(e.target.value) : "")}
+                                placeholder="70"
+                                className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary text-center"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground">Height (cm)</label>
+                            <input
+                                type="number"
+                                inputMode="numeric"
+                                value={height}
+                                onChange={(e) => setHeight(e.target.value ? parseInt(e.target.value) : "")}
+                                placeholder="175"
+                                className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary text-center"
+                            />
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={handleSaveProfile}
+                        disabled={isSavingProfile}
+                        className="w-full p-3 bg-primary text-primary-foreground rounded-xl font-medium transition-all hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                        {isSavingProfile ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : profileSaved ? (
+                            <>
+                                <Check className="w-4 h-4" />
+                                Saved!
+                            </>
+                        ) : (
+                            "Save Profile"
+                        )}
+                    </button>
+                </section>
+
                 {/* Appearance */}
                 <section className="bg-card p-6 rounded-2xl border border-border/50 shadow-sm">
                     <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
@@ -167,3 +269,4 @@ export default function ProfilePage() {
         </div>
     );
 }
+

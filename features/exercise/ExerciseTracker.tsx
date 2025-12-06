@@ -23,6 +23,7 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
     const [duration, setDuration] = useState(initialData?.exercise?.duration || 60);
     const [distance, setDistance] = useState<number | "">(initialData?.exercise?.distance || "");
     const [notes, setNotes] = useState(initialData?.exercise?.notes || "");
+    const [intensity, setIntensity] = useState<"low" | "mid" | "high">(initialData?.exercise?.intensity || "mid");
 
     // Time tracking
     const [timeMode, setTimeMode] = useState<"duration" | "range">("duration");
@@ -109,6 +110,7 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
             const exerciseData: any = {
                 type: finalType,
                 duration: duration,
+                intensity: intensity,
                 notes: notes.trim() || undefined,
                 time: timeMode === "range" ? startTime : undefined,
             };
@@ -501,6 +503,20 @@ export default function ExerciseTracker({ onClose, selectedDate, initialData }: 
                         </div>
                     </div>
                 )}
+            </div>
+
+            {/* Intensity Selector */}
+            <div className="space-y-2">
+                <label className="text-sm font-medium text-muted-foreground">Intensity</label>
+                <ChipSelector
+                    options={[
+                        { id: "low", label: "Low", icon: "🚶" },
+                        { id: "mid", label: "Mid", icon: "🏃" },
+                        { id: "high", label: "High", icon: "🔥" },
+                    ]}
+                    selectedId={intensity}
+                    onSelect={(id) => setIntensity(id as "low" | "mid" | "high")}
+                />
             </div>
 
             {/* Distance Input (Run/Walk) */}

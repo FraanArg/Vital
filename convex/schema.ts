@@ -20,6 +20,7 @@ export default defineSchema({
             type: v.string(),
             duration: v.number(),
             distance: v.optional(v.number()),
+            intensity: v.optional(v.union(v.literal("low"), v.literal("mid"), v.literal("high"))),
             workout: v.optional(v.array(v.object({
                 name: v.string(),
                 sets: v.array(v.object({
@@ -87,4 +88,13 @@ export default defineSchema({
         userId: v.optional(v.string()), // null = system default, string = user custom
     }).index("by_user", ["userId"])
         .index("by_muscle", ["muscle"]),
+
+    userProfile: defineTable({
+        userId: v.string(),
+        age: v.optional(v.number()),
+        weight: v.optional(v.number()), // kg
+        height: v.optional(v.number()), // cm
+        updatedAt: v.string(),
+    }).index("by_user", ["userId"]),
 });
+
