@@ -12,6 +12,7 @@ import { Skeleton } from "../../components/ui/Skeleton";
 
 const ActivityRings = dynamic(() => import("../../components/stats/ActivityRings"), { ssr: false });
 const TrendCharts = dynamic(() => import("../../components/stats/TrendCharts"), { ssr: false });
+const InsightsSection = dynamic(() => import("../../components/insights/InsightsSection"), { ssr: false });
 
 export default function StatisticsPage() {
     const [range, setRange] = useState<"week" | "month" | "year">("week");
@@ -132,10 +133,13 @@ export default function StatisticsPage() {
 
     return (
         <div className="min-h-screen p-4 sm:p-8 pb-24 flex flex-col items-center">
-            <div className="w-full max-w-4xl">
+            <div className="w-full max-w-4xl space-y-8">
                 <StatsHeader range={range} setRange={setRange} />
 
                 <ActivityRings averages={averages} />
+
+                {/* AI Insights Section */}
+                <InsightsSection />
 
                 <TrendCharts data={processedData || []} range={range} />
 
@@ -144,3 +148,4 @@ export default function StatisticsPage() {
         </div>
     );
 }
+

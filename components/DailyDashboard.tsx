@@ -9,7 +9,7 @@ import DailySummary from "./DailySummary";
 import { Doc } from "../convex/_generated/dataModel";
 
 const Insights = dynamic(() => import("./Insights"), { ssr: false });
-const AIInsights = dynamic(() => import("./AIInsights"), { ssr: false });
+const WeeklyDigest = dynamic(() => import("./insights/WeeklyDigest"), { ssr: false });
 
 interface DailyDashboardProps {
     selectedDate: Date;
@@ -36,7 +36,7 @@ export default function DailyDashboard({
 
             {/* Center Column: Action (6 cols) */}
             <div className="lg:col-span-6 space-y-6">
-                <AIInsights selectedDate={selectedDate} />
+                <WeeklyDigest />
                 <h3 className="text-xl font-black tracking-tight mb-4 px-2">Log Activity</h3>
                 <LogEntry
                     selectedDate={selectedDate}
