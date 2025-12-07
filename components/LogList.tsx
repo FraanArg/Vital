@@ -217,6 +217,12 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
                         timeDisplay = log.exercise.time;
                     }
 
+                    // Extract border color from bgColor (e.g., "bg-orange-100" -> "border-l-orange-500")
+                    const borderColor = tracker.bgColor
+                        .replace("bg-", "border-l-")
+                        .replace("-100", "-500")
+                        .replace("-900/30", "-400");
+
                     return (
                         <motion.div
                             key={log._id}
@@ -228,16 +234,37 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
-                            className={`bg-card p-3 rounded-xl shadow-sm hover:shadow-md border flex items-start gap-2.5 relative overflow-hidden border-border/50 cursor-pointer transition-all group ${isMostRecent ? 'ring-1 ring-primary/30' : ''}`}
+                            className={`
+                                relative bg-card rounded-xl shadow-sm border border-border/50 
+                                cursor-pointer transition-all duration-200 group overflow-hidden
+                                hover:shadow-lg hover:scale-[1.02] min-h-[72px]
+                                border-l-[3px] ${borderColor}
+                                ${isMostRecent ? 'ring-2 ring-primary/20' : ''}
+                            `}
                         >
-                            {/* Icon */}
-                            <div className={`p-2 rounded-lg shrink-0 ${tracker.bgColor} ${tracker.color}`}>
-                                <Icon className="w-4 h-4" />
-                            </div>
+                            {/* Subtle background tint on hover */}
+                            <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${tracker.bgColor.replace("/30", "/10")}`} />
 
-                            {/* Content */}
-                            <div className="flex-1 min-w-0 py-0.5">
-                                {tracker.renderContent(log)}
+                            {/* Time badge in top-right corner */}
+                            {timeDisplay && (
+                                <div className="absolute top-2 right-2">
+                                    <span className="text-[9px] font-medium text-muted-foreground bg-secondary/80 px-1.5 py-0.5 rounded-md">
+                                        {timeDisplay}
+                                    </span>
+                                </div>
+                            )}
+
+                            {/* Card content */}
+                            <div className="relative p-3 flex items-start gap-2.5">
+                                {/* Icon */}
+                                <div className={`p-2 rounded-lg shrink-0 ${tracker.bgColor} ${tracker.color} transition-transform group-hover:scale-110`}>
+                                    <Icon className="w-4 h-4" />
+                                </div>
+
+                                {/* Content */}
+                                <div className="flex-1 min-w-0 py-0.5 pr-8">
+                                    {tracker.renderContent(log)}
+                                </div>
                             </div>
                         </motion.div>
                     );
