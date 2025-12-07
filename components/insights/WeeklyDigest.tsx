@@ -29,26 +29,26 @@ export default function WeeklyDigest() {
     };
 
     return (
-        <div className="space-y-3">
-            <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                <Sparkles className="w-4 h-4 text-primary" />
+        <div className="space-y-2">
+            <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                <Sparkles className="w-3 h-3 text-primary" />
                 <span>Weekly Insights</span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                 {insights.map((insight, index) => (
                     <motion.div
                         key={insight.title}
                         initial={{ opacity: 0, y: -5 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
-                        className={`relative bg-gradient-to-r ${colorClasses[insight.color || "gray"]} border p-3.5 rounded-xl overflow-hidden`}
+                        className={`relative bg-gradient-to-r ${colorClasses[insight.color || "gray"]} border p-2.5 rounded-lg overflow-hidden`}
                     >
-                        <div className="flex items-start gap-2.5">
-                            <span className="text-xl shrink-0">{insight.icon}</span>
+                        <div className="flex items-start gap-2">
+                            <span className="text-base shrink-0">{insight.icon}</span>
                             <div className="flex-1 min-w-0">
-                                <h4 className="font-semibold text-sm text-foreground leading-tight">{insight.title}</h4>
-                                <p className="text-xs text-muted-foreground leading-snug mt-1 line-clamp-2">
+                                <h4 className="font-semibold text-xs text-foreground leading-tight">{insight.title}</h4>
+                                <p className="text-[10px] text-muted-foreground leading-snug mt-0.5 line-clamp-2">
                                     {insight.message}
                                 </p>
                             </div>

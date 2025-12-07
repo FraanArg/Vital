@@ -32,10 +32,10 @@ export default function DailyDashboard({
             </div>
 
             {/* Center Column: Insights + Activity (6 cols) */}
-            <div className="lg:col-span-6 space-y-4">
+            <div className="lg:col-span-6 space-y-3">
                 <WeeklyDigest />
                 <div>
-                    <h3 className="text-lg font-bold tracking-tight mb-3 px-1">Log Activity</h3>
+                    <h3 className="text-sm font-semibold tracking-tight mb-2 px-1 text-muted-foreground">Log Activity</h3>
                     <LogEntry
                         selectedDate={selectedDate}
                         activeTracker={activeTracker}

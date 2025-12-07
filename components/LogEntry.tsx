@@ -35,7 +35,7 @@ export default function LogEntry({ selectedDate, activeTracker, onTrackerChange,
 
     return (
         <div className="w-full">
-            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+            <div className="grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-7 gap-2">
                 {TRACKERS.map((tracker) => {
                     const Icon = tracker.icon;
 
@@ -47,13 +47,13 @@ export default function LogEntry({ selectedDate, activeTracker, onTrackerChange,
                                 trigger("light");
                                 onTrackerChange(tracker.id);
                             }}
-                            className={`relative overflow-hidden rounded-2xl border border-border/50 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all group p-4 flex flex-col items-center justify-center gap-2 ${tracker.bgColor.replace("bg-", "bg-opacity-20 hover:bg-opacity-30 bg-")}`}
+                            className={`relative overflow-hidden rounded-xl border border-border/50 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all group p-2.5 flex flex-col items-center justify-center gap-1.5 ${tracker.bgColor.replace("bg-", "bg-opacity-20 hover:bg-opacity-30 bg-")}`}
                         >
-                            <div className={`p-2.5 rounded-xl transition-colors ${tracker.color.replace("text-", "bg-white/50 dark:bg-black/20 text-")}`}>
-                                <Icon className="w-6 h-6" />
+                            <div className={`p-2 rounded-lg transition-colors ${tracker.color.replace("text-", "bg-white/50 dark:bg-black/20 text-")}`}>
+                                <Icon className="w-5 h-5" />
                             </div>
 
-                            <span className={`text-xs font-semibold tracking-tight ${tracker.color}`}>
+                            <span className={`text-[10px] font-semibold tracking-tight ${tracker.color}`}>
                                 {tracker.label}
                             </span>
                         </button>
