@@ -138,21 +138,22 @@ export default function ActivityRings({ averages, compact = false }: ActivityRin
                 </div>
 
                 {/* Inline Stats */}
-                <div className="flex-1 flex flex-col gap-2">
+                <div className="flex-1 flex flex-col gap-1 min-w-0 overflow-hidden">
                     {rings.map((ring) => (
                         <div
                             key={ring.label}
-                            className="flex items-center gap-3 p-2 rounded-xl hover:bg-secondary/50 transition-colors cursor-default"
+                            className="flex items-center gap-2 p-2 rounded-xl hover:bg-secondary/50 transition-colors cursor-default"
                             onMouseEnter={() => setHoveredRing(ring.label)}
                             onMouseLeave={() => setHoveredRing(null)}
                         >
                             <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: ring.color }} />
-                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide w-12">{ring.label}</span>
-                            <span className="text-lg font-semibold" style={{ color: ring.color }}>
-                                {Math.round(ring.value * 10) / 10}
-                            </span>
-                            <span className="text-xs text-muted-foreground">{ring.unit}</span>
-                            <span className="text-[10px] text-muted-foreground/60 ml-auto">/ {ring.goal}</span>
+                            <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide shrink-0">{ring.label}</span>
+                            <div className="flex items-baseline gap-0.5 ml-auto shrink-0">
+                                <span className="text-base font-semibold" style={{ color: ring.color }}>
+                                    {Math.round(ring.value * 10) / 10}
+                                </span>
+                                <span className="text-[10px] text-muted-foreground">{ring.unit}</span>
+                            </div>
                         </div>
                     ))}
                 </div>
