@@ -30,29 +30,23 @@ export default function ExerciseLogItem({ log }: Omit<ExerciseLogItemProps, "ico
         const exerciseNames = log.exercise.workout.map(w => w.name).join(", ");
         return (
             <div className="flex flex-col">
-                <span className="font-semibold text-sm flex items-center gap-2">
-                    {typeName} <span className="text-xs text-muted font-normal">{timeDisplay}</span>
+                <span className="font-semibold text-xs flex items-center gap-1.5">
+                    {typeName} <span className="text-[10px] text-muted font-normal">{timeDisplay}</span>
                 </span>
-                <span className="text-xs text-muted-foreground">
-                    {exerciseCount} exercises: {exerciseNames.substring(0, 30)}{exerciseNames.length > 30 ? '...' : ''}
+                <span className="text-[10px] text-muted-foreground line-clamp-1">
+                    {exerciseCount} exercises: {exerciseNames.substring(0, 25)}{exerciseNames.length > 25 ? '...' : ''}
                 </span>
-                {log.exercise.notes && (
-                    <span className="text-xs text-muted-foreground italic mt-1">&quot;{log.exercise.notes}&quot;</span>
-                )}
             </div>
         );
     }
 
     return (
         <div className="flex flex-col">
-            <span className="font-semibold text-sm flex items-center gap-2">
-                {typeName} <span className="text-xs text-muted font-normal">{timeDisplay}</span>
+            <span className="font-semibold text-xs flex items-center gap-1.5">
+                {typeName} <span className="text-[10px] text-muted font-normal">{timeDisplay}</span>
             </span>
             {log.exercise.distance && (
-                <span className="text-xs text-muted-foreground">{log.exercise.distance} km</span>
-            )}
-            {log.exercise.notes && (
-                <span className="text-xs text-muted-foreground italic mt-1">&quot;{log.exercise.notes}&quot;</span>
+                <span className="text-[10px] text-muted-foreground">{log.exercise.distance} km</span>
             )}
         </div>
     );
