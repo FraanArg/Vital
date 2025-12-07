@@ -35,9 +35,15 @@ export default function LogEntry({ selectedDate, activeTracker, onTrackerChange,
 
     return (
         <div className="w-full">
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-2">
                 {TRACKERS.map((tracker) => {
                     const Icon = tracker.icon;
+
+                    // Extract border color from bgColor
+                    const borderColor = tracker.bgColor
+                        .replace("bg-", "border-l-")
+                        .replace("-100", "-500")
+                        .replace("-900/30", "-400");
 
                     return (
                         <button
@@ -47,13 +53,23 @@ export default function LogEntry({ selectedDate, activeTracker, onTrackerChange,
                                 trigger("light");
                                 onTrackerChange(tracker.id);
                             }}
-                            className={`relative overflow-hidden rounded-xl border border-border/50 shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all group py-2.5 px-3 flex items-center gap-3 ${tracker.bgColor.replace("bg-", "bg-opacity-20 hover:bg-opacity-30 bg-")}`}
+                            className={`
+                                relative overflow-hidden rounded-xl bg-card border border-border/50 
+                                shadow-sm hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] 
+                                transition-all duration-200 group py-3.5 px-4 flex items-center gap-3
+                                border-l-[3px] ${borderColor}
+                            `}
                         >
-                            <div className={`p-1.5 rounded-lg ${tracker.color.replace("text-", "bg-white/50 dark:bg-black/20 text-")}`}>
+                            {/* Subtle background tint on hover */}
+                            <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${tracker.bgColor.replace("/30", "/10")}`} />
+
+                            {/* Icon */}
+                            <div className={`relative p-2 rounded-lg ${tracker.bgColor} ${tracker.color} transition-transform group-hover:scale-110`}>
                                 <Icon className="w-4 h-4" />
                             </div>
 
-                            <span className={`text-sm font-medium ${tracker.color}`}>
+                            {/* Label */}
+                            <span className={`relative text-sm font-semibold ${tracker.color}`}>
                                 {tracker.label}
                             </span>
                         </button>
