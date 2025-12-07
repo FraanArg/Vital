@@ -16,14 +16,25 @@ export default function ExerciseLogItem({ log }: Omit<ExerciseLogItemProps, "ico
 
     if (log.exercise.type === "gym" && log.exercise.workout) {
         const exerciseCount = log.exercise.workout.length;
-        return <span>{typeName}: {exerciseCount} exercises ({duration})</span>;
+        const exerciseNames = log.exercise.workout.map(w => w.name).join(", ");
+        return (
+            <div className="flex flex-col">
+                <span className="font-semibold text-xs">{typeName}: {duration}</span>
+                <span className="text-[10px] text-muted-foreground line-clamp-1">{exerciseCount} exercises: {exerciseNames}</span>
+            </div>
+        );
     }
 
     if (log.exercise.distance) {
-        return <span>{typeName}: {log.exercise.distance}km ({duration})</span>;
+        return (
+            <div className="flex flex-col">
+                <span className="font-semibold text-xs">{typeName}: {log.exercise.distance}km</span>
+                <span className="text-[10px] text-muted-foreground">{duration}</span>
+            </div>
+        );
     }
 
-    return <span>{typeName}: {duration}</span>;
+    return <span className="font-semibold text-xs">{typeName}: {duration}</span>;
 }
 
 export function getExerciseIcon(log: Doc<"logs">, iconMappings?: Doc<"icon_mappings">[]) {

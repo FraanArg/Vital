@@ -5,5 +5,12 @@ interface SleepLogItemProps {
 }
 
 export default function SleepLogItem({ log }: SleepLogItemProps) {
-    return <span>Sleep: {log.sleep}h</span>;
+    return (
+        <div className="flex flex-col">
+            <span className="font-semibold text-xs">Sleep: {log.sleep}h</span>
+            {log.sleep_start && log.sleep_end && (
+                <span className="text-[10px] text-muted-foreground">{log.sleep_start} - {log.sleep_end}</span>
+            )}
+        </div>
+    );
 }

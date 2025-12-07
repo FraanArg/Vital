@@ -228,21 +228,16 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
-                            className={`bg-card p-2.5 rounded-xl shadow-sm hover:shadow-md border flex flex-col gap-1.5 relative overflow-hidden border-border/50 cursor-pointer transition-all group ${isMostRecent ? 'ring-1 ring-primary/30' : ''}`}
+                            className={`bg-card p-2.5 rounded-xl shadow-sm hover:shadow-md border flex items-start gap-2 relative overflow-hidden border-border/50 cursor-pointer transition-all group ${isMostRecent ? 'ring-1 ring-primary/30' : ''}`}
                         >
-                            {/* Top row: Icon + Time */}
-                            <div className="flex items-center justify-between">
-                                <div className={`p-1.5 rounded-lg ${tracker.bgColor} ${tracker.color}`}>
-                                    <Icon className="w-3.5 h-3.5" />
-                                </div>
-                                {timeDisplay && (
-                                    <span className="text-[10px] font-medium text-muted-foreground">{timeDisplay}</span>
-                                )}
+                            {/* Icon */}
+                            <div className={`p-1.5 rounded-lg shrink-0 ${tracker.bgColor} ${tracker.color}`}>
+                                <Icon className="w-3.5 h-3.5" />
                             </div>
 
-                            {/* Bottom row: Content */}
-                            <div className="min-w-0">
-                                <span className="font-medium text-xs line-clamp-2">{tracker.renderContent(log)}</span>
+                            {/* Content */}
+                            <div className="flex-1 min-w-0">
+                                {tracker.renderContent(log)}
                             </div>
                         </motion.div>
                     );
