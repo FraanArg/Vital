@@ -12,44 +12,18 @@ export default function ExerciseLogItem({ log }: Omit<ExerciseLogItemProps, "ico
     if (!log.exercise) return null;
 
     const typeName = log.exercise.type.charAt(0).toUpperCase() + log.exercise.type.slice(1);
-
-    const getEndTime = (start: string, duration: number) => {
-        const [h, m] = start.split(':').map(Number);
-        const totalMinutes = h * 60 + m + duration;
-        const endH = Math.floor(totalMinutes / 60) % 24;
-        const endM = totalMinutes % 60;
-        return `${endH.toString().padStart(2, '0')}:${endM.toString().padStart(2, '0')}`;
-    };
-
-    const timeDisplay = log.exercise.time
-        ? `${log.exercise.time} - ${getEndTime(log.exercise.time, log.exercise.duration)}`
-        : `${log.exercise.duration}m`;
+    const duration = `${log.exercise.duration}m`;
 
     if (log.exercise.type === "gym" && log.exercise.workout) {
         const exerciseCount = log.exercise.workout.length;
-        const exerciseNames = log.exercise.workout.map(w => w.name).join(", ");
-        return (
-            <div className="flex flex-col">
-                <span className="font-semibold text-sm flex items-center gap-1.5">
-                    {typeName} <span className="text-xs text-muted font-normal">{timeDisplay}</span>
-                </span>
-                <span className="text-xs text-muted-foreground line-clamp-1">
-                    {exerciseCount} exercises: {exerciseNames.substring(0, 30)}{exerciseNames.length > 30 ? '...' : ''}
-                </span>
-            </div>
-        );
+        return <span>{typeName}: {exerciseCount} exercises ({duration})</span>;
     }
 
-    return (
-        <div className="flex flex-col">
-            <span className="font-semibold text-sm flex items-center gap-1.5">
-                {typeName} <span className="text-xs text-muted font-normal">{timeDisplay}</span>
-            </span>
-            {log.exercise.distance && (
-                <span className="text-xs text-muted-foreground">{log.exercise.distance} km</span>
-            )}
-        </div>
-    );
+    if (log.exercise.distance) {
+        return <span>{typeName}: {log.exercise.distance}km ({duration})</span>;
+    }
+
+    return <span>{typeName}: {duration}</span>;
 }
 
 export function getExerciseIcon(log: Doc<"logs">, iconMappings?: Doc<"icon_mappings">[]) {

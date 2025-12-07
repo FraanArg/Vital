@@ -228,24 +228,22 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
-                            className={`bg-card p-2.5 rounded-xl shadow-sm hover:shadow-md border flex flex-col gap-1 relative overflow-hidden border-border/50 cursor-pointer transition-all group ${isMostRecent ? 'ring-1 ring-primary/30' : ''}`}
+                            className={`bg-card p-2.5 rounded-xl shadow-sm hover:shadow-md border flex items-center gap-2 relative overflow-hidden border-border/50 cursor-pointer transition-all group ${isMostRecent ? 'ring-1 ring-primary/30' : ''}`}
                         >
-                            <div className="flex items-center gap-2">
-                                {/* Icon */}
-                                <div className={`p-1.5 rounded-lg shrink-0 ${tracker.bgColor} ${tracker.color}`}>
-                                    <Icon className="w-3.5 h-3.5" />
-                                </div>
-
-                                {/* Time */}
-                                {timeDisplay && (
-                                    <span className="text-[11px] font-medium text-muted-foreground ml-auto">{timeDisplay}</span>
-                                )}
+                            {/* Icon */}
+                            <div className={`p-1.5 rounded-lg shrink-0 ${tracker.bgColor} ${tracker.color}`}>
+                                <Icon className="w-3.5 h-3.5" />
                             </div>
 
                             {/* Content */}
-                            <div className="min-w-0">
+                            <div className="flex-1 min-w-0">
                                 <span className="font-medium text-xs block truncate">{tracker.renderContent(log)}</span>
                             </div>
+
+                            {/* Time */}
+                            {timeDisplay && (
+                                <span className="text-[10px] font-medium text-muted-foreground shrink-0">{timeDisplay}</span>
+                            )}
                         </motion.div>
                     );
                 })}
