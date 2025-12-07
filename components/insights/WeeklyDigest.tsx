@@ -35,20 +35,20 @@ export default function WeeklyDigest() {
                 <span>Weekly Insights</span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <div className="flex flex-col gap-2">
                 {insights.map((insight, index) => (
                     <motion.div
                         key={insight.title}
-                        initial={{ opacity: 0, y: -5 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0, x: -5 }}
+                        animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.05 }}
-                        className={`relative bg-gradient-to-r ${colorClasses[insight.color || "gray"]} border p-2.5 rounded-lg overflow-hidden`}
+                        className={`relative bg-gradient-to-r ${colorClasses[insight.color || "gray"]} border p-3 rounded-xl overflow-hidden`}
                     >
-                        <div className="flex items-start gap-2">
-                            <span className="text-base shrink-0">{insight.icon}</span>
+                        <div className="flex items-start gap-3">
+                            <span className="text-xl shrink-0">{insight.icon}</span>
                             <div className="flex-1 min-w-0">
-                                <h4 className="font-semibold text-xs text-foreground leading-tight">{insight.title}</h4>
-                                <p className="text-[10px] text-muted-foreground leading-snug mt-0.5 line-clamp-2">
+                                <h4 className="font-semibold text-sm text-foreground leading-tight">{insight.title}</h4>
+                                <p className="text-xs text-muted-foreground leading-snug mt-0.5">
                                     {insight.message}
                                 </p>
                             </div>
