@@ -32,11 +32,47 @@ export default function LogEntry({ selectedDate, activeTracker, onTrackerChange,
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [handleClose]);
+    // Favorites - most commonly used trackers
+    const favorites = TRACKERS.filter(t => ["food", "sleep", "water", "exercise"].includes(t.id));
+    const others = TRACKERS.filter(t => !["food", "sleep", "water", "exercise"].includes(t.id));
 
     return (
         <div className="w-full">
+            {/* Quick Access Favorites */}
+            <div className="mb-3">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2">Quick Add</p>
+                <div className="grid grid-cols-4 gap-1.5">
+                    {favorites.map((tracker) => {
+                        const Icon = tracker.icon;
+                        return (
+                            <button
+                                key={tracker.id}
+                                type="button"
+                                onClick={() => {
+                                    trigger("light");
+                                    onTrackerChange(tracker.id);
+                                }}
+                                className={`flex flex-col items-center gap-1 p-2 rounded-xl bg-card border border-border/50 hover:shadow-md hover:scale-105 active:scale-95 transition-all ${tracker.color}`}
+                            >
+                                <div className={`p-1.5 rounded-lg ${tracker.bgColor}`}>
+                                    <Icon className="w-3.5 h-3.5" />
+                                </div>
+                                <span className="text-[9px] font-semibold truncate">{tracker.label}</span>
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* Divider */}
+            <div className="flex items-center gap-2 mb-2">
+                <div className="flex-1 h-px bg-border/50" />
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">All</p>
+                <div className="flex-1 h-px bg-border/50" />
+            </div>
+
             <div className="flex flex-col gap-2">
-                {TRACKERS.map((tracker) => {
+                {others.map((tracker) => {
                     const Icon = tracker.icon;
 
                     // Extract border color from bgColor

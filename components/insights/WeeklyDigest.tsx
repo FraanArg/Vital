@@ -1,9 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles, X, ChevronDown, ChevronUp, AlertCircle } from "lucide-react";
 
 interface Insight {
     type: "food" | "sleep" | "exercise" | "trend" | "correlation" | "achievement";
@@ -16,8 +17,12 @@ interface Insight {
 
 export default function WeeklyDigest() {
     const insights = useQuery(api.insights.getWeeklyDigest) as Insight[] | undefined;
+    const [dismissed, setDismissed] = useState<string[]>([]);
+    const [expanded, setExpanded] = useState<string | null>(null);
 
     if (!insights || insights.length === 0) return null;
+
+    const visibleInsights = insights.filter(i => !dismissed.includes(i.title));
 
     const colorClasses: Record<string, string> = {
         green: "from-green-500/10 to-green-500/5 border-green-500/20",
@@ -36,25 +41,54 @@ export default function WeeklyDigest() {
             </div>
 
             <div className="flex flex-col gap-2">
-                {insights.map((insight, index) => (
-                    <motion.div
-                        key={insight.title}
-                        initial={{ opacity: 0, x: -5 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className={`relative bg-gradient-to-r ${colorClasses[insight.color || "gray"]} border p-3 rounded-xl overflow-hidden`}
-                    >
-                        <div className="flex items-start gap-3">
-                            <span className="text-xl shrink-0">{insight.icon}</span>
-                            <div className="flex-1 min-w-0">
-                                <h4 className="font-semibold text-sm text-foreground leading-tight">{insight.title}</h4>
-                                <p className="text-xs text-muted-foreground leading-snug mt-0.5">
-                                    {insight.message}
-                                </p>
+                <AnimatePresence>
+                    {visibleInsights.map((insight, index) => (
+                        <motion.div
+                            key={insight.title}
+                            initial={{ opacity: 0, x: -5 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20, height: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            className={`relative bg-gradient-to-r ${colorClasses[insight.color || "gray"]} border p-3 rounded-xl overflow-hidden group`}
+                        >
+                            {/* Priority badge for high priority insights */}
+                            {insight.priority >= 8 && (
+                                <div className="absolute top-1 right-8 flex items-center gap-0.5 text-orange-500">
+                                    <AlertCircle className="w-3 h-3" />
+                                </div>
+                            )}
+
+                            {/* Dismiss button */}
+                            <button
+                                onClick={() => setDismissed([...dismissed, insight.title])}
+                                className="absolute top-1 right-1 p-1 rounded-full opacity-0 group-hover:opacity-100 hover:bg-black/10 transition-all"
+                                aria-label="Dismiss"
+                            >
+                                <X className="w-3 h-3 text-muted-foreground" />
+                            </button>
+
+                            <div
+                                className="flex items-start gap-3 cursor-pointer"
+                                onClick={() => setExpanded(expanded === insight.title ? null : insight.title)}
+                            >
+                                <span className="text-xl shrink-0">{insight.icon}</span>
+                                <div className="flex-1 min-w-0">
+                                    <h4 className="font-semibold text-sm text-foreground leading-tight flex items-center gap-1">
+                                        {insight.title}
+                                        {expanded === insight.title ? (
+                                            <ChevronUp className="w-3 h-3 text-muted-foreground" />
+                                        ) : (
+                                            <ChevronDown className="w-3 h-3 text-muted-foreground" />
+                                        )}
+                                    </h4>
+                                    <p className={`text-xs text-muted-foreground leading-snug mt-0.5 ${expanded === insight.title ? '' : 'line-clamp-2'}`}>
+                                        {insight.message}
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                    </motion.div>
-                ))}
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
             </div>
         </div>
     );

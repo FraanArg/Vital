@@ -29,10 +29,10 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
 
     // Helper to get completion status for a day
     const getDayStatus = (date: Date) => {
-        if (!logs) return { score: 0, color: "bg-secondary" };
+        if (!logs) return { score: 0, color: "bg-secondary", activities: [], isComplete: false };
 
         const dayLogs = logs.filter(l => isSameDay(new Date(l.date), date));
-        if (dayLogs.length === 0) return { score: 0, color: "bg-secondary" };
+        if (dayLogs.length === 0) return { score: 0, color: "bg-secondary", activities: [], isComplete: false };
 
         // Simple scoring based on goals met
         const waterGoal = 2.0;
@@ -42,6 +42,7 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
         const water = dayLogs.reduce((acc, l) => acc + (l.water || 0), 0);
         const sleep = dayLogs.reduce((acc, l) => acc + (l.sleep || 0), 0);
         const workout = dayLogs.some(l => l.exercise);
+        const food = dayLogs.some(l => l.meal || l.food);
 
         let goalsMet = 0;
         if (water >= waterGoal) goalsMet++;
@@ -55,7 +56,14 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
         else if (score > 0.6) color = "bg-yellow-500";
         else if (score > 0) color = "bg-orange-500";
 
-        return { score, color };
+        // Track which activities were logged
+        const activities: string[] = [];
+        if (sleep > 0) activities.push("sleep");
+        if (food) activities.push("food");
+        if (workout) activities.push("exercise");
+        if (water > 0) activities.push("water");
+
+        return { score, color, activities, isComplete: score === 1 };
     };
 
     const handlePrevDay = () => {
@@ -179,13 +187,35 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
                                     <span className={`text-xs font-black uppercase tracking-widest ${isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
                                         {format(date, "EEE")}
                                     </span>
-                                    <span className={`text-2xl md:text-4xl font-thin ${isSelected ? "text-primary-foreground" : ""}`}>
-                                        {format(date, "d")}
-                                    </span>
+                                    <div className="flex items-center gap-1">
+                                        {/* Streak fire for complete days */}
+                                        {status.isComplete && (
+                                            <span className="text-sm">🔥</span>
+                                        )}
+                                        <span className={`text-2xl md:text-4xl font-thin ${isSelected ? "text-primary-foreground" : ""}`}>
+                                            {format(date, "d")}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Activity Dots */}
+                                <div className="flex items-center gap-1 mb-1">
+                                    {status.activities.includes("sleep") && (
+                                        <div className="w-1.5 h-1.5 rounded-full bg-purple-500" title="Sleep" />
+                                    )}
+                                    {status.activities.includes("food") && (
+                                        <div className="w-1.5 h-1.5 rounded-full bg-orange-500" title="Food" />
+                                    )}
+                                    {status.activities.includes("exercise") && (
+                                        <div className="w-1.5 h-1.5 rounded-full bg-red-500" title="Exercise" />
+                                    )}
+                                    {status.activities.includes("water") && (
+                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500" title="Water" />
+                                    )}
                                 </div>
 
                                 {/* Progress Bar */}
-                                <div className="w-full h-1.5 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden mt-2">
+                                <div className="w-full h-1.5 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
                                     <motion.div
                                         className={`h-full ${status.score > 0 ? status.color : 'bg-transparent'}`}
                                         initial={{ width: 0 }}

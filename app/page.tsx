@@ -69,11 +69,24 @@ export default function Home() {
       <div className="flex-1 overflow-y-auto pb-24 sm:pb-8">
         <div className="w-full max-w-[1600px] mx-auto p-4 lg:p-8 space-y-6">
           <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-2 pt-safe">
-            <div>
-              <h1 className="text-2xl md:text-4xl font-black tracking-tighter">
-                Good {new Date().getHours() < 12 ? "Morning" : new Date().getHours() < 18 ? "Afternoon" : "Evening"}, Friend
-              </h1>
-              <p className="text-muted-foreground text-sm">Ready to seize the day?</p>
+            <div className="flex items-center gap-3">
+              <div>
+                <h1 className="text-2xl md:text-4xl font-black tracking-tighter">
+                  Good {new Date().getHours() < 12 ? "Morning" : new Date().getHours() < 18 ? "Afternoon" : "Evening"}, Friend
+                </h1>
+                <p className="text-muted-foreground text-sm">
+                  {[
+                    "Ready to seize the day?",
+                    "Let's make today count!",
+                    "Track your progress!",
+                    "One step at a time!",
+                    "You're doing great!"
+                  ][Math.floor(Date.now() / 60000) % 5]}
+                </p>
+              </div>
+              <button className="p-3 bg-primary text-primary-foreground rounded-full shadow-lg hover:scale-110 active:scale-95 transition-transform animate-pulse" aria-label="Quick action">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+              </button>
             </div>
             <div className="flex items-center gap-4">
               <SegmentedControl

@@ -227,6 +227,14 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
                         <motion.div
                             key={log._id}
                             layout
+                            drag="x"
+                            dragConstraints={{ left: 0, right: 0 }}
+                            dragElastic={{ left: 0.3, right: 0.05 }}
+                            onDragEnd={(_, info) => {
+                                if (info.offset.x < -80) {
+                                    handleDelete(log._id as Id<"logs">);
+                                }
+                            }}
                             onClick={() => {
                                 trigger("light");
                                 onEdit?.(log);
@@ -234,6 +242,7 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
+                            whileDrag={{ scale: 1.02 }}
                             className={`
                                 relative bg-card rounded-xl shadow-sm border border-border/50 
                                 cursor-pointer transition-all duration-200 group overflow-hidden
@@ -245,14 +254,43 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
                             {/* Subtle background tint on hover */}
                             <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${tracker.bgColor.replace("/30", "/10")}`} />
 
+                            {/* Delete indicator (shows when dragging left) */}
+                            <div className="absolute right-0 top-0 bottom-0 w-16 bg-red-500/20 flex items-center justify-center opacity-0 group-active:opacity-100">
+                                <Trash2 className="w-4 h-4 text-red-500" />
+                            </div>
+
                             {/* Time badge in top-right corner */}
                             {timeDisplay && (
-                                <div className="absolute top-2 right-2">
+                                <div className="absolute top-2 right-2 z-10">
                                     <span className="text-[9px] font-medium text-muted-foreground bg-secondary/80 px-1.5 py-0.5 rounded-md">
                                         {timeDisplay}
                                     </span>
                                 </div>
                             )}
+
+                            {/* Hover action buttons (desktop) */}
+                            <div className="absolute bottom-2 right-2 hidden sm:flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onEdit?.(log);
+                                    }}
+                                    className="p-1.5 rounded-lg bg-secondary/80 hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+                                    aria-label="Edit"
+                                >
+                                    <Search className="w-3 h-3" />
+                                </button>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDelete(log._id as Id<"logs">);
+                                    }}
+                                    className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-colors"
+                                    aria-label="Delete"
+                                >
+                                    <Trash2 className="w-3 h-3" />
+                                </button>
+                            </div>
 
                             {/* Card content */}
                             <div className="relative p-3 flex items-start gap-2.5">
