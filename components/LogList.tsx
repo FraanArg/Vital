@@ -198,7 +198,7 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
     }
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-2">
             <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
                 <input
@@ -217,14 +217,14 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
 
                 <AnimatePresence mode="popLayout">
                     {groupedLogs.map((group, groupIndex) => (
-                        <div key={group.label} className="mb-6 relative">
-                            <div className="flex items-center gap-2 mb-3 ml-8">
-                                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground bg-background px-2 relative z-10">
+                        <div key={group.label} className="mb-3 relative">
+                            <div className="flex items-center gap-2 mb-1.5 ml-8">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground bg-background px-2 relative z-10">
                                     {group.label}
                                 </span>
                             </div>
 
-                            <div className="space-y-4">
+                            <div className="space-y-1.5">
                                 {group.logs.map((log, index) => {
                                     const tracker = TRACKERS.find(t => t.matcher(log));
                                     if (!tracker) return null;
@@ -268,17 +268,17 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
                                                     animate={{ opacity: 1, x: 0 }}
                                                     exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
                                                     whileDrag={{ scale: 1.02 }}
-                                                    className={`bg-card p-3 rounded-2xl shadow-sm hover:shadow-md border flex items-center justify-between relative overflow-hidden border-border/50 z-10 touch-pan-y cursor-pointer transition-all duration-300 ${tracker.bgColor.replace('bg-', 'bg-')}`}
+                                                    className={`bg-card py-2 px-3 rounded-xl shadow-sm hover:shadow-md border flex items-center justify-between relative overflow-hidden border-border/50 z-10 touch-pan-y cursor-pointer transition-all duration-300 ${tracker.bgColor.replace('bg-', 'bg-')}`}
                                                     style={{ x: 0 }}
                                                 >
                                                     {/* Hover Effect Background */}
                                                     <div className={`absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity pointer-events-none ${tracker.bgColor.replace('bg-', 'bg-')}`} />
 
-                                                    <div className="flex items-center gap-3 relative z-10 pointer-events-none">
-                                                        <div className={`p-2 rounded-xl ${tracker.bgColor} ${tracker.color}`}>
-                                                            <Icon className="w-4 h-4" />
+                                                    <div className="flex items-center gap-2 relative z-10 pointer-events-none">
+                                                        <div className={`p-1.5 rounded-lg ${tracker.bgColor} ${tracker.color}`}>
+                                                            <Icon className="w-3.5 h-3.5" />
                                                         </div>
-                                                        <span className="font-medium text-sm">{tracker.renderContent(log)}</span>
+                                                        <span className="font-medium text-xs">{tracker.renderContent(log)}</span>
                                                     </div>
 
                                                     <button

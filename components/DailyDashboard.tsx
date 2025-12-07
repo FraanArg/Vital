@@ -25,14 +25,14 @@ export default function DailyDashboard({
     onEdit
 }: DailyDashboardProps) {
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 lg:h-[calc(100vh-280px)] lg:min-h-[400px]">
             {/* Left Column: Overview (3 cols) */}
-            <div className="lg:col-span-3 space-y-4">
+            <div className="lg:col-span-3 flex flex-col">
                 <DailySummary selectedDate={selectedDate} />
             </div>
 
             {/* Center Column: Insights + Activity (6 cols) */}
-            <div className="lg:col-span-6 space-y-3">
+            <div className="lg:col-span-6 flex flex-col gap-4">
                 <WeeklyDigest />
                 <div>
                     <h3 className="text-sm font-semibold tracking-tight mb-2 px-1 text-muted-foreground">Log Activity</h3>
@@ -45,17 +45,18 @@ export default function DailyDashboard({
                 </div>
             </div>
 
-            {/* Right Column: History (3 cols) */}
-            <div className="lg:col-span-3">
-                <div className="flex items-center justify-between mb-3">
+            {/* Right Column: History (3 cols) - scrollable */}
+            <div className="lg:col-span-3 flex flex-col min-h-0">
+                <div className="flex items-center justify-between mb-3 shrink-0">
                     <h2 className="text-lg font-semibold">History</h2>
                     <span className="text-xs text-muted-foreground">
                         {format(selectedDate, "MMMM d, yyyy")}
                     </span>
                 </div>
-                <LogList selectedDate={selectedDate} onEdit={onEdit} />
+                <div className="flex-1 overflow-y-auto min-h-0 -mr-2 pr-2">
+                    <LogList selectedDate={selectedDate} onEdit={onEdit} />
+                </div>
             </div>
         </div>
     );
 }
-
