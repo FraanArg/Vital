@@ -35,7 +35,7 @@ export default function LogEntry({ selectedDate, activeTracker, onTrackerChange,
 
     return (
         <div className="w-full">
-            <div className="grid grid-cols-4 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+            <div className="flex flex-col gap-1.5">
                 {TRACKERS.map((tracker) => {
                     const Icon = tracker.icon;
 
@@ -47,13 +47,13 @@ export default function LogEntry({ selectedDate, activeTracker, onTrackerChange,
                                 trigger("light");
                                 onTrackerChange(tracker.id);
                             }}
-                            className={`relative overflow-hidden rounded-xl border border-border/50 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-95 transition-all group p-2.5 flex flex-col items-center justify-center gap-1.5 ${tracker.bgColor.replace("bg-", "bg-opacity-20 hover:bg-opacity-30 bg-")}`}
+                            className={`relative overflow-hidden rounded-xl border border-border/50 shadow-sm hover:shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all group py-2.5 px-3 flex items-center gap-3 ${tracker.bgColor.replace("bg-", "bg-opacity-20 hover:bg-opacity-30 bg-")}`}
                         >
-                            <div className={`p-2 rounded-lg transition-colors ${tracker.color.replace("text-", "bg-white/50 dark:bg-black/20 text-")}`}>
-                                <Icon className="w-5 h-5" />
+                            <div className={`p-1.5 rounded-lg ${tracker.color.replace("text-", "bg-white/50 dark:bg-black/20 text-")}`}>
+                                <Icon className="w-4 h-4" />
                             </div>
 
-                            <span className={`text-[10px] font-semibold tracking-tight ${tracker.color}`}>
+                            <span className={`text-sm font-medium ${tracker.color}`}>
                                 {tracker.label}
                             </span>
                         </button>

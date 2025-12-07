@@ -25,21 +25,21 @@ export default function DailyDashboard({
     onEdit
 }: DailyDashboardProps) {
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:h-[calc(100vh-240px)] lg:min-h-[500px]">
-            {/* Left Column: Rings + Weekly Insights (4 cols) */}
-            <div className="lg:col-span-4 flex flex-col gap-3">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:h-[calc(100vh-240px)] lg:min-h-[480px]">
+            {/* Left Column: Rings + Weekly Insights (3 cols) */}
+            <div className="lg:col-span-3 flex flex-col gap-3">
                 <DailySummary selectedDate={selectedDate} compact />
-                <div className="hidden lg:block flex-1">
+                <div className="hidden lg:block">
                     <WeeklyDigest />
                 </div>
             </div>
 
-            {/* Center Column: Log Activity (4 cols) */}
-            <div className="lg:col-span-4 flex flex-col">
+            {/* Center Column: Log Activity vertical (2 cols) */}
+            <div className="lg:col-span-2 flex flex-col">
                 <div className="lg:hidden mb-4">
                     <WeeklyDigest />
                 </div>
-                <h3 className="text-sm font-semibold tracking-tight mb-3 text-muted-foreground">Log Activity</h3>
+                <h3 className="text-xs font-semibold uppercase tracking-wider mb-2 text-muted-foreground">Log Activity</h3>
                 <LogEntry
                     selectedDate={selectedDate}
                     activeTracker={activeTracker}
@@ -48,10 +48,10 @@ export default function DailyDashboard({
                 />
             </div>
 
-            {/* Right Column: History (4 cols) - fills height */}
-            <div className="lg:col-span-4 flex flex-col min-h-0">
+            {/* Right Column: History 2-column grid (7 cols) */}
+            <div className="lg:col-span-7 flex flex-col min-h-0">
                 <div className="flex items-center justify-between mb-2 shrink-0">
-                    <h2 className="text-sm font-semibold text-muted-foreground">History</h2>
+                    <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">History</h2>
                     <span className="text-xs text-muted-foreground">
                         {format(selectedDate, "MMM d, yyyy")}
                     </span>

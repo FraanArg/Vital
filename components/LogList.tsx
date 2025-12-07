@@ -198,7 +198,7 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
     }
 
     return (
-        <div className="space-y-1">
+        <div className="grid grid-cols-2 gap-2">
             <AnimatePresence mode="popLayout">
                 {filteredLogs?.map((log, index) => {
                     const tracker = TRACKERS.find(t => t.matcher(log));
@@ -221,50 +221,31 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
                         <motion.div
                             key={log._id}
                             layout
-                            drag="x"
-                            dragConstraints={{ left: 0, right: 0 }}
-                            dragElastic={{ left: 0.5, right: 0.05 }}
-                            onDragEnd={(_, info) => {
-                                if (info.offset.x < -100) {
-                                    handleDelete(log._id as Id<"logs">);
-                                }
-                            }}
                             onClick={() => {
                                 trigger("light");
                                 onEdit?.(log);
                             }}
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
-                            whileDrag={{ scale: 1.02 }}
-                            className={`bg-card py-2.5 px-3 rounded-xl shadow-sm hover:shadow-md border flex items-center gap-3 relative overflow-hidden border-border/50 cursor-pointer transition-all group ${isMostRecent ? 'ring-1 ring-primary/30' : ''}`}
+                            className={`bg-card p-2.5 rounded-xl shadow-sm hover:shadow-md border flex flex-col gap-1 relative overflow-hidden border-border/50 cursor-pointer transition-all group ${isMostRecent ? 'ring-1 ring-primary/30' : ''}`}
                         >
-                            {/* Time badge */}
-                            {timeDisplay && (
-                                <span className="text-[10px] font-medium text-muted-foreground w-10 shrink-0">{timeDisplay}</span>
-                            )}
+                            <div className="flex items-center gap-2">
+                                {/* Icon */}
+                                <div className={`p-1.5 rounded-lg shrink-0 ${tracker.bgColor} ${tracker.color}`}>
+                                    <Icon className="w-3.5 h-3.5" />
+                                </div>
 
-                            {/* Icon */}
-                            <div className={`p-1.5 rounded-lg shrink-0 ${tracker.bgColor} ${tracker.color}`}>
-                                <Icon className="w-4 h-4" />
+                                {/* Time */}
+                                {timeDisplay && (
+                                    <span className="text-[11px] font-medium text-muted-foreground ml-auto">{timeDisplay}</span>
+                                )}
                             </div>
 
                             {/* Content */}
-                            <div className="flex-1 min-w-0">
-                                <span className="font-medium text-sm block truncate">{tracker.renderContent(log)}</span>
+                            <div className="min-w-0">
+                                <span className="font-medium text-xs block truncate">{tracker.renderContent(log)}</span>
                             </div>
-
-                            {/* Delete button */}
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDelete(log._id as Id<"logs">);
-                                }}
-                                aria-label="Delete log"
-                                className="hidden sm:block p-1 text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100 shrink-0"
-                            >
-                                <Trash2 className="w-3.5 h-3.5" />
-                            </button>
                         </motion.div>
                     );
                 })}
