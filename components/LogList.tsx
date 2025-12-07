@@ -199,102 +199,76 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
 
     return (
         <div className="space-y-1">
-            <div className="relative pl-4">
-                {/* Vertical Timeline Line */}
-                <div className="absolute left-[21px] top-4 bottom-4 w-0.5 bg-border/50 rounded-full" />
+            <AnimatePresence mode="popLayout">
+                {filteredLogs?.map((log, index) => {
+                    const tracker = TRACKERS.find(t => t.matcher(log));
+                    if (!tracker) return null;
 
-                <AnimatePresence mode="popLayout">
-                    {groupedLogs.map((group, groupIndex) => (
-                        <div key={group.label} className="mb-2 relative">
-                            <div className="flex items-center gap-2 mb-1 ml-8">
-                                <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground bg-background px-1 relative z-10">
-                                    {group.label}
-                                </span>
+                    const Icon = tracker.getIcon ? tracker.getIcon(log, iconMappings) : tracker.icon;
+                    const isMostRecent = index === 0;
+
+                    // Get time for display
+                    let timeDisplay = "";
+                    if (log.sleep_end) {
+                        timeDisplay = log.sleep_end;
+                    } else if (log.meal?.time) {
+                        timeDisplay = log.meal.time;
+                    } else if (log.exercise?.time) {
+                        timeDisplay = log.exercise.time;
+                    }
+
+                    return (
+                        <motion.div
+                            key={log._id}
+                            layout
+                            drag="x"
+                            dragConstraints={{ left: 0, right: 0 }}
+                            dragElastic={{ left: 0.5, right: 0.05 }}
+                            onDragEnd={(_, info) => {
+                                if (info.offset.x < -100) {
+                                    handleDelete(log._id as Id<"logs">);
+                                }
+                            }}
+                            onClick={() => {
+                                trigger("light");
+                                onEdit?.(log);
+                            }}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
+                            whileDrag={{ scale: 1.02 }}
+                            className={`bg-card py-2.5 px-3 rounded-xl shadow-sm hover:shadow-md border flex items-center gap-3 relative overflow-hidden border-border/50 cursor-pointer transition-all group ${isMostRecent ? 'ring-1 ring-primary/30' : ''}`}
+                        >
+                            {/* Time badge */}
+                            {timeDisplay && (
+                                <span className="text-[10px] font-medium text-muted-foreground w-10 shrink-0">{timeDisplay}</span>
+                            )}
+
+                            {/* Icon */}
+                            <div className={`p-1.5 rounded-lg shrink-0 ${tracker.bgColor} ${tracker.color}`}>
+                                <Icon className="w-4 h-4" />
                             </div>
 
-                            <div className="space-y-1">
-                                {group.logs.map((log, index) => {
-                                    const tracker = TRACKERS.find(t => t.matcher(log));
-                                    if (!tracker) return null;
-
-                                    const Icon = tracker.getIcon ? tracker.getIcon(log, iconMappings) : tracker.icon;
-                                    const isMostRecent = groupIndex === 0 && index === 0;
-
-                                    return (
-                                        <div className="relative group" key={log._id}>
-                                            {/* Timeline Dot */}
-                                            <div className={`absolute left-[5px] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2 border-background z-20 ${isMostRecent ? "bg-primary" : "bg-muted-foreground/30"}`}>
-                                                {isMostRecent && (
-                                                    <span className="absolute inset-0 rounded-full bg-primary animate-ping opacity-75" />
-                                                )}
-                                            </div>
-
-                                            {/* Connector Line to Card */}
-                                            <div className="absolute left-[16px] top-1/2 -translate-y-1/2 w-4 h-0.5 bg-border/50" />
-
-                                            <div className="ml-8">
-                                                {/* Swipe Background (Trash) */}
-                                                <div className="absolute inset-0 left-8 bg-red-500/10 rounded-2xl flex items-center justify-end pr-4 border border-red-500/20">
-                                                    <Trash2 className="w-5 h-5 text-red-500" />
-                                                </div>
-
-                                                <motion.div
-                                                    layout
-                                                    drag="x"
-                                                    dragConstraints={{ left: 0, right: 0 }}
-                                                    dragElastic={{ left: 0.5, right: 0.05 }}
-                                                    onDragEnd={(_, info) => {
-                                                        if (info.offset.x < -100) {
-                                                            handleDelete(log._id as Id<"logs">);
-                                                        }
-                                                    }}
-                                                    onClick={() => {
-                                                        trigger("light");
-                                                        onEdit?.(log);
-                                                    }}
-                                                    initial={{ opacity: 0, x: -20 }}
-                                                    animate={{ opacity: 1, x: 0 }}
-                                                    exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
-                                                    whileDrag={{ scale: 1.02 }}
-                                                    className={`bg-card py-2 px-3 rounded-xl shadow-sm hover:shadow-md border flex items-center justify-between relative overflow-hidden border-border/50 z-10 touch-pan-y cursor-pointer transition-all duration-300 ${tracker.bgColor.replace('bg-', 'bg-')}`}
-                                                    style={{ x: 0 }}
-                                                >
-                                                    {/* Hover Effect Background */}
-                                                    <div className={`absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity pointer-events-none ${tracker.bgColor.replace('bg-', 'bg-')}`} />
-
-                                                    <div className="flex items-center gap-2 relative z-10 pointer-events-none">
-                                                        <div className={`p-1.5 rounded-lg ${tracker.bgColor} ${tracker.color}`}>
-                                                            <Icon className="w-3.5 h-3.5" />
-                                                        </div>
-                                                        <span className="font-medium text-xs">{tracker.renderContent(log)}</span>
-                                                    </div>
-
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleDelete(log._id as Id<"logs">);
-                                                        }}
-                                                        aria-label="Delete log"
-                                                        className="hidden sm:block p-1.5 text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100 active:scale-90 relative z-10"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
-                                                </motion.div>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
+                            {/* Content */}
+                            <div className="flex-1 min-w-0">
+                                <span className="font-medium text-sm block truncate">{tracker.renderContent(log)}</span>
                             </div>
-                        </div>
-                    ))}
-                </AnimatePresence>
-            </div>
 
-            {filteredLogs?.length === 0 && searchQuery && (
-                <div className="text-center py-8 text-muted">
-                    <p>No logs match your search.</p>
-                </div>
-            )}
+                            {/* Delete button */}
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDelete(log._id as Id<"logs">);
+                                }}
+                                aria-label="Delete log"
+                                className="hidden sm:block p-1 text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100 shrink-0"
+                            >
+                                <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                        </motion.div>
+                    );
+                })}
+            </AnimatePresence>
         </div>
     );
 }

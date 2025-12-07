@@ -25,42 +25,38 @@ export default function DailyDashboard({
     onEdit
 }: DailyDashboardProps) {
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 lg:h-[calc(100vh-260px)] lg:min-h-[450px]">
-            {/* Left Column: Rings + Insights stacked (3 cols) */}
-            <div className="lg:col-span-3 flex flex-col gap-4">
-                <DailySummary selectedDate={selectedDate} />
-                {/* Move insights here on desktop */}
-                <div className="hidden lg:block">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:h-[calc(100vh-240px)] lg:min-h-[500px]">
+            {/* Left Column: Rings + Weekly Insights (4 cols) */}
+            <div className="lg:col-span-4 flex flex-col gap-3">
+                <DailySummary selectedDate={selectedDate} compact />
+                <div className="hidden lg:block flex-1">
                     <WeeklyDigest />
                 </div>
             </div>
 
-            {/* Center Column: Log Activity only (5 cols) */}
-            <div className="lg:col-span-5 flex flex-col">
-                {/* Show insights on mobile */}
+            {/* Center Column: Log Activity (4 cols) */}
+            <div className="lg:col-span-4 flex flex-col">
                 <div className="lg:hidden mb-4">
                     <WeeklyDigest />
                 </div>
-                <div>
-                    <h3 className="text-sm font-semibold tracking-tight mb-2 px-1 text-muted-foreground">Log Activity</h3>
-                    <LogEntry
-                        selectedDate={selectedDate}
-                        activeTracker={activeTracker}
-                        onTrackerChange={onTrackerChange}
-                        editingLog={editingLog}
-                    />
-                </div>
+                <h3 className="text-sm font-semibold tracking-tight mb-3 text-muted-foreground">Log Activity</h3>
+                <LogEntry
+                    selectedDate={selectedDate}
+                    activeTracker={activeTracker}
+                    onTrackerChange={onTrackerChange}
+                    editingLog={editingLog}
+                />
             </div>
 
             {/* Right Column: History (4 cols) - fills height */}
-            <div className="lg:col-span-4 flex flex-col min-h-0 lg:h-full">
+            <div className="lg:col-span-4 flex flex-col min-h-0">
                 <div className="flex items-center justify-between mb-2 shrink-0">
-                    <h2 className="text-base font-semibold">History</h2>
+                    <h2 className="text-sm font-semibold text-muted-foreground">History</h2>
                     <span className="text-xs text-muted-foreground">
                         {format(selectedDate, "MMM d, yyyy")}
                     </span>
                 </div>
-                <div className="flex-1 overflow-y-auto min-h-0 -mr-2 pr-2 scrollbar-thin">
+                <div className="flex-1 overflow-y-auto min-h-0 -mr-1 pr-1">
                     <LogList selectedDate={selectedDate} onEdit={onEdit} />
                 </div>
             </div>

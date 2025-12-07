@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
-import { motion } from "framer-motion";
 
 interface ActivityRingsProps {
     averages: {
@@ -10,42 +9,42 @@ interface ActivityRingsProps {
         sleep: number;
         exercise: number;
     };
+    compact?: boolean;
 }
 
-export default function ActivityRings({ averages }: ActivityRingsProps) {
-    // Goals (hardcoded for now, could be dynamic later)
+export default function ActivityRings({ averages, compact = false }: ActivityRingsProps) {
     const GOALS = {
         work: 8,
         sleep: 8,
-        exercise: 60 // minutes
+        exercise: 60
     };
 
     const rings = [
         {
             label: "Move",
-            value: averages.exercise, // minutes
+            value: averages.exercise,
             goal: GOALS.exercise,
-            color: "#ef4444", // Red
+            color: "#ef4444",
             bg: "rgba(239, 68, 68, 0.2)",
-            radius: 95,
+            radius: compact ? 75 : 95,
             unit: "m"
         },
         {
             label: "Work",
-            value: averages.work, // hours
+            value: averages.work,
             goal: GOALS.work,
-            color: "#22c55e", // Green
+            color: "#22c55e",
             bg: "rgba(34, 197, 94, 0.2)",
-            radius: 75,
+            radius: compact ? 58 : 75,
             unit: "h"
         },
         {
             label: "Sleep",
-            value: averages.sleep, // hours
+            value: averages.sleep,
             goal: GOALS.sleep,
-            color: "#3b82f6", // Blue
+            color: "#3b82f6",
             bg: "rgba(59, 130, 246, 0.2)",
-            radius: 55,
+            radius: compact ? 41 : 55,
             unit: "h"
         }
     ];
@@ -56,17 +55,17 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
     }, 0) / rings.length;
 
     const [hoveredRing, setHoveredRing] = useState<string | null>(null);
-
     const activeRing = rings.find(r => r.label === hoveredRing);
 
+    const size = compact ? 160 : 200;
+
     return (
-        <div className="flex flex-col gap-6 mb-8">
-            {/* Rings Visualization */}
-            <div className="bg-card rounded-[32px] p-6 border border-border/50 shadow-sm flex items-center justify-center min-h-[250px]">
-                <div className="relative w-[200px] h-[200px]" style={{ minWidth: 200, minHeight: 200 }}>
-                    <ResponsiveContainer width="100%" height="100%" minWidth={200} minHeight={200}>
+        <div className={`bg-card rounded-2xl p-4 border border-border/50 shadow-sm ${compact ? '' : 'mb-4'}`}>
+            <div className="flex items-center gap-4">
+                {/* Rings */}
+                <div className="relative shrink-0" style={{ width: size, height: size, minWidth: size, minHeight: size }}>
+                    <ResponsiveContainer width="100%" height="100%" minWidth={size} minHeight={size}>
                         <PieChart>
-                            {/* Background rings */}
                             {rings.map((ring, index) => (
                                 <Pie
                                     key={`bg-ring-${index}`}
@@ -74,7 +73,7 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
                                     dataKey="value"
                                     cx="50%"
                                     cy="50%"
-                                    innerRadius={ring.radius - 12}
+                                    innerRadius={ring.radius - (compact ? 9 : 12)}
                                     outerRadius={ring.radius}
                                     startAngle={90}
                                     endAngle={-270}
@@ -85,13 +84,12 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
                                     style={{ opacity: hoveredRing && hoveredRing !== ring.label ? 0.3 : 1, transition: 'opacity 0.3s' }}
                                 />
                             ))}
-                            {/* Progress rings */}
                             {rings.map((ring, index) => {
                                 const rawPercentage = (ring.value / ring.goal) * 100;
                                 const percentage = isNaN(rawPercentage) || !isFinite(rawPercentage) ? 0 : Math.min(100, rawPercentage);
                                 const progressData = [
                                     { value: percentage, fill: ring.color },
-                                    { value: 100 - percentage, fill: "transparent" } // Transparent remainder
+                                    { value: 100 - percentage, fill: "transparent" }
                                 ];
                                 return (
                                     <Pie
@@ -100,7 +98,7 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
                                         dataKey="value"
                                         cx="50%"
                                         cy="50%"
-                                        innerRadius={ring.radius - 12}
+                                        innerRadius={ring.radius - (compact ? 9 : 12)}
                                         outerRadius={ring.radius}
                                         startAngle={90}
                                         endAngle={-270}
@@ -118,55 +116,46 @@ export default function ActivityRings({ averages }: ActivityRingsProps) {
                             })}
                         </PieChart>
                     </ResponsiveContainer>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-all duration-300">
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                         {activeRing ? (
                             <>
-                                <span className="text-4xl font-thin text-foreground" style={{ color: activeRing.color }}>
+                                <span className={`${compact ? 'text-2xl' : 'text-3xl'} font-light`} style={{ color: activeRing.color }}>
                                     {Math.round(activeRing.value * 10) / 10}
                                 </span>
-                                <span className="text-xs font-black uppercase tracking-widest text-muted-foreground mt-1">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                                     {activeRing.unit}
-                                </span>
-                                <span className="text-[10px] font-medium text-muted-foreground mt-1 opacity-70">
-                                    {activeRing.label}
                                 </span>
                             </>
                         ) : (
                             <>
-                                <span className="text-4xl font-thin text-foreground">
+                                <span className={`${compact ? 'text-2xl' : 'text-3xl'} font-light`}>
                                     {Math.round(averagePercentage)}%
                                 </span>
-                                <span className="text-xs font-black uppercase tracking-widest text-muted-foreground mt-1">AVG</span>
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">AVG</span>
                             </>
                         )}
                     </div>
                 </div>
-            </div>
 
-            {/* Legend / Details */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
-                {rings.map((ring) => (
-                    <motion.div
-                        key={ring.label}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="bg-card rounded-[32px] p-3 border border-border/50 shadow-sm flex flex-col items-center justify-center text-center gap-1"
-                    >
-                        <div className="flex items-center gap-2 mb-1">
-                            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: ring.color }} />
-                            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{ring.label}</span>
-                        </div>
-                        <div className="flex items-baseline gap-1">
-                            <span className="text-3xl font-thin text-foreground">
+                {/* Inline Stats */}
+                <div className="flex-1 flex flex-col gap-2">
+                    {rings.map((ring) => (
+                        <div
+                            key={ring.label}
+                            className="flex items-center gap-3 p-2 rounded-xl hover:bg-secondary/50 transition-colors cursor-default"
+                            onMouseEnter={() => setHoveredRing(ring.label)}
+                            onMouseLeave={() => setHoveredRing(null)}
+                        >
+                            <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: ring.color }} />
+                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide w-12">{ring.label}</span>
+                            <span className="text-lg font-semibold" style={{ color: ring.color }}>
                                 {Math.round(ring.value * 10) / 10}
                             </span>
-                            <span className="text-xs text-muted-foreground font-medium">{ring.unit}</span>
+                            <span className="text-xs text-muted-foreground">{ring.unit}</span>
+                            <span className="text-[10px] text-muted-foreground/60 ml-auto">/ {ring.goal}</span>
                         </div>
-                        <span className="text-[10px] text-muted-foreground">
-                            Goal: {ring.goal}
-                        </span>
-                    </motion.div>
-                ))}
+                    ))}
+                </div>
             </div>
         </div>
     );

@@ -10,9 +10,10 @@ const ActivityRings = dynamic(() => import("./stats/ActivityRings"), { ssr: fals
 
 interface DailySummaryProps {
     selectedDate: Date;
+    compact?: boolean;
 }
 
-export default function DailySummary({ selectedDate }: DailySummaryProps) {
+export default function DailySummary({ selectedDate, compact = false }: DailySummaryProps) {
     const start = startOfDay(selectedDate);
     const end = endOfDay(selectedDate);
 
@@ -23,13 +24,8 @@ export default function DailySummary({ selectedDate }: DailySummaryProps) {
 
     if (!logs) {
         return (
-            <div className="flex flex-col gap-6 mb-8">
-                <Skeleton className="h-[250px] rounded-3xl" />
-                <div className="grid grid-cols-3 gap-4">
-                    <Skeleton className="h-20 rounded-2xl" />
-                    <Skeleton className="h-20 rounded-2xl" />
-                    <Skeleton className="h-20 rounded-2xl" />
-                </div>
+            <div className="flex flex-col gap-4">
+                <Skeleton className={`${compact ? 'h-[180px]' : 'h-[250px]'} rounded-2xl`} />
             </div>
         );
     }
@@ -41,6 +37,7 @@ export default function DailySummary({ selectedDate }: DailySummaryProps) {
     }), { work: 0, sleep: 0, exercise: 0 });
 
     return (
-        <ActivityRings averages={totals} />
+        <ActivityRings averages={totals} compact={compact} />
     );
 }
+
