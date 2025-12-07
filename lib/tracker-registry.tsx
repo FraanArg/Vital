@@ -33,7 +33,11 @@ export const TRACKERS: TrackerConfig[] = [
         bgColor: "bg-green-100 dark:bg-green-900/30",
         component: WorkTracker,
         matcher: (log) => log.work !== undefined,
-        renderContent: (log) => `Work: ${log.work}h`
+        renderContent: (log) => (
+            <div className="flex flex-col">
+                <span className="font-semibold text-xs">Work: {log.work}h</span>
+            </div>
+        )
     },
     {
         id: "sleep",
@@ -53,7 +57,11 @@ export const TRACKERS: TrackerConfig[] = [
         bgColor: "bg-blue-100 dark:bg-blue-900/30",
         component: WaterTracker,
         matcher: (log) => log.water !== undefined,
-        renderContent: (log) => `Water: ${log.water} L`
+        renderContent: (log) => (
+            <div className="flex flex-col">
+                <span className="font-semibold text-xs">Water: {log.water}ml</span>
+            </div>
+        )
     },
     {
         id: "food",
@@ -73,7 +81,12 @@ export const TRACKERS: TrackerConfig[] = [
         bgColor: "bg-pink-100 dark:bg-pink-900/30",
         component: JournalTracker,
         matcher: (log) => log.journal !== undefined,
-        renderContent: (log) => `Journal: ${log.journal?.substring(0, 30)}${(log.journal?.length || 0) > 30 ? '...' : ''}`
+        renderContent: (log) => (
+            <div className="flex flex-col">
+                <span className="font-semibold text-xs">Journal</span>
+                <span className="text-[10px] text-muted-foreground line-clamp-1">{log.journal?.substring(0, 50)}</span>
+            </div>
+        )
     },
     {
         id: "exercise",
@@ -94,6 +107,10 @@ export const TRACKERS: TrackerConfig[] = [
         bgColor: "bg-gray-100 dark:bg-gray-800",
         component: CustomTracker,
         matcher: (log) => log.custom !== undefined,
-        renderContent: (log) => log.custom ? `${log.custom[0].name}: ${log.custom[0].value} ${log.custom[0].unit}` : ""
+        renderContent: (log) => (
+            <div className="flex flex-col">
+                <span className="font-semibold text-xs">{log.custom?.[0]?.name}: {log.custom?.[0]?.value} {log.custom?.[0]?.unit}</span>
+            </div>
+        )
     }
 ];

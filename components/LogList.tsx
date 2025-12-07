@@ -228,15 +228,15 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
-                            className={`bg-card p-2.5 rounded-xl shadow-sm hover:shadow-md border flex items-start gap-2 relative overflow-hidden border-border/50 cursor-pointer transition-all group ${isMostRecent ? 'ring-1 ring-primary/30' : ''}`}
+                            className={`bg-card p-3 rounded-xl shadow-sm hover:shadow-md border flex items-start gap-2.5 relative overflow-hidden border-border/50 cursor-pointer transition-all group ${isMostRecent ? 'ring-1 ring-primary/30' : ''}`}
                         >
                             {/* Icon */}
-                            <div className={`p-1.5 rounded-lg shrink-0 ${tracker.bgColor} ${tracker.color}`}>
-                                <Icon className="w-3.5 h-3.5" />
+                            <div className={`p-2 rounded-lg shrink-0 ${tracker.bgColor} ${tracker.color}`}>
+                                <Icon className="w-4 h-4" />
                             </div>
 
                             {/* Content */}
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-1 min-w-0 py-0.5">
                                 {tracker.renderContent(log)}
                             </div>
                         </motion.div>
