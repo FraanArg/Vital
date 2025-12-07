@@ -198,33 +198,21 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
     }
 
     return (
-        <div className="space-y-2">
-            <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
-                <input
-                    type="text"
-                    placeholder="Search logs..."
-                    aria-label="Search logs"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary text-base"
-                />
-            </div>
-
+        <div className="space-y-1">
             <div className="relative pl-4">
                 {/* Vertical Timeline Line */}
                 <div className="absolute left-[21px] top-4 bottom-4 w-0.5 bg-border/50 rounded-full" />
 
                 <AnimatePresence mode="popLayout">
                     {groupedLogs.map((group, groupIndex) => (
-                        <div key={group.label} className="mb-3 relative">
-                            <div className="flex items-center gap-2 mb-1.5 ml-8">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground bg-background px-2 relative z-10">
+                        <div key={group.label} className="mb-2 relative">
+                            <div className="flex items-center gap-2 mb-1 ml-8">
+                                <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground bg-background px-1 relative z-10">
                                     {group.label}
                                 </span>
                             </div>
 
-                            <div className="space-y-1.5">
+                            <div className="space-y-1">
                                 {group.logs.map((log, index) => {
                                     const tracker = TRACKERS.find(t => t.matcher(log));
                                     if (!tracker) return null;
