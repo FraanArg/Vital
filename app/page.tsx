@@ -11,7 +11,6 @@ import DailyProgress from "../components/DailyProgress";
 import StreakCounter from "../components/StreakCounter";
 import OfflineIndicator from "../components/OfflineIndicator";
 import DateSelector from "../components/DateSelector";
-import LiveActivity from "../components/LiveActivity";
 import UndoToast from "../components/UndoToast";
 import { TRACKERS } from "../lib/tracker-registry";
 import { Doc } from "../convex/_generated/dataModel";
@@ -84,9 +83,6 @@ export default function Home() {
                   ][Math.floor(Date.now() / 60000) % 5]}
                 </p>
               </div>
-              <button className="p-3 bg-primary text-primary-foreground rounded-full shadow-lg hover:scale-110 active:scale-95 transition-transform animate-pulse" aria-label="Quick action">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg>
-              </button>
             </div>
             <div className="flex items-center gap-4">
               <SegmentedControl
@@ -112,7 +108,6 @@ export default function Home() {
 
           <DateSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
 
-          <LiveActivity />
 
           {viewMode === "daily" ? (
             <DailyDashboard
