@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { format, addDays, subDays, isSameDay, startOfDay, endOfDay } from "date-fns";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 import { motion } from "framer-motion";
@@ -14,10 +14,11 @@ interface DateSelectorProps {
 
 export default function DateSelector({ selectedDate, onDateChange }: DateSelectorProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
+    const selectedRef = useRef<HTMLButtonElement>(null);
 
-    // Generate a sliding window of dates centered around the selected date
+    // Generate a larger window of dates for scrolling (14 days: -7 to +6)
     const dates = [];
-    for (let i = -3; i <= 3; i++) {
+    for (let i = -7; i <= 6; i++) {
         dates.push(addDays(selectedDate, i));
     }
 
@@ -26,6 +27,23 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
     const end = endOfDay(dates[dates.length - 1]).toISOString();
 
     const logs = useQuery(api.logs.getStats, { from: start, to: end });
+
+    // Auto-scroll to center on mount and when date changes
+    useEffect(() => {
+        if (selectedRef.current && scrollRef.current) {
+            const container = scrollRef.current;
+            const selected = selectedRef.current;
+            const containerWidth = container.offsetWidth;
+            const selectedOffset = selected.offsetLeft;
+            const selectedWidth = selected.offsetWidth;
+
+            // Center the selected date
+            container.scrollTo({
+                left: selectedOffset - containerWidth / 2 + selectedWidth / 2,
+                behavior: "smooth"
+            });
+        }
+    }, [selectedDate]);
 
     // Helper to get completion status for a day
     const getDayStatus = (date: Date) => {
@@ -37,7 +55,6 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
         // Simple scoring based on goals met
         const waterGoal = 2.0;
         const sleepGoal = 7.0;
-        const workoutGoal = 1;
 
         const water = dayLogs.reduce((acc, l) => acc + (l.water || 0), 0);
         const sleep = dayLogs.reduce((acc, l) => acc + (l.sleep || 0), 0);
@@ -163,7 +180,8 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
 
                 <div
                     ref={scrollRef}
-                    className="flex justify-between items-center gap-3 overflow-x-auto no-scrollbar py-2 px-1"
+                    className="flex gap-3 overflow-x-auto py-2 px-1 scroll-smooth scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent"
+                    style={{ scrollbarWidth: "thin" }}
                 >
                     {dates.map((date) => {
                         const isSelected = isSameDay(date, selectedDate);
@@ -172,13 +190,14 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
                         return (
                             <motion.button
                                 key={date.toISOString()}
+                                ref={isSelected ? selectedRef : undefined}
                                 onClick={() => handleDateClick(date)}
                                 aria-label={`Select ${format(date, "MMMM do, yyyy")}`}
                                 aria-current={isSelected ? "date" : undefined}
                                 layout
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                className={`flex flex-col justify-center px-4 min-w-[100px] flex-1 w-full h-24 rounded-[32px] transition-all relative border ${isSelected
+                                className={`flex flex-col justify-center px-4 min-w-[90px] shrink-0 h-24 rounded-[32px] transition-all relative border ${isSelected
                                     ? "bg-primary text-primary-foreground border-primary shadow-md"
                                     : "bg-card text-card-foreground hover:bg-secondary border-border/50"
                                     }`}
