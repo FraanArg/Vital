@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import { format, addDays, subDays, isSameDay, startOfDay, endOfDay } from "date-fns";
+import { format, addDays, subDays, addWeeks, subWeeks, isSameDay, startOfDay, endOfDay } from "date-fns";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { useQuery } from "convex/react";
@@ -118,10 +118,11 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
         const isLeftSwipe = distance > minSwipeDistance;
         const isRightSwipe = distance < -minSwipeDistance;
 
+        // Navigate by week on swipe
         if (isLeftSwipe) {
-            handleNextDay();
+            onDateChange(addWeeks(selectedDate, 1)); // Swipe left = next week
         } else if (isRightSwipe) {
-            handlePrevDay();
+            onDateChange(subWeeks(selectedDate, 1)); // Swipe right = previous week
         }
     };
 
