@@ -1173,3 +1173,500 @@ export const getNutritionSuggestions = query({
         return suggestions.slice(0, 3);
     },
 });
+
+// ============================================
+// ADVANCED CORRELATIONS - Deep pattern analysis
+// ============================================
+export const getAdvancedCorrelations = query({
+    handler: async (ctx) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) return [];
+
+        const userId = identity.subject;
+        const startDate = subDays(new Date(), 60).toISOString(); // 60 days of data
+
+        const logs = await ctx.db
+            .query("logs")
+            .withIndex("by_userId_date", (q) => q.eq("userId", userId).gte("date", startDate))
+            .collect();
+
+        if (logs.length < 14) return []; // Need at least 2 weeks of data
+
+        const correlations: {
+            icon: string;
+            title: string;
+            insight: string;
+            impact: string;
+            confidence: number;
+            category: "mood" | "sleep" | "exercise" | "nutrition";
+        }[] = [];
+
+        // Group logs by date
+        const byDate: Record<string, typeof logs> = {};
+        for (const log of logs) {
+            const date = log.date.split('T')[0];
+            if (!byDate[date]) byDate[date] = [];
+            byDate[date].push(log);
+        }
+
+        const dates = Object.keys(byDate).sort();
+
+        // ========================================
+        // Correlation 1: Mood ↔ Exercise
+        // ========================================
+        const exerciseDays: number[] = [];
+        const noExerciseDays: number[] = [];
+
+        for (const date of dates) {
+            const dayLogs = byDate[date];
+            const mood = dayLogs.find(l => l.mood)?.mood;
+            const hasExercise = dayLogs.some(l => l.exercise);
+
+            if (mood) {
+                if (hasExercise) {
+                    exerciseDays.push(mood);
+                } else {
+                    noExerciseDays.push(mood);
+                }
+            }
+        }
+
+        if (exerciseDays.length >= 5 && noExerciseDays.length >= 5) {
+            const avgExerciseMood = exerciseDays.reduce((a, b) => a + b, 0) / exerciseDays.length;
+            const avgNoExerciseMood = noExerciseDays.reduce((a, b) => a + b, 0) / noExerciseDays.length;
+            const moodDiff = avgExerciseMood - avgNoExerciseMood;
+            const moodDiffPercent = Math.round((moodDiff / avgNoExerciseMood) * 100);
+
+            if (Math.abs(moodDiffPercent) >= 10) {
+                correlations.push({
+                    icon: moodDiff > 0 ? "😊" : "😔",
+                    title: "Mood & Exercise",
+                    insight: moodDiff > 0
+                        ? `Your mood is ${moodDiffPercent}% better on days you exercise`
+                        : `Your mood drops ${Math.abs(moodDiffPercent)}% on exercise days (might need recovery)`,
+                    impact: moodDiff > 0 ? "positive" : "negative",
+                    confidence: Math.min(0.9, 0.5 + (exerciseDays.length + noExerciseDays.length) / 40),
+                    category: "mood",
+                });
+            }
+        }
+
+        // ========================================
+        // Correlation 2: Sleep Duration ↔ Dinner Time
+        // ========================================
+        const earlyDinnerSleep: number[] = [];
+        const lateDinnerSleep: number[] = [];
+
+        for (let i = 0; i < dates.length - 1; i++) {
+            const todayLogs = byDate[dates[i]];
+            const tomorrowLogs = byDate[dates[i + 1]];
+
+            // Find dinner (evening meal)
+            const dinner = todayLogs.find(l => l.meal?.type === "dinner" || l.meal?.type === "cena");
+            const sleep = tomorrowLogs?.find(l => l.sleep)?.sleep;
+
+            if (dinner?.meal?.time && sleep) {
+                const dinnerHour = parseInt(dinner.meal.time.split(':')[0]);
+                if (dinnerHour < 20) {
+                    earlyDinnerSleep.push(sleep);
+                } else {
+                    lateDinnerSleep.push(sleep);
+                }
+            }
+        }
+
+        if (earlyDinnerSleep.length >= 3 && lateDinnerSleep.length >= 3) {
+            const avgEarlySleep = earlyDinnerSleep.reduce((a, b) => a + b, 0) / earlyDinnerSleep.length;
+            const avgLateSleep = lateDinnerSleep.reduce((a, b) => a + b, 0) / lateDinnerSleep.length;
+            const sleepDiff = avgEarlySleep - avgLateSleep;
+            const sleepDiffMins = Math.round(sleepDiff * 60);
+
+            if (Math.abs(sleepDiffMins) >= 15) {
+                correlations.push({
+                    icon: sleepDiff > 0 ? "🌙" : "⏰",
+                    title: "Dinner & Sleep",
+                    insight: sleepDiff > 0
+                        ? `You sleep ${sleepDiffMins} minutes longer when eating dinner before 8pm`
+                        : `Late dinners are associated with ${Math.abs(sleepDiffMins)} mins less sleep`,
+                    impact: sleepDiff > 0 ? "positive" : "negative",
+                    confidence: Math.min(0.85, 0.4 + (earlyDinnerSleep.length + lateDinnerSleep.length) / 20),
+                    category: "sleep",
+                });
+            }
+        }
+
+        // ========================================
+        // Correlation 3: Sleep Quality → Next Day Exercise
+        // ========================================
+        let goodSleepExercise = 0, goodSleepTotal = 0;
+        let badSleepExercise = 0, badSleepTotal = 0;
+
+        for (let i = 0; i < dates.length - 1; i++) {
+            const todayLogs = byDate[dates[i]];
+            const tomorrowLogs = byDate[dates[i + 1]];
+            const sleep = todayLogs.find(l => l.sleep)?.sleep || 0;
+            const nextDayExercise = tomorrowLogs?.some(l => l.exercise);
+
+            if (sleep >= 7) {
+                goodSleepTotal++;
+                if (nextDayExercise) goodSleepExercise++;
+            } else if (sleep > 0 && sleep < 6) {
+                badSleepTotal++;
+                if (nextDayExercise) badSleepExercise++;
+            }
+        }
+
+        if (goodSleepTotal >= 5 && badSleepTotal >= 3) {
+            const goodSleepRate = (goodSleepExercise / goodSleepTotal) * 100;
+            const badSleepRate = (badSleepExercise / badSleepTotal) * 100;
+            const rateDiff = goodSleepRate - badSleepRate;
+
+            if (rateDiff > 15) {
+                correlations.push({
+                    icon: "💪",
+                    title: "Sleep & Exercise",
+                    insight: `After sleeping 7+ hours, you're ${Math.round(rateDiff)}% more likely to exercise the next day`,
+                    impact: "positive",
+                    confidence: Math.min(0.85, 0.5 + (goodSleepTotal + badSleepTotal) / 30),
+                    category: "exercise",
+                });
+            }
+        }
+
+        // ========================================
+        // Correlation 4: Hydration → Mood
+        // ========================================
+        const highWaterMood: number[] = [];
+        const lowWaterMood: number[] = [];
+
+        for (const date of dates) {
+            const dayLogs = byDate[date];
+            const totalWater = dayLogs.reduce((sum, l) => sum + (l.water || 0), 0);
+            const mood = dayLogs.find(l => l.mood)?.mood;
+
+            if (mood) {
+                if (totalWater >= 2) {
+                    highWaterMood.push(mood);
+                } else if (totalWater > 0 && totalWater < 1.5) {
+                    lowWaterMood.push(mood);
+                }
+            }
+        }
+
+        if (highWaterMood.length >= 5 && lowWaterMood.length >= 5) {
+            const avgHighWater = highWaterMood.reduce((a, b) => a + b, 0) / highWaterMood.length;
+            const avgLowWater = lowWaterMood.reduce((a, b) => a + b, 0) / lowWaterMood.length;
+            const moodDiff = avgHighWater - avgLowWater;
+
+            if (moodDiff > 0.3) {
+                correlations.push({
+                    icon: "💧",
+                    title: "Hydration & Mood",
+                    insight: `Your mood is ${Math.round((moodDiff / avgLowWater) * 100)}% higher on well-hydrated days (2L+)`,
+                    impact: "positive",
+                    confidence: Math.min(0.8, 0.4 + (highWaterMood.length + lowWaterMood.length) / 30),
+                    category: "mood",
+                });
+            }
+        }
+
+        // ========================================
+        // Correlation 5: Best Days for Exercise
+        // ========================================
+        const dayStats: Record<number, { exercises: number; total: number }> = {};
+        for (const date of dates) {
+            const dayOfWeek = new Date(date).getDay();
+            if (!dayStats[dayOfWeek]) dayStats[dayOfWeek] = { exercises: 0, total: 0 };
+            dayStats[dayOfWeek].total++;
+            if (byDate[date].some(l => l.exercise)) {
+                dayStats[dayOfWeek].exercises++;
+            }
+        }
+
+        const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        let bestDay = -1, bestRate = 0, worstDay = -1, worstRate = 1;
+
+        for (const [day, stats] of Object.entries(dayStats)) {
+            if (stats.total >= 4) {
+                const rate = stats.exercises / stats.total;
+                if (rate > bestRate) { bestRate = rate; bestDay = parseInt(day); }
+                if (rate < worstRate) { worstRate = rate; worstDay = parseInt(day); }
+            }
+        }
+
+        if (bestDay >= 0 && bestRate > 0.4) {
+            correlations.push({
+                icon: "📅",
+                title: "Best Workout Day",
+                insight: `${dayNames[bestDay]} is your power day - you exercise ${Math.round(bestRate * 100)}% of the time`,
+                impact: "positive",
+                confidence: 0.75,
+                category: "exercise",
+            });
+        }
+
+        // Sort by confidence
+        correlations.sort((a, b) => b.confidence - a.confidence);
+        return correlations.slice(0, 5);
+    },
+});
+
+// ============================================
+// MEAL SUGGESTIONS - Personalized meal ideas
+// ============================================
+export const getMealSuggestions = query({
+    handler: async (ctx) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) return [];
+
+        const userId = identity.subject;
+        const weekStart = subDays(new Date(), 7).toISOString();
+        const today = new Date().toISOString().split('T')[0];
+
+        const [weekLogs, todayLogs] = await Promise.all([
+            ctx.db.query("logs").withIndex("by_userId_date", (q) =>
+                q.eq("userId", userId).gte("date", weekStart)
+            ).collect(),
+            ctx.db.query("logs").withIndex("by_userId_date", (q) =>
+                q.eq("userId", userId).gte("date", today)
+            ).collect(),
+        ]);
+
+        const suggestions: {
+            icon: string;
+            title: string;
+            message: string;
+            type: "nutrient" | "timing" | "variety";
+            foods?: string[];
+        }[] = [];
+
+        // Analyze weekly nutrients
+        const weekNutrients: Record<string, number> = {
+            Protein: 0, Carbs: 0, Veggies: 0, Fruits: 0, Fats: 0
+        };
+
+        for (const log of weekLogs) {
+            if (log.meal?.items) {
+                for (const item of log.meal.items) {
+                    const category = categorizeFood(item);
+                    if (weekNutrients[category] !== undefined) {
+                        weekNutrients[category]++;
+                    }
+                }
+            }
+        }
+
+        const totalItems = Object.values(weekNutrients).reduce((a, b) => a + b, 0);
+
+        // Low protein week
+        if (totalItems >= 10 && weekNutrients.Protein < totalItems * 0.15) {
+            suggestions.push({
+                icon: "🥩",
+                title: "Low Protein Week",
+                message: "Your protein intake was low this week. Try adding more eggs, chicken, fish, or legumes.",
+                type: "nutrient",
+                foods: ["Eggs", "Chicken", "Salmon", "Lentils", "Greek Yogurt"],
+            });
+        }
+
+        // Low veggies
+        if (totalItems >= 10 && weekNutrients.Veggies < totalItems * 0.2) {
+            suggestions.push({
+                icon: "🥬",
+                title: "More Veggies Needed",
+                message: "Add more vegetables for fiber and vitamins. They help with digestion and energy.",
+                type: "nutrient",
+                foods: ["Salad", "Broccoli", "Spinach", "Carrots", "Bell Peppers"],
+            });
+        }
+
+        // Low fruits
+        if (totalItems >= 10 && weekNutrients.Fruits < 5) {
+            suggestions.push({
+                icon: "🍎",
+                title: "Fruit Boost",
+                message: "Fruits are great for natural energy and vitamins. Try adding some as snacks.",
+                type: "nutrient",
+                foods: ["Banana", "Apple", "Berries", "Orange", "Mango"],
+            });
+        }
+
+        // Time-based suggestions
+        const hour = new Date().getHours();
+        const todayMeals = todayLogs.filter(l => l.date.startsWith(today) && l.meal);
+
+        if (hour >= 7 && hour < 11 && !todayMeals.some(m => ["breakfast", "desayuno"].includes(m.meal?.type || ""))) {
+            suggestions.push({
+                icon: "🌅",
+                title: "Breakfast Time",
+                message: "Start your day with a balanced breakfast for sustained energy.",
+                type: "timing",
+                foods: ["Oatmeal", "Eggs", "Toast", "Yogurt", "Fruit"],
+            });
+        }
+
+        if (hour >= 12 && hour < 15 && !todayMeals.some(m => ["lunch", "almuerzo"].includes(m.meal?.type || ""))) {
+            suggestions.push({
+                icon: "☀️",
+                title: "Lunch Time",
+                message: "It's midday - fuel up with a protein-rich lunch.",
+                type: "timing",
+                foods: ["Chicken Salad", "Rice Bowl", "Sandwich", "Soup"],
+            });
+        }
+
+        if (hour >= 19 && hour < 22 && !todayMeals.some(m => ["dinner", "cena"].includes(m.meal?.type || ""))) {
+            suggestions.push({
+                icon: "🌙",
+                title: "Dinner Time",
+                message: "Don't forget dinner! Eating before 8pm may help with sleep quality.",
+                type: "timing",
+                foods: ["Grilled Fish", "Pasta", "Stir Fry", "Salad"],
+            });
+        }
+
+        // Variety suggestion - if eating same things repeatedly
+        const itemCounts: Record<string, number> = {};
+        for (const log of weekLogs) {
+            if (log.meal?.items) {
+                for (const item of log.meal.items) {
+                    const lower = item.toLowerCase();
+                    itemCounts[lower] = (itemCounts[lower] || 0) + 1;
+                }
+            }
+        }
+
+        const repetitive = Object.entries(itemCounts).filter(([_, count]) => count >= 5);
+        if (repetitive.length >= 2) {
+            suggestions.push({
+                icon: "🔄",
+                title: "Mix It Up",
+                message: `You've had ${repetitive[0][0]} ${repetitive[0][1]}x this week. Try some variety for better nutrition!`,
+                type: "variety",
+            });
+        }
+
+        return suggestions.slice(0, 4);
+    },
+});
+
+// ============================================
+// SMART REMINDERS - Pattern-based suggestions
+// ============================================
+export const getSmartReminders = query({
+    handler: async (ctx) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) return [];
+
+        const userId = identity.subject;
+        const twoWeeksAgo = subDays(new Date(), 14).toISOString();
+        const today = new Date().toISOString().split('T')[0];
+
+        const [recentLogs, todayLogs] = await Promise.all([
+            ctx.db.query("logs").withIndex("by_userId_date", (q) =>
+                q.eq("userId", userId).gte("date", twoWeeksAgo)
+            ).collect(),
+            ctx.db.query("logs").withIndex("by_userId_date", (q) =>
+                q.eq("userId", userId).gte("date", today)
+            ).collect(),
+        ]);
+
+        const reminders: {
+            icon: string;
+            title: string;
+            message: string;
+            priority: "high" | "medium" | "low";
+        }[] = [];
+
+        const currentHour = new Date().getHours();
+
+        // Analyze typical logging patterns
+        const waterTimes: number[] = [];
+        const mealTimes: Record<string, number[]> = {
+            breakfast: [], lunch: [], dinner: []
+        };
+
+        for (const log of recentLogs) {
+            if (log.water && log.water > 0) {
+                const logHour = new Date(log.date).getHours();
+                waterTimes.push(logHour);
+            }
+            if (log.meal?.time) {
+                const mealHour = parseInt(log.meal.time.split(':')[0]);
+                const mealType = log.meal.type.toLowerCase();
+                if (mealType.includes("breakfast") || mealType.includes("desayuno")) {
+                    mealTimes.breakfast.push(mealHour);
+                } else if (mealType.includes("lunch") || mealType.includes("almuerzo")) {
+                    mealTimes.lunch.push(mealHour);
+                } else if (mealType.includes("dinner") || mealType.includes("cena")) {
+                    mealTimes.dinner.push(mealHour);
+                }
+            }
+        }
+
+        // Water reminder
+        const todayWater = todayLogs.filter(l => l.date.startsWith(today)).reduce((sum, l) => sum + (l.water || 0), 0);
+        if (currentHour >= 12 && todayWater < 1) {
+            reminders.push({
+                icon: "💧",
+                title: "Hydration Check",
+                message: "You haven't logged much water today. Stay hydrated!",
+                priority: "medium",
+            });
+        }
+
+        // Meal reminders based on typical times
+        const todayMeals = todayLogs.filter(l => l.date.startsWith(today) && l.meal);
+
+        if (mealTimes.breakfast.length >= 3) {
+            const avgBreakfastHour = Math.round(mealTimes.breakfast.reduce((a, b) => a + b, 0) / mealTimes.breakfast.length);
+            if (currentHour >= avgBreakfastHour && currentHour < avgBreakfastHour + 3) {
+                if (!todayMeals.some(m => ["breakfast", "desayuno"].includes(m.meal?.type?.toLowerCase() || ""))) {
+                    reminders.push({
+                        icon: "🌅",
+                        title: "Breakfast Time",
+                        message: `You usually have breakfast around ${avgBreakfastHour}:00. Don't forget to log it!`,
+                        priority: "low",
+                    });
+                }
+            }
+        }
+
+        if (mealTimes.dinner.length >= 3) {
+            const avgDinnerHour = Math.round(mealTimes.dinner.reduce((a, b) => a + b, 0) / mealTimes.dinner.length);
+            if (currentHour >= avgDinnerHour && currentHour < 23) {
+                if (!todayMeals.some(m => ["dinner", "cena"].includes(m.meal?.type?.toLowerCase() || ""))) {
+                    reminders.push({
+                        icon: "🌙",
+                        title: "Dinner Reminder",
+                        message: `It's past your usual dinner time (${avgDinnerHour}:00). Have you eaten?`,
+                        priority: "low",
+                    });
+                }
+            }
+        }
+
+        // Exercise day reminder
+        const recentExerciseDays = recentLogs.filter(l => l.exercise).map(l => new Date(l.date).getDay());
+        const currentDayOfWeek = new Date().getDay();
+        const exerciseOnThisDay = recentExerciseDays.filter(d => d === currentDayOfWeek).length;
+
+        if (exerciseOnThisDay >= 2 && currentHour >= 16) {
+            const todayExercise = todayLogs.some(l => l.date.startsWith(today) && l.exercise);
+            if (!todayExercise) {
+                reminders.push({
+                    icon: "💪",
+                    title: "Workout Day",
+                    message: "You often exercise on this day. Time to get moving?",
+                    priority: "low",
+                });
+            }
+        }
+
+        // Sort by priority
+        const priorityOrder = { high: 0, medium: 1, low: 2 };
+        reminders.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+
+        return reminders.slice(0, 3);
+    },
+});

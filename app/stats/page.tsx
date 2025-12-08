@@ -31,7 +31,8 @@ const HealthScore = dynamic(() => import("../../components/stats/HealthScore"), 
 const AICoach = dynamic(() => import("../../components/stats/AICoach"), { ssr: false });
 const Predictions = dynamic(() => import("../../components/stats/Predictions"), { ssr: false });
 const DailyNutrientBalance = dynamic(() => import("../../components/stats/DailyNutrientBalance"), { ssr: false });
-const CorrelationInsights = dynamic(() => import("../../components/stats/CorrelationInsights"), { ssr: false });
+const AdvancedCorrelations = dynamic(() => import("../../components/stats/AdvancedCorrelations"), { ssr: false });
+const MealSuggestions = dynamic(() => import("../../components/MealSuggestions"), { ssr: false });
 
 export default function StatisticsPage() {
     const [range, setRange] = useState<"week" | "month" | "year">("week");
@@ -202,8 +203,11 @@ export default function StatisticsPage() {
                 </div>
 
                 {/* AI Insights & Correlations */}
+                <AdvancedCorrelations />
+
+                {/* Meal Suggestions */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <CorrelationInsights />
+                    <MealSuggestions />
                     <InsightsSection />
                 </div>
             </div>
