@@ -5,8 +5,9 @@ import { useUser, useClerk } from "@clerk/nextjs";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import SyncData from "../../components/SyncData";
-import { Settings, Shield, Mail, Loader2, Trash2, FileText, Heart, Check } from "lucide-react";
+import { Settings, Shield, Mail, Loader2, Trash2, FileText, Heart, Check, Scale, ArrowRight } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { ThemeToggle } from "../../components/ThemeToggle";
 import DataExport from "../../components/DataExport";
 import ExportDialog from "../../components/reports/ExportDialog";
@@ -203,6 +204,20 @@ export default function ProfilePage() {
                             "Save Profile"
                         )}
                     </button>
+
+                    <Link
+                        href="/body"
+                        className="w-full p-4 mt-4 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-xl flex items-center gap-3 hover:from-blue-500/20 hover:to-purple-500/20 transition-all"
+                    >
+                        <div className="p-2 rounded-xl bg-blue-500/20">
+                            <Scale className="w-5 h-5 text-blue-500" />
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="font-medium">Body Composition</h3>
+                            <p className="text-xs text-muted-foreground">Track weight, measurements, BMI & TDEE</p>
+                        </div>
+                        <ArrowRight className="w-5 h-5 text-muted-foreground" />
+                    </Link>
                 </section>
 
                 {/* Appearance */}

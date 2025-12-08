@@ -98,6 +98,21 @@ export default defineSchema({
         updatedAt: v.string(),
     }).index("by_user", ["userId"]),
 
+    // Body composition tracking
+    bodyMeasurements: defineTable({
+        userId: v.string(),
+        date: v.string(), // ISO date
+        weight: v.optional(v.number()), // kg
+        bodyFat: v.optional(v.number()), // percentage
+        chest: v.optional(v.number()), // cm
+        waist: v.optional(v.number()), // cm
+        hips: v.optional(v.number()), // cm
+        arms: v.optional(v.number()), // cm (bicep)
+        thighs: v.optional(v.number()), // cm
+        neck: v.optional(v.number()), // cm
+        notes: v.optional(v.string()),
+    }).index("by_user_date", ["userId", "date"]),
+
     // History for undo functionality
     logHistory: defineTable({
         userId: v.string(),
