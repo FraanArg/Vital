@@ -3,7 +3,7 @@
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { motion } from "framer-motion";
-import { Bot, AlertTriangle, CheckCircle, Info } from "lucide-react";
+import { Bot, AlertTriangle, CheckCircle, Info, Utensils } from "lucide-react";
 
 interface Advice {
     icon: string;
@@ -13,7 +13,11 @@ interface Advice {
 }
 
 export default function AICoach() {
-    const advice = useQuery(api.stats.getAICoachAdvice) as Advice[] | undefined;
+    const generalAdvice = useQuery(api.stats.getAICoachAdvice) as Advice[] | undefined;
+    const nutritionAdvice = useQuery(api.stats.getNutritionSuggestions) as Advice[] | undefined;
+
+    // Merge both advice sources, prioritizing nutrition
+    const advice = [...(nutritionAdvice || []), ...(generalAdvice || [])].slice(0, 4);
 
     if (!advice || advice.length === 0) return null;
 
@@ -58,7 +62,7 @@ export default function AICoach() {
                                     <div className="flex items-center gap-2 mb-1">
                                         <h4 className="font-semibold text-sm">{item.title}</h4>
                                         <PriorityIcon className={`w-3 h-3 ${item.priority === "high" ? "text-red-500" :
-                                                item.priority === "medium" ? "text-yellow-500" : "text-green-500"
+                                            item.priority === "medium" ? "text-yellow-500" : "text-green-500"
                                             }`} />
                                     </div>
                                     <p className="text-xs text-muted-foreground leading-relaxed">

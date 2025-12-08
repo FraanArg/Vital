@@ -30,6 +30,8 @@ const ActivityCalendar = dynamic(() => import("../../components/stats/ActivityCa
 const HealthScore = dynamic(() => import("../../components/stats/HealthScore"), { ssr: false });
 const AICoach = dynamic(() => import("../../components/stats/AICoach"), { ssr: false });
 const Predictions = dynamic(() => import("../../components/stats/Predictions"), { ssr: false });
+const DailyNutrientBalance = dynamic(() => import("../../components/stats/DailyNutrientBalance"), { ssr: false });
+const CorrelationInsights = dynamic(() => import("../../components/stats/CorrelationInsights"), { ssr: false });
 
 export default function StatisticsPage() {
     const [range, setRange] = useState<"week" | "month" | "year">("week");
@@ -184,6 +186,7 @@ export default function StatisticsPage() {
                 <ExerciseBreakdown />
 
                 {/* Nutrition */}
+                <DailyNutrientBalance />
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <NutritionBreakdown />
                     <FoodFrequency />
@@ -198,8 +201,11 @@ export default function StatisticsPage() {
                     <ConsistencyGrid logs={consistencyLogs} />
                 </div>
 
-                {/* AI Insights Section */}
-                <InsightsSection />
+                {/* AI Insights & Correlations */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <CorrelationInsights />
+                    <InsightsSection />
+                </div>
             </div>
         </div>
     );

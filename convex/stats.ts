@@ -784,3 +784,337 @@ export const getPredictions = query({
         };
     },
 });
+
+// ============================================
+// DAILY NUTRIENT BALANCE - Today's food categories
+// ============================================
+
+// Nutrient keywords mapping (inline version for Convex)
+const NUTRIENT_KEYWORDS: Record<string, string[]> = {
+    Protein: ["chicken", "pollo", "beef", "carne", "steak", "bife", "pork", "cerdo", "turkey", "pavo", "fish", "pescado", "salmon", "tuna", "atun", "shrimp", "egg", "huevo", "tofu", "beans", "porotos", "lentils", "lentejas", "protein", "proteina"],
+    Carbs: ["rice", "arroz", "bread", "pan", "pasta", "fideos", "noodles", "oats", "avena", "cereal", "potato", "papa", "corn", "maiz", "toast", "pizza", "burger", "sandwich", "fries", "empanada", "taco", "burrito"],
+    Veggies: ["salad", "ensalada", "broccoli", "spinach", "espinaca", "carrot", "zanahoria", "tomato", "tomate", "cucumber", "pepino", "lettuce", "lechuga", "pepper", "pimiento", "onion", "cebolla", "garlic", "ajo", "mushroom"],
+    Fruits: ["apple", "manzana", "banana", "platano", "orange", "naranja", "strawberry", "fresa", "blueberry", "mango", "grape", "uva", "watermelon", "pineapple", "kiwi", "peach", "durazno", "pear", "pera"],
+    Fats: ["avocado", "palta", "aguacate", "nuts", "nueces", "almonds", "almendras", "peanut", "mani", "butter", "manteca", "cheese", "queso", "olive oil", "aceite"],
+    Sweets: ["chocolate", "ice cream", "helado", "cake", "torta", "cookie", "galleta", "candy", "donut", "pastry", "sugar", "honey", "miel"],
+    Hydration: ["water", "agua", "tea", "té", "coffee", "cafe", "juice", "jugo", "smoothie", "mate"],
+};
+
+function getNutrientCategory(item: string): string {
+    const lowerItem = item.toLowerCase();
+    for (const [category, keywords] of Object.entries(NUTRIENT_KEYWORDS)) {
+        for (const keyword of keywords) {
+            if (lowerItem.includes(keyword)) {
+                return category;
+            }
+        }
+    }
+    return "Other";
+}
+
+export const getDailyNutrientBalance = query({
+    args: { date: v.optional(v.string()) },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) return null;
+
+        const userId = identity.subject;
+        const targetDate = args.date || new Date().toISOString().split('T')[0];
+
+        const logs = await ctx.db
+            .query("logs")
+            .withIndex("by_userId_date", (q) =>
+                q.eq("userId", userId).gte("date", targetDate)
+            )
+            .collect();
+
+        // Filter to just today
+        const todayLogs = logs.filter(l => l.date.startsWith(targetDate));
+
+        const nutrients: Record<string, number> = {
+            Protein: 0, Carbs: 0, Veggies: 0, Fruits: 0, Fats: 0, Sweets: 0, Hydration: 0, Other: 0
+        };
+
+        let totalItems = 0;
+
+        for (const log of todayLogs) {
+            if (log.meal?.items) {
+                for (const item of log.meal.items) {
+                    const category = getNutrientCategory(item);
+                    nutrients[category]++;
+                    totalItems++;
+                }
+            }
+            if (log.water && log.water > 0) {
+                nutrients.Hydration += Math.ceil(log.water / 0.5); // Count each 500ml as 1
+            }
+        }
+
+        // Calculate balance status
+        const getStatus = (count: number, target: number) => {
+            if (count === 0) return "missing";
+            if (count >= target) return "good";
+            return "low";
+        };
+
+        return {
+            nutrients: [
+                { category: "Protein", count: nutrients.Protein, emoji: "🥩", status: getStatus(nutrients.Protein, 2), target: 2 },
+                { category: "Carbs", count: nutrients.Carbs, emoji: "🍞", status: getStatus(nutrients.Carbs, 2), target: 2 },
+                { category: "Veggies", count: nutrients.Veggies, emoji: "🥬", status: getStatus(nutrients.Veggies, 3), target: 3 },
+                { category: "Fruits", count: nutrients.Fruits, emoji: "🍎", status: getStatus(nutrients.Fruits, 2), target: 2 },
+                { category: "Fats", count: nutrients.Fats, emoji: "🥑", status: getStatus(nutrients.Fats, 1), target: 1 },
+                { category: "Sweets", count: nutrients.Sweets, emoji: "🍫", status: nutrients.Sweets > 2 ? "high" : "good", target: 2 },
+                { category: "Hydration", count: nutrients.Hydration, emoji: "💧", status: getStatus(nutrients.Hydration, 4), target: 4 },
+            ],
+            totalItems,
+            mealsLogged: todayLogs.filter(l => l.meal).length,
+        };
+    },
+});
+
+// ============================================
+// CORRELATIONS - Pattern discovery
+// ============================================
+export const getCorrelations = query({
+    handler: async (ctx) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) return [];
+
+        const userId = identity.subject;
+        const startDate = subDays(new Date(), 30).toISOString();
+
+        const logs = await ctx.db
+            .query("logs")
+            .withIndex("by_userId_date", (q) => q.eq("userId", userId).gte("date", startDate))
+            .collect();
+
+        if (logs.length < 7) return []; // Need at least a week of data
+
+        const correlations: { icon: string; title: string; insight: string; confidence: number }[] = [];
+
+        // Group logs by date
+        const byDate: Record<string, typeof logs> = {};
+        for (const log of logs) {
+            const date = log.date.split('T')[0];
+            if (!byDate[date]) byDate[date] = [];
+            byDate[date].push(log);
+        }
+
+        const dates = Object.keys(byDate).sort();
+
+        // Analysis 1: Sleep → Next day exercise correlation
+        let goodSleepWorkoutDays = 0;
+        let badSleepWorkoutDays = 0;
+        let goodSleepDays = 0;
+        let badSleepDays = 0;
+
+        for (let i = 0; i < dates.length - 1; i++) {
+            const todayLogs = byDate[dates[i]];
+            const tomorrowLogs = byDate[dates[i + 1]];
+            const sleep = todayLogs.find(l => l.sleep)?.sleep || 0;
+            const hasWorkoutTomorrow = tomorrowLogs?.some(l => l.exercise);
+
+            if (sleep >= 7) {
+                goodSleepDays++;
+                if (hasWorkoutTomorrow) goodSleepWorkoutDays++;
+            } else if (sleep > 0) {
+                badSleepDays++;
+                if (hasWorkoutTomorrow) badSleepWorkoutDays++;
+            }
+        }
+
+        if (goodSleepDays >= 3 && badSleepDays >= 3) {
+            const goodSleepWorkoutRate = goodSleepWorkoutDays / goodSleepDays;
+            const badSleepWorkoutRate = badSleepWorkoutDays / badSleepDays;
+
+            if (goodSleepWorkoutRate > badSleepWorkoutRate * 1.3) {
+                correlations.push({
+                    icon: "😴",
+                    title: "Sleep & Exercise Link",
+                    insight: `When you sleep 7+ hours, you exercise ${Math.round((goodSleepWorkoutRate - badSleepWorkoutRate) * 100)}% more the next day`,
+                    confidence: Math.min(0.9, 0.5 + (goodSleepDays + badSleepDays) / 30),
+                });
+            }
+        }
+
+        // Analysis 2: Best workout days
+        const dayOfWeekCounts: Record<number, { workouts: number; total: number }> = {};
+        for (const date of dates) {
+            const dayOfWeek = new Date(date).getDay();
+            if (!dayOfWeekCounts[dayOfWeek]) dayOfWeekCounts[dayOfWeek] = { workouts: 0, total: 0 };
+            dayOfWeekCounts[dayOfWeek].total++;
+            if (byDate[date].some(l => l.exercise)) {
+                dayOfWeekCounts[dayOfWeek].workouts++;
+            }
+        }
+
+        const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        let bestDay = -1;
+        let bestRate = 0;
+
+        for (const [day, counts] of Object.entries(dayOfWeekCounts)) {
+            if (counts.total >= 2) {
+                const rate = counts.workouts / counts.total;
+                if (rate > bestRate) {
+                    bestRate = rate;
+                    bestDay = parseInt(day);
+                }
+            }
+        }
+
+        if (bestDay >= 0 && bestRate > 0.5) {
+            correlations.push({
+                icon: "📅",
+                title: "Best Workout Day",
+                insight: `You exercise most often on ${dayNames[bestDay]}s (${Math.round(bestRate * 100)}% of the time)`,
+                confidence: 0.7,
+            });
+        }
+
+        // Analysis 3: Meal logging consistency
+        const daysWithMeals = dates.filter(d => byDate[d].some(l => l.meal)).length;
+        const mealConsistency = daysWithMeals / dates.length;
+
+        if (mealConsistency >= 0.7) {
+            correlations.push({
+                icon: "🍽️",
+                title: "Great Meal Tracking",
+                insight: `You log meals ${Math.round(mealConsistency * 100)}% of days. Keep it up!`,
+                confidence: 0.8,
+            });
+        } else if (mealConsistency < 0.3) {
+            correlations.push({
+                icon: "📝",
+                title: "Improve Meal Tracking",
+                insight: "Log meals more consistently to get better nutrition insights",
+                confidence: 0.6,
+            });
+        }
+
+        return correlations.slice(0, 3); // Return top 3
+    },
+});
+
+// ============================================
+// NUTRITION SUGGESTIONS - Context-aware advice
+// ============================================
+export const getNutritionSuggestions = query({
+    handler: async (ctx) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) return [];
+
+        const userId = identity.subject;
+        const today = new Date().toISOString().split('T')[0];
+
+        // Get today's logs and user profile
+        const [todayLogs, profile] = await Promise.all([
+            ctx.db.query("logs").withIndex("by_userId_date", (q) =>
+                q.eq("userId", userId).gte("date", today)
+            ).collect(),
+            ctx.db.query("userProfile").withIndex("by_user", (q) =>
+                q.eq("userId", userId)
+            ).first(),
+        ]);
+
+        const suggestions: { icon: string; title: string; message: string; priority: "high" | "medium" | "low" }[] = [];
+
+        // Analyze today's nutrients
+        const nutrients: Record<string, number> = {
+            Protein: 0, Carbs: 0, Veggies: 0, Fruits: 0, Fats: 0, Sweets: 0, Hydration: 0
+        };
+
+        let hasExerciseToday = false;
+
+        for (const log of todayLogs.filter(l => l.date.startsWith(today))) {
+            if (log.meal?.items) {
+                for (const item of log.meal.items) {
+                    const category = getNutrientCategory(item);
+                    nutrients[category]++;
+                }
+            }
+            if (log.water) nutrients.Hydration += Math.ceil(log.water / 0.5);
+            if (log.exercise) hasExerciseToday = true;
+        }
+
+        const totalFood = nutrients.Protein + nutrients.Carbs + nutrients.Veggies + nutrients.Fruits + nutrients.Fats + nutrients.Sweets;
+
+        // Suggestion 1: Low protein
+        if (totalFood >= 2 && nutrients.Protein === 0) {
+            suggestions.push({
+                icon: "🥩",
+                title: "Add Some Protein",
+                message: "You haven't had protein today. Try eggs, chicken, fish, or beans.",
+                priority: "high",
+            });
+        }
+
+        // Suggestion 2: Low veggies
+        if (totalFood >= 3 && nutrients.Veggies === 0) {
+            suggestions.push({
+                icon: "🥬",
+                title: "Add Vegetables",
+                message: "Include some veggies for fiber and vitamins. A salad or steamed broccoli works great.",
+                priority: "medium",
+            });
+        }
+
+        // Suggestion 3: Post-workout protein
+        if (hasExerciseToday && nutrients.Protein < 2) {
+            suggestions.push({
+                icon: "💪",
+                title: "Post-Workout Protein",
+                message: "After exercising, protein helps with recovery. Consider a protein-rich snack.",
+                priority: "high",
+            });
+        }
+
+        // Suggestion 4: Too many sweets
+        if (nutrients.Sweets >= 3) {
+            suggestions.push({
+                icon: "🍫",
+                title: "Watch the Sweets",
+                message: "You've had quite a bit of sugar today. Try fruit for your next sweet craving.",
+                priority: "medium",
+            });
+        }
+
+        // Suggestion 5: Hydration reminder
+        const hour = new Date().getHours();
+        if (hour >= 12 && nutrients.Hydration < 3) {
+            suggestions.push({
+                icon: "💧",
+                title: "Stay Hydrated",
+                message: "Make sure to drink enough water throughout the day.",
+                priority: "low",
+            });
+        }
+
+        // Suggestion 6: Great balance
+        if (nutrients.Protein >= 2 && nutrients.Veggies >= 2 && nutrients.Carbs >= 1 && nutrients.Fruits >= 1) {
+            suggestions.push({
+                icon: "✨",
+                title: "Great Balance!",
+                message: "You've hit multiple nutrient categories today. Keep it up!",
+                priority: "low",
+            });
+        }
+
+        // Profile-aware suggestions
+        if (profile?.weight && profile.weight > 80 && hasExerciseToday) {
+            // Higher protein recommendation for heavier active users
+            suggestions.push({
+                icon: "🏋️",
+                title: "Protein for Recovery",
+                message: "At your activity level, aim for protein with each meal for optimal recovery.",
+                priority: "medium",
+            });
+        }
+
+        // Sort by priority
+        const priorityOrder = { high: 0, medium: 1, low: 2 };
+        suggestions.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+
+        return suggestions.slice(0, 3);
+    },
+});
