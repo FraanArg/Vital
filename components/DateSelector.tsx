@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useEffect } from "react";
-import { format, addDays, subDays, addWeeks, subWeeks, isSameDay, startOfDay, endOfDay } from "date-fns";
+import { useRef } from "react";
+import { format, addDays, subDays, addWeeks, subWeeks, isSameDay, startOfDay, endOfDay, startOfWeek } from "date-fns";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { useQuery } from "convex/react";
@@ -14,12 +14,12 @@ interface DateSelectorProps {
 
 export default function DateSelector({ selectedDate, onDateChange }: DateSelectorProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
-    const selectedRef = useRef<HTMLButtonElement>(null);
 
-    // Generate a larger window of dates for scrolling (14 days: -7 to +6)
+    // Generate the current week (Monday to Sunday) based on selected date
+    const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 }); // Monday
     const dates = [];
-    for (let i = -7; i <= 6; i++) {
-        dates.push(addDays(selectedDate, i));
+    for (let i = 0; i < 7; i++) {
+        dates.push(addDays(weekStart, i));
     }
 
     // Fetch stats for the visible range
@@ -27,23 +27,6 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
     const end = endOfDay(dates[dates.length - 1]).toISOString();
 
     const logs = useQuery(api.logs.getStats, { from: start, to: end });
-
-    // Auto-scroll to center on mount and when date changes
-    useEffect(() => {
-        if (selectedRef.current && scrollRef.current) {
-            const container = scrollRef.current;
-            const selected = selectedRef.current;
-            const containerWidth = container.offsetWidth;
-            const selectedOffset = selected.offsetLeft;
-            const selectedWidth = selected.offsetWidth;
-
-            // Center the selected date
-            container.scrollTo({
-                left: selectedOffset - containerWidth / 2 + selectedWidth / 2,
-                behavior: "smooth"
-            });
-        }
-    }, [selectedDate]);
 
     // Helper to get completion status for a day
     const getDayStatus = (date: Date) => {
@@ -191,14 +174,13 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
                         return (
                             <motion.button
                                 key={date.toISOString()}
-                                ref={isSelected ? selectedRef : undefined}
                                 onClick={() => handleDateClick(date)}
                                 aria-label={`Select ${format(date, "MMMM do, yyyy")}`}
                                 aria-current={isSelected ? "date" : undefined}
                                 layout
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                className={`flex flex-col justify-center px-4 min-w-[90px] shrink-0 h-24 rounded-[32px] transition-all relative border ${isSelected
+                                className={`flex flex-col justify-center px-4 min-w-[100px] flex-1 h-24 rounded-[32px] transition-all relative border ${isSelected
                                     ? "bg-primary text-primary-foreground border-primary shadow-md"
                                     : "bg-card text-card-foreground hover:bg-secondary border-border/50"
                                     }`}
