@@ -80,7 +80,8 @@ body {
   overflow-x: hidden;
   height: 100%;
   overscroll-behavior-y: none;
-  /* Prevent rubber-banding */
+  overscroll-behavior-x: none;
+  /* Prevent rubber-banding and Safari back/forward gestures */
 }
 
 body {

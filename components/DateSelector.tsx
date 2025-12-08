@@ -145,6 +145,7 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
     return (
         <div
             className="w-full mb-8 touch-pan-y"
+            style={{ overscrollBehaviorX: "contain" }}
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
@@ -199,7 +200,7 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
                 <div
                     ref={scrollRef}
                     className={`flex gap-3 py-2 px-1 transition-transform duration-300 ${slideDirection === "left" ? "animate-slide-left" :
-                            slideDirection === "right" ? "animate-slide-right" : ""
+                        slideDirection === "right" ? "animate-slide-right" : ""
                         }`}
                 >
                     {dates.map((date) => {
