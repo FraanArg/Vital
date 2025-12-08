@@ -2,37 +2,89 @@ import { query } from "./_generated/server";
 import { v } from "convex/values";
 import { subDays, startOfMonth, endOfMonth, startOfWeek, endOfWeek, format, parseISO } from "date-fns";
 
-// Food category mapping
-const FOOD_CATEGORIES: Record<string, string> = {
-    // Proteins
-    "Chicken": "Protein", "Beef": "Protein", "Fish": "Protein", "Eggs": "Protein",
-    "Salmon": "Protein", "Tuna": "Protein", "Turkey": "Protein", "Pork": "Protein",
-    "Shrimp": "Protein", "Tofu": "Protein", "Yogurt": "Protein", "Cheese": "Protein",
-    // Carbs
-    "Rice": "Carbs", "Pasta": "Carbs", "Bread": "Carbs", "Oats": "Carbs",
-    "Potato": "Carbs", "Quinoa": "Carbs", "Cereal": "Carbs", "Tortilla": "Carbs",
-    // Vegetables
-    "Broccoli": "Veggies", "Spinach": "Veggies", "Salad": "Veggies", "Tomato": "Veggies",
-    "Carrot": "Veggies", "Cucumber": "Veggies", "Pepper": "Veggies", "Onion": "Veggies",
-    // Fruits
-    "Apple": "Fruits", "Banana": "Fruits", "Orange": "Fruits", "Berries": "Fruits",
-    "Mango": "Fruits", "Grapes": "Fruits", "Strawberry": "Fruits", "Avocado": "Fruits",
-    // Fats
-    "Nuts": "Fats", "Olive Oil": "Fats", "Butter": "Fats", "Almonds": "Fats",
-    // Drinks
-    "Coffee": "Drinks", "Tea": "Drinks", "Juice": "Drinks", "Milk": "Drinks", "Smoothie": "Drinks",
-    // Sweets
-    "Chocolate": "Sweets", "Ice Cream": "Sweets", "Cake": "Sweets", "Cookie": "Sweets",
+// Comprehensive food categorization keywords (English + Spanish)
+const FOOD_KEYWORDS: Record<string, string[]> = {
+    Protein: [
+        // Meats
+        "chicken", "pollo", "beef", "carne", "steak", "bife", "pork", "cerdo", "turkey", "pavo",
+        "lamb", "cordero", "bacon", "panceta", "ham", "jamon", "jamón", "sausage", "salchicha",
+        "milanesa", "asado", "chorizo", "bondiola", "lomo",
+        // Fish & Seafood
+        "fish", "pescado", "salmon", "salmón", "tuna", "atun", "atún", "shrimp", "camarón", "camaron",
+        "merluza", "tilapia", "surimi",
+        // Eggs & Dairy proteins
+        "egg", "huevo", "eggs", "huevos", "omelette", "omelet", "revuelto",
+        "yogurt", "yogur", "proteico", "proteina", "proteína", "protein",
+        // Plant proteins
+        "tofu", "tempeh", "seitan", "beans", "porotos", "frijoles", "lentils", "lentejas",
+        "chickpeas", "garbanzos", "edamame",
+    ],
+    Carbs: [
+        // Grains
+        "rice", "arroz", "bread", "pan", "pasta", "fideos", "noodles", "spaghetti",
+        "oats", "avena", "cereal", "quinoa", "couscous", "granola", "muesli",
+        // Starchy
+        "potato", "papa", "patata", "sweet potato", "batata", "corn", "maiz", "maíz", "choclo",
+        // Baked goods
+        "toast", "tostada", "tostado", "bagel", "croissant", "medialuna", "tortilla", "arepa",
+        "pancake", "panqueque", "hotcake", "waffle", "crepe", "crepes",
+        "pizza", "burger", "hamburguesa", "sandwich", "sanguche", "sándwich",
+        "fries", "papas fritas", "empanada", "taco", "burrito", "wrap",
+        "galleta", "galletitas", "crackers", "biscuit",
+    ],
+    Veggies: [
+        "salad", "ensalada", "broccoli", "brocoli", "brócoli", "spinach", "espinaca",
+        "carrot", "zanahoria", "tomato", "tomate", "cucumber", "pepino", "lettuce", "lechuga",
+        "pepper", "pimiento", "morron", "morrón", "onion", "cebolla", "garlic", "ajo",
+        "mushroom", "hongo", "champiñon", "champiñón", "zucchini", "calabacin", "calabacín",
+        "eggplant", "berenjena", "celery", "apio", "asparagus", "espárrago",
+        "cauliflower", "coliflor", "kale", "acelga", "cabbage", "repollo",
+        "green beans", "judias", "chaucha", "peas", "arvejas", "guisantes",
+        "radish", "rabano", "rábano", "verdura", "verduras", "vegetales",
+    ],
+    Fruits: [
+        "apple", "manzana", "banana", "plátano", "platano", "orange", "naranja",
+        "strawberry", "fresa", "frutilla", "frutillas", "blueberry", "arandano", "arándano",
+        "mango", "grape", "uva", "uvas", "watermelon", "sandia", "sandía", "melon", "melón",
+        "pineapple", "piña", "anana", "ananá", "kiwi", "peach", "durazno", "pear", "pera",
+        "cherry", "cereza", "raspberry", "frambuesa", "blackberry", "mora",
+        "papaya", "coconut", "coco", "lemon", "limon", "limón", "lime", "lima",
+        "mandarin", "mandarina", "pomelo", "grapefruit", "fruta", "frutas",
+        "exprimido", "exprimida", // for juices like "naranja exprimida"
+    ],
+    Fats: [
+        "avocado", "palta", "aguacate", "nuts", "nueces", "almonds", "almendras",
+        "peanut", "mani", "maní", "cacahuate", "walnut", "olive oil", "aceite",
+        "butter", "manteca", "mantequilla", "coconut oil", "cream", "crema",
+        "cheese", "queso", "chia", "flaxseed", "linaza", "seeds", "semillas",
+    ],
+    Sweets: [
+        "chocolate", "ice cream", "helado", "cake", "torta", "pastel", "cookie", "galleta dulce",
+        "candy", "caramelo", "donut", "dona", "pastry", "factura", "pie", "tarta",
+        "brownie", "cupcake", "muffin", "cheesecake", "flan", "pudding", "dulce",
+        "sugar", "azucar", "azúcar", "honey", "miel", "jam", "mermelada",
+        "alfajor", "postre", "dessert",
+    ],
+    Drinks: [
+        "water", "agua", "tea", "té", "coffee", "cafe", "café", "juice", "jugo",
+        "smoothie", "licuado", "batido", "mate", "terere", "tereré",
+        "soda", "gaseosa", "lemonade", "limonada", "milk", "leche",
+        "cerveza", "beer", "wine", "vino", "cocktail",
+    ],
 };
 
 function categorizeFood(foodName: string): string {
-    for (const [key, category] of Object.entries(FOOD_CATEGORIES)) {
-        if (foodName.toLowerCase().includes(key.toLowerCase())) {
-            return category;
+    const lowerFood = foodName.toLowerCase();
+    for (const [category, keywords] of Object.entries(FOOD_KEYWORDS)) {
+        for (const keyword of keywords) {
+            if (lowerFood.includes(keyword)) {
+                return category;
+            }
         }
     }
     return "Other";
 }
+
 
 // Nutrition Breakdown - food category distribution
 export const getNutritionBreakdown = query({
@@ -789,20 +841,22 @@ export const getPredictions = query({
 // DAILY NUTRIENT BALANCE - Today's food categories
 // ============================================
 
-// Nutrient keywords mapping (inline version for Convex)
-const NUTRIENT_KEYWORDS: Record<string, string[]> = {
-    Protein: ["chicken", "pollo", "beef", "carne", "steak", "bife", "pork", "cerdo", "turkey", "pavo", "fish", "pescado", "salmon", "tuna", "atun", "shrimp", "egg", "huevo", "tofu", "beans", "porotos", "lentils", "lentejas", "protein", "proteina"],
-    Carbs: ["rice", "arroz", "bread", "pan", "pasta", "fideos", "noodles", "oats", "avena", "cereal", "potato", "papa", "corn", "maiz", "toast", "pizza", "burger", "sandwich", "fries", "empanada", "taco", "burrito"],
-    Veggies: ["salad", "ensalada", "broccoli", "spinach", "espinaca", "carrot", "zanahoria", "tomato", "tomate", "cucumber", "pepino", "lettuce", "lechuga", "pepper", "pimiento", "onion", "cebolla", "garlic", "ajo", "mushroom"],
-    Fruits: ["apple", "manzana", "banana", "platano", "orange", "naranja", "strawberry", "fresa", "blueberry", "mango", "grape", "uva", "watermelon", "pineapple", "kiwi", "peach", "durazno", "pear", "pera"],
-    Fats: ["avocado", "palta", "aguacate", "nuts", "nueces", "almonds", "almendras", "peanut", "mani", "butter", "manteca", "cheese", "queso", "olive oil", "aceite"],
-    Sweets: ["chocolate", "ice cream", "helado", "cake", "torta", "cookie", "galleta", "candy", "donut", "pastry", "sugar", "honey", "miel"],
-    Hydration: ["water", "agua", "tea", "té", "coffee", "cafe", "juice", "jugo", "smoothie", "mate"],
-};
-
+// Use the same comprehensive keywords as FOOD_KEYWORDS for consistency
 function getNutrientCategory(item: string): string {
     const lowerItem = item.toLowerCase();
-    for (const [category, keywords] of Object.entries(NUTRIENT_KEYWORDS)) {
+
+    // Check each category with comprehensive keywords
+    const nutrientMap: Record<string, string[]> = {
+        Protein: ["chicken", "pollo", "beef", "carne", "steak", "bife", "pork", "cerdo", "turkey", "pavo", "lamb", "cordero", "bacon", "panceta", "ham", "jamon", "jamón", "sausage", "salchicha", "milanesa", "asado", "chorizo", "bondiola", "lomo", "fish", "pescado", "salmon", "salmón", "tuna", "atun", "atún", "shrimp", "camarón", "camaron", "merluza", "tilapia", "surimi", "egg", "huevo", "eggs", "huevos", "omelette", "omelet", "revuelto", "yogurt", "yogur", "proteico", "proteina", "proteína", "protein", "tofu", "tempeh", "seitan", "beans", "porotos", "frijoles", "lentils", "lentejas", "chickpeas", "garbanzos", "edamame"],
+        Carbs: ["rice", "arroz", "bread", "pan", "pasta", "fideos", "noodles", "spaghetti", "oats", "avena", "cereal", "quinoa", "couscous", "granola", "muesli", "potato", "papa", "patata", "sweet potato", "batata", "corn", "maiz", "maíz", "choclo", "toast", "tostada", "tostado", "bagel", "croissant", "medialuna", "tortilla", "arepa", "pancake", "panqueque", "hotcake", "waffle", "crepe", "crepes", "pizza", "burger", "hamburguesa", "sandwich", "sanguche", "sándwich", "fries", "papas fritas", "empanada", "taco", "burrito", "wrap", "galleta", "galletitas", "crackers", "biscuit"],
+        Veggies: ["salad", "ensalada", "broccoli", "brocoli", "brócoli", "spinach", "espinaca", "carrot", "zanahoria", "tomato", "tomate", "cucumber", "pepino", "lettuce", "lechuga", "pepper", "pimiento", "morron", "morrón", "onion", "cebolla", "garlic", "ajo", "mushroom", "hongo", "champiñon", "champiñón", "zucchini", "calabacin", "calabacín", "eggplant", "berenjena", "celery", "apio", "asparagus", "espárrago", "cauliflower", "coliflor", "kale", "acelga", "cabbage", "repollo", "green beans", "judias", "chaucha", "peas", "arvejas", "guisantes", "radish", "rabano", "rábano", "verdura", "verduras", "vegetales"],
+        Fruits: ["apple", "manzana", "banana", "plátano", "platano", "orange", "naranja", "strawberry", "fresa", "frutilla", "frutillas", "blueberry", "arandano", "arándano", "mango", "grape", "uva", "uvas", "watermelon", "sandia", "sandía", "melon", "melón", "pineapple", "piña", "anana", "ananá", "kiwi", "peach", "durazno", "pear", "pera", "cherry", "cereza", "raspberry", "frambuesa", "blackberry", "mora", "papaya", "coconut", "coco", "lemon", "limon", "limón", "lime", "lima", "mandarin", "mandarina", "pomelo", "grapefruit", "fruta", "frutas", "exprimido", "exprimida"],
+        Fats: ["avocado", "palta", "aguacate", "nuts", "nueces", "almonds", "almendras", "peanut", "mani", "maní", "cacahuate", "walnut", "olive oil", "aceite", "butter", "manteca", "mantequilla", "coconut oil", "cream", "crema", "cheese", "queso", "chia", "flaxseed", "linaza", "seeds", "semillas"],
+        Sweets: ["chocolate", "ice cream", "helado", "cake", "torta", "pastel", "cookie", "galleta dulce", "candy", "caramelo", "donut", "dona", "pastry", "factura", "pie", "tarta", "brownie", "cupcake", "muffin", "cheesecake", "flan", "pudding", "dulce", "sugar", "azucar", "azúcar", "honey", "miel", "jam", "mermelada", "alfajor", "postre", "dessert"],
+        Hydration: ["water", "agua", "tea", "té", "coffee", "cafe", "café", "juice", "jugo", "smoothie", "licuado", "batido", "mate", "terere", "tereré", "soda", "gaseosa", "lemonade", "limonada", "milk", "leche"],
+    };
+
+    for (const [category, keywords] of Object.entries(nutrientMap)) {
         for (const keyword of keywords) {
             if (lowerItem.includes(keyword)) {
                 return category;
@@ -811,6 +865,7 @@ function getNutrientCategory(item: string): string {
     }
     return "Other";
 }
+
 
 export const getDailyNutrientBalance = query({
     args: { date: v.optional(v.string()) },
