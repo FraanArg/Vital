@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { format, addDays, addWeeks, subWeeks, isSameDay, startOfDay, endOfDay, startOfWeek } from "date-fns";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 
@@ -197,73 +197,78 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
                     <ChevronLeft className="w-5 h-5" />
                 </button>
 
-                <div
-                    ref={scrollRef}
-                    className={`flex gap-3 py-2 px-1 transition-transform duration-300 ${slideDirection === "left" ? "animate-slide-left" :
-                        slideDirection === "right" ? "animate-slide-right" : ""
-                        }`}
-                >
-                    {dates.map((date) => {
-                        const isSelected = isSameDay(date, selectedDate);
-                        const status = getDayStatus(date);
+                <AnimatePresence mode="wait" initial={false}>
+                    <motion.div
+                        key={weekStart.toISOString()}
+                        ref={scrollRef}
+                        initial={{ x: slideDirection === "left" ? 100 : slideDirection === "right" ? -100 : 0, opacity: 0.5 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        exit={{ x: slideDirection === "left" ? -100 : 100, opacity: 0.5 }}
+                        transition={{ duration: 0.25, ease: "easeOut" }}
+                        className="flex gap-3 py-2 px-1"
+                    >
+                        {dates.map((date) => {
+                            const isSelected = isSameDay(date, selectedDate);
+                            const status = getDayStatus(date);
 
-                        return (
-                            <motion.button
-                                key={date.toISOString()}
-                                onClick={() => handleDateClick(date)}
-                                aria-label={`Select ${format(date, "MMMM do, yyyy")}`}
-                                aria-current={isSelected ? "date" : undefined}
-                                layout
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className={`flex flex-col justify-center px-4 min-w-[100px] flex-1 h-24 rounded-[32px] transition-all relative border ${isSelected
-                                    ? "bg-primary text-primary-foreground border-primary shadow-md"
-                                    : "bg-card text-card-foreground hover:bg-secondary border-border/50"
-                                    }`}
-                            >
-                                <div className="w-full flex items-center justify-between mb-1">
-                                    <span className={`text-xs font-black uppercase tracking-widest ${isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
-                                        {format(date, "EEE")}
-                                    </span>
-                                    <div className="flex items-center gap-1">
-                                        {/* Streak fire for complete days */}
-                                        {status.isComplete && (
-                                            <span className="text-sm">🔥</span>
-                                        )}
-                                        <span className={`text-2xl md:text-4xl font-thin ${isSelected ? "text-primary-foreground" : ""}`}>
-                                            {format(date, "d")}
+                            return (
+                                <motion.button
+                                    key={date.toISOString()}
+                                    onClick={() => handleDateClick(date)}
+                                    aria-label={`Select ${format(date, "MMMM do, yyyy")}`}
+                                    aria-current={isSelected ? "date" : undefined}
+                                    layout
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className={`flex flex-col justify-center px-4 min-w-[100px] flex-1 h-24 rounded-[32px] transition-all relative border ${isSelected
+                                        ? "bg-primary text-primary-foreground border-primary shadow-md"
+                                        : "bg-card text-card-foreground hover:bg-secondary border-border/50"
+                                        }`}
+                                >
+                                    <div className="w-full flex items-center justify-between mb-1">
+                                        <span className={`text-xs font-black uppercase tracking-widest ${isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+                                            {format(date, "EEE")}
                                         </span>
+                                        <div className="flex items-center gap-1">
+                                            {/* Streak fire for complete days */}
+                                            {status.isComplete && (
+                                                <span className="text-sm">🔥</span>
+                                            )}
+                                            <span className={`text-2xl md:text-4xl font-thin ${isSelected ? "text-primary-foreground" : ""}`}>
+                                                {format(date, "d")}
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
 
-                                {/* Activity Dots */}
-                                <div className="flex items-center gap-1 mb-1">
-                                    {status.activities.includes("sleep") && (
-                                        <div className="w-1.5 h-1.5 rounded-full bg-purple-500" title="Sleep" />
-                                    )}
-                                    {status.activities.includes("food") && (
-                                        <div className="w-1.5 h-1.5 rounded-full bg-orange-500" title="Food" />
-                                    )}
-                                    {status.activities.includes("exercise") && (
-                                        <div className="w-1.5 h-1.5 rounded-full bg-red-500" title="Exercise" />
-                                    )}
-                                    {status.activities.includes("water") && (
-                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500" title="Water" />
-                                    )}
-                                </div>
+                                    {/* Activity Dots */}
+                                    <div className="flex items-center gap-1 mb-1">
+                                        {status.activities.includes("sleep") && (
+                                            <div className="w-1.5 h-1.5 rounded-full bg-purple-500" title="Sleep" />
+                                        )}
+                                        {status.activities.includes("food") && (
+                                            <div className="w-1.5 h-1.5 rounded-full bg-orange-500" title="Food" />
+                                        )}
+                                        {status.activities.includes("exercise") && (
+                                            <div className="w-1.5 h-1.5 rounded-full bg-red-500" title="Exercise" />
+                                        )}
+                                        {status.activities.includes("water") && (
+                                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500" title="Water" />
+                                        )}
+                                    </div>
 
-                                {/* Progress Bar */}
-                                <div className="w-full h-1.5 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
-                                    <motion.div
-                                        className={`h-full ${status.score > 0 ? status.color : 'bg-transparent'}`}
-                                        initial={{ width: 0 }}
-                                        animate={{ width: `${status.score * 100}%` }}
-                                    />
-                                </div>
-                            </motion.button>
-                        );
-                    })}
-                </div>
+                                    {/* Progress Bar */}
+                                    <div className="w-full h-1.5 bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
+                                        <motion.div
+                                            className={`h-full ${status.score > 0 ? status.color : 'bg-transparent'}`}
+                                            initial={{ width: 0 }}
+                                            animate={{ width: `${status.score * 100}%` }}
+                                        />
+                                    </div>
+                                </motion.button>
+                            );
+                        })}
+                    </motion.div>
+                </AnimatePresence>
 
                 <button
                     onClick={handleNextWeek}
