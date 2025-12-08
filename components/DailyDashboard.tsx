@@ -9,6 +9,7 @@ import { Doc } from "../convex/_generated/dataModel";
 
 const WeeklyDigest = dynamic(() => import("./insights/WeeklyDigest"), { ssr: false });
 const SmartReminders = dynamic(() => import("./SmartReminders"), { ssr: false });
+const SleepDebt = dynamic(() => import("./SleepDebt"), { ssr: false });
 
 interface DailyDashboardProps {
     selectedDate: Date;
@@ -27,10 +28,11 @@ export default function DailyDashboard({
 }: DailyDashboardProps) {
     return (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 lg:h-[calc(100vh-240px)] lg:min-h-[480px]">
-            {/* Left Column: Rings + Smart Reminders + Weekly Insights (3 cols) */}
+            {/* Left Column: Rings + Smart Reminders + Sleep Debt + Weekly Insights (3 cols) */}
             <div className="lg:col-span-3 flex flex-col gap-3">
                 <DailySummary selectedDate={selectedDate} compact />
                 <SmartReminders />
+                <SleepDebt />
                 <div className="hidden lg:block">
                     <WeeklyDigest />
                 </div>

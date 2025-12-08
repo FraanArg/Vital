@@ -1670,3 +1670,147 @@ export const getSmartReminders = query({
         return reminders.slice(0, 3);
     },
 });
+
+// ============================================
+// SLEEP DEBT CALCULATOR
+// ============================================
+export const getSleepDebt = query({
+    handler: async (ctx) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) return null;
+
+        const userId = identity.subject;
+        const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 }).toISOString();
+
+        const logs = await ctx.db
+            .query("logs")
+            .withIndex("by_userId_date", (q) => q.eq("userId", userId).gte("date", weekStart))
+            .collect();
+
+        const TARGET_HOURS = 8; // Could be from user profile later
+        const daysInWeek = Math.min(7, Math.floor((Date.now() - new Date(weekStart).getTime()) / (1000 * 60 * 60 * 24)) + 1);
+
+        const targetTotal = TARGET_HOURS * daysInWeek;
+        const actualTotal = logs.reduce((sum, log) => sum + (log.sleep || 0), 0);
+        const debt = targetTotal - actualTotal;
+
+        let status: "on_track" | "slight_debt" | "significant_debt" | "surplus";
+        if (debt <= 0) status = "surplus";
+        else if (debt <= 2) status = "on_track";
+        else if (debt <= 5) status = "slight_debt";
+        else status = "significant_debt";
+
+        return {
+            targetPerNight: TARGET_HOURS,
+            targetTotal,
+            actualTotal: Math.round(actualTotal * 10) / 10,
+            debt: Math.round(debt * 10) / 10,
+            daysTracked: daysInWeek,
+            status,
+        };
+    },
+});
+
+// ============================================
+// EXERCISE PERSONAL RECORDS
+// ============================================
+export const getExercisePRs = query({
+    handler: async (ctx) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) return {};
+
+        const userId = identity.subject;
+
+        // Get all exercise logs
+        const logs = await ctx.db
+            .query("logs")
+            .withIndex("by_userId_date", (q) => q.eq("userId", userId))
+            .collect();
+
+        // Build PR map: { exerciseName: { maxWeight, maxReps, date } }
+        const prs: Record<string, { maxWeight: number; maxReps: number; date: string }> = {};
+
+        for (const log of logs) {
+            if (log.exercise?.workout) {
+                for (const exercise of log.exercise.workout) {
+                    for (const set of exercise.sets) {
+                        const name = exercise.name.toLowerCase();
+                        if (!prs[name]) {
+                            prs[name] = { maxWeight: 0, maxReps: 0, date: "" };
+                        }
+                        if (set.weight > prs[name].maxWeight) {
+                            prs[name].maxWeight = set.weight;
+                            prs[name].date = log.date;
+                        }
+                        if (set.reps > prs[name].maxReps) {
+                            prs[name].maxReps = set.reps;
+                        }
+                    }
+                }
+            }
+        }
+
+        return prs;
+    },
+});
+
+// ============================================
+// PROGRESSIVE OVERLOAD SUGGESTIONS
+// ============================================
+export const getProgressiveSuggestions = query({
+    args: { exerciseNames: v.optional(v.array(v.string())) },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) return {};
+
+        const userId = identity.subject;
+        const thirtyDaysAgo = subDays(new Date(), 30).toISOString();
+
+        const logs = await ctx.db
+            .query("logs")
+            .withIndex("by_userId_date", (q) => q.eq("userId", userId).gte("date", thirtyDaysAgo))
+            .collect();
+
+        // Find last workout for each exercise
+        const lastWorkout: Record<string, { weight: number; reps: number; date: string }> = {};
+
+        // Sort by date descending to get most recent first
+        const sortedLogs = logs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+        for (const log of sortedLogs) {
+            if (log.exercise?.workout) {
+                for (const exercise of log.exercise.workout) {
+                    const name = exercise.name.toLowerCase();
+                    if (!lastWorkout[name] && exercise.sets.length > 0) {
+                        // Get the heaviest set from the last workout
+                        const heaviestSet = exercise.sets.reduce((max, set) =>
+                            set.weight > max.weight ? set : max, exercise.sets[0]);
+                        lastWorkout[name] = {
+                            weight: heaviestSet.weight,
+                            reps: heaviestSet.reps,
+                            date: log.date,
+                        };
+                    }
+                }
+            }
+        }
+
+        // Generate suggestions
+        const suggestions: Record<string, { lastWeight: number; lastReps: number; suggestedWeight: number; suggestedReps: number; lastDate: string }> = {};
+
+        for (const [name, last] of Object.entries(lastWorkout)) {
+            if (args.exerciseNames && !args.exerciseNames.map(n => n.toLowerCase()).includes(name)) {
+                continue;
+            }
+            suggestions[name] = {
+                lastWeight: last.weight,
+                lastReps: last.reps,
+                suggestedWeight: last.weight + 2.5, // +2.5kg
+                suggestedReps: last.reps < 12 ? last.reps + 1 : last.reps, // +1 rep if under 12
+                lastDate: last.date,
+            };
+        }
+
+        return suggestions;
+    },
+});
