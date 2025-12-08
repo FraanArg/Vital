@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef } from "react";
-import { format, addDays, subDays, addWeeks, subWeeks, isSameDay, startOfDay, endOfDay, startOfWeek } from "date-fns";
+import { useRef, useState } from "react";
+import { format, addDays, addWeeks, subWeeks, isSameDay, startOfDay, endOfDay, startOfWeek } from "date-fns";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { useQuery } from "convex/react";
@@ -14,6 +14,7 @@ interface DateSelectorProps {
 
 export default function DateSelector({ selectedDate, onDateChange }: DateSelectorProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
+    const [slideDirection, setSlideDirection] = useState<"left" | "right" | null>(null);
 
     // Generate the current week (Monday to Sunday) based on selected date
     const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 }); // Monday
@@ -66,12 +67,16 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
         return { score, color, activities, isComplete: score === 1 };
     };
 
-    const handlePrevDay = () => {
-        onDateChange(subDays(selectedDate, 1));
+    const handlePrevWeek = () => {
+        setSlideDirection("right");
+        onDateChange(subWeeks(selectedDate, 1));
+        setTimeout(() => setSlideDirection(null), 300);
     };
 
-    const handleNextDay = () => {
-        onDateChange(addDays(selectedDate, 1));
+    const handleNextWeek = () => {
+        setSlideDirection("left");
+        onDateChange(addWeeks(selectedDate, 1));
+        setTimeout(() => setSlideDirection(null), 300);
     };
 
     const handleDateClick = (date: Date) => {
@@ -114,9 +119,10 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
     const accumulatedDelta = useRef(0);
 
     const onWheel = (e: React.WheelEvent) => {
-        // Only handle horizontal scroll (deltaX)
-        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        // Handle horizontal scroll (deltaX) - prevent Safari back/forward
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 10) {
             e.preventDefault();
+            e.stopPropagation();
 
             accumulatedDelta.current += e.deltaX;
 
@@ -127,9 +133,9 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
 
             wheelTimeout.current = setTimeout(() => {
                 if (accumulatedDelta.current > 50) {
-                    onDateChange(addWeeks(selectedDate, 1)); // Scroll right = next week
+                    handleNextWeek(); // Scroll right = next week
                 } else if (accumulatedDelta.current < -50) {
-                    onDateChange(subWeeks(selectedDate, 1)); // Scroll left = previous week
+                    handlePrevWeek(); // Scroll left = previous week
                 }
                 accumulatedDelta.current = 0;
             }, 100);
@@ -183,8 +189,8 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
 
             <div className="relative group">
                 <button
-                    onClick={handlePrevDay}
-                    aria-label="Previous day"
+                    onClick={handlePrevWeek}
+                    aria-label="Previous week"
                     className="absolute -left-2 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm shadow-sm border border-border/50 opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0 hover:bg-secondary"
                 >
                     <ChevronLeft className="w-5 h-5" />
@@ -192,8 +198,9 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
 
                 <div
                     ref={scrollRef}
-                    className="flex gap-3 overflow-x-auto py-2 px-1 scroll-smooth scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent"
-                    style={{ scrollbarWidth: "thin" }}
+                    className={`flex gap-3 py-2 px-1 transition-transform duration-300 ${slideDirection === "left" ? "animate-slide-left" :
+                            slideDirection === "right" ? "animate-slide-right" : ""
+                        }`}
                 >
                     {dates.map((date) => {
                         const isSelected = isSameDay(date, selectedDate);
@@ -258,8 +265,8 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
                 </div>
 
                 <button
-                    onClick={handleNextDay}
-                    aria-label="Next day"
+                    onClick={handleNextWeek}
+                    aria-label="Next week"
                     className="absolute -right-2 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm shadow-sm border border-border/50 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-secondary"
                 >
                     <ChevronRight className="w-5 h-5" />
