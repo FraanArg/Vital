@@ -26,6 +26,11 @@ const MonthlySummary = dynamic(() => import("../../components/stats/MonthlySumma
 const FoodFrequency = dynamic(() => import("../../components/stats/FoodFrequency"), { ssr: false });
 const ActivityCalendar = dynamic(() => import("../../components/stats/ActivityCalendar"), { ssr: false });
 
+// AI-powered components
+const HealthScore = dynamic(() => import("../../components/stats/HealthScore"), { ssr: false });
+const AICoach = dynamic(() => import("../../components/stats/AICoach"), { ssr: false });
+const Predictions = dynamic(() => import("../../components/stats/Predictions"), { ssr: false });
+
 export default function StatisticsPage() {
     const [range, setRange] = useState<"week" | "month" | "year">("week");
 
@@ -148,7 +153,16 @@ export default function StatisticsPage() {
             <div className="w-full max-w-5xl space-y-6">
                 <StatsHeader range={range} setRange={setRange} />
 
-                {/* Monthly Summary - Featured */}
+                {/* AI Hero Section - Health Score */}
+                <HealthScore />
+
+                {/* AI Coach & Predictions Row */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <AICoach />
+                    <Predictions />
+                </div>
+
+                {/* Monthly Summary */}
                 <MonthlySummary />
 
                 {/* Overview Row */}

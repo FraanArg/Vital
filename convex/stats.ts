@@ -558,3 +558,229 @@ export const getActivityCalendar = query({
         return result;
     },
 });
+
+// ============================================
+// HEALTH SCORE - 0-100 overall wellness score
+// ============================================
+export const getHealthScore = query({
+    handler: async (ctx) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) return null;
+
+        const userId = identity.subject;
+        const now = new Date();
+        const weekStart = subDays(now, 7);
+
+        const logs = await ctx.db
+            .query("logs")
+            .withIndex("by_userId_date", (q) =>
+                q.eq("userId", userId).gte("date", weekStart.toISOString())
+            )
+            .collect();
+
+        if (logs.length === 0) return { score: 0, breakdown: { sleep: 0, exercise: 0, consistency: 0, nutrition: 0 }, trend: "stable" as const };
+
+        // Sleep score (0-25) - based on avg hours and consistency
+        const sleepLogs = logs.filter(l => l.sleep && l.sleep > 0);
+        const avgSleep = sleepLogs.length > 0
+            ? sleepLogs.reduce((sum, l) => sum + l.sleep!, 0) / sleepLogs.length
+            : 0;
+        const sleepScore = Math.min(25, Math.round((avgSleep / 8) * 25));
+
+        // Exercise score (0-25) - based on workouts per week
+        const exerciseLogs = logs.filter(l => l.exercise);
+        const exerciseScore = Math.min(25, Math.round((exerciseLogs.length / 5) * 25));
+
+        // Consistency score (0-25) - based on daily logging
+        const uniqueDays = new Set(logs.map(l => l.date.split("T")[0])).size;
+        const consistencyScore = Math.min(25, Math.round((uniqueDays / 7) * 25));
+
+        // Nutrition score (0-25) - based on meals logged
+        const mealLogs = logs.filter(l => l.meal);
+        const nutritionScore = Math.min(25, Math.round((mealLogs.length / 21) * 25)); // 3 meals * 7 days
+
+        const totalScore = sleepScore + exerciseScore + consistencyScore + nutritionScore;
+
+        // Trend - compare to previous week
+        const prevWeekStart = subDays(weekStart, 7);
+        const prevLogs = await ctx.db
+            .query("logs")
+            .withIndex("by_userId_date", (q) =>
+                q.eq("userId", userId)
+                    .gte("date", prevWeekStart.toISOString())
+                    .lt("date", weekStart.toISOString())
+            )
+            .collect();
+
+        const prevUniqueD = new Set(prevLogs.map(l => l.date.split("T")[0])).size;
+        const prevScore = Math.min(100, Math.round((prevUniqueD / 7) * 100));
+        const trend = totalScore > prevScore + 5 ? "up" : totalScore < prevScore - 5 ? "down" : "stable";
+
+        return {
+            score: totalScore,
+            breakdown: {
+                sleep: sleepScore,
+                exercise: exerciseScore,
+                consistency: consistencyScore,
+                nutrition: nutritionScore,
+            },
+            trend: trend as "up" | "down" | "stable",
+            avgSleep: Math.round(avgSleep * 10) / 10,
+            workoutsThisWeek: exerciseLogs.length,
+            daysActive: uniqueDays,
+        };
+    },
+});
+
+// ============================================
+// AI COACH - Personalized recommendations
+// ============================================
+export const getAICoachAdvice = query({
+    handler: async (ctx) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) return [];
+
+        const userId = identity.subject;
+        const now = new Date();
+        const weekStart = subDays(now, 7);
+
+        const logs = await ctx.db
+            .query("logs")
+            .withIndex("by_userId_date", (q) =>
+                q.eq("userId", userId).gte("date", weekStart.toISOString())
+            )
+            .collect();
+
+        const advice: { icon: string; title: string; message: string; priority: "high" | "medium" | "low" }[] = [];
+
+        // Analyze patterns
+        const sleepLogs = logs.filter(l => l.sleep);
+        const avgSleep = sleepLogs.length > 0
+            ? sleepLogs.reduce((sum, l) => sum + l.sleep!, 0) / sleepLogs.length
+            : 0;
+        const exerciseLogs = logs.filter(l => l.exercise);
+        const highIntensity = exerciseLogs.filter(l => l.exercise?.intensity === "high");
+        const consecutiveHighIntensity = highIntensity.length;
+
+        // Sleep advice
+        if (avgSleep > 0 && avgSleep < 6.5) {
+            advice.push({
+                icon: "😴",
+                title: "Prioritize Sleep",
+                message: `You're averaging ${avgSleep.toFixed(1)}h of sleep. Try to get 7-8 hours tonight for better recovery and focus.`,
+                priority: "high",
+            });
+        }
+
+        // Recovery advice
+        if (consecutiveHighIntensity >= 3) {
+            advice.push({
+                icon: "🧘",
+                title: "Recovery Day Recommended",
+                message: `You've had ${consecutiveHighIntensity} high-intensity workouts recently. Consider active recovery or rest today.`,
+                priority: "high",
+            });
+        }
+
+        // Workout streak encouragement
+        if (exerciseLogs.length === 0) {
+            advice.push({
+                icon: "🏃",
+                title: "Get Moving",
+                message: "No workouts logged this week yet. Even a 20-minute walk can boost your mood and energy!",
+                priority: "medium",
+            });
+        } else if (exerciseLogs.length >= 4) {
+            advice.push({
+                icon: "🔥",
+                title: "Great Momentum",
+                message: `${exerciseLogs.length} workouts this week! Keep the momentum going.`,
+                priority: "low",
+            });
+        }
+
+        // Balance advice
+        const uniqueDays = new Set(logs.map(l => l.date.split("T")[0])).size;
+        if (uniqueDays >= 5) {
+            advice.push({
+                icon: "⭐",
+                title: "Consistent Tracker",
+                message: "You've logged activities on " + uniqueDays + " days this week. Consistency is the key to progress!",
+                priority: "low",
+            });
+        }
+
+        // Prediction
+        const workoutsPerDay = exerciseLogs.length / 7;
+        const daysRemaining = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate() - now.getDate();
+        const predictedMonthly = exerciseLogs.length + Math.round(workoutsPerDay * daysRemaining);
+        if (predictedMonthly >= 16) {
+            advice.push({
+                icon: "📈",
+                title: "On Track for Goals",
+                message: `At your current pace, you'll hit ${predictedMonthly} workouts this month. Great job!`,
+                priority: "low",
+            });
+        }
+
+        return advice.sort((a, b) => {
+            const priority = { high: 0, medium: 1, low: 2 };
+            return priority[a.priority] - priority[b.priority];
+        }).slice(0, 3);
+    },
+});
+
+// ============================================
+// PREDICTIONS - Future projections
+// ============================================
+export const getPredictions = query({
+    handler: async (ctx) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) return null;
+
+        const userId = identity.subject;
+        const now = new Date();
+        const monthStart = startOfMonth(now);
+        const weekStart = subDays(now, 7);
+
+        const [monthLogs, weekLogs] = await Promise.all([
+            ctx.db.query("logs").withIndex("by_userId_date", (q) =>
+                q.eq("userId", userId).gte("date", monthStart.toISOString())
+            ).collect(),
+            ctx.db.query("logs").withIndex("by_userId_date", (q) =>
+                q.eq("userId", userId).gte("date", weekStart.toISOString())
+            ).collect(),
+        ]);
+
+        const dayOfMonth = now.getDate();
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        const daysRemaining = daysInMonth - dayOfMonth;
+
+        // Current stats
+        const workoutsThisMonth = monthLogs.filter(l => l.exercise).length;
+        const sleepLogs = weekLogs.filter(l => l.sleep);
+        const avgSleep = sleepLogs.length > 0
+            ? sleepLogs.reduce((sum, l) => sum + l.sleep!, 0) / sleepLogs.length
+            : 0;
+
+        // Rate calculations
+        const workoutRate = workoutsThisMonth / dayOfMonth;
+        const predictedWorkouts = Math.round(workoutsThisMonth + (workoutRate * daysRemaining));
+
+        return {
+            workouts: {
+                current: workoutsThisMonth,
+                predicted: predictedWorkouts,
+                target: 16,
+                onTrack: predictedWorkouts >= 16,
+            },
+            sleep: {
+                current: Math.round(avgSleep * 10) / 10,
+                target: 7.5,
+                onTrack: avgSleep >= 7,
+            },
+            daysRemaining,
+            daysInMonth,
+        };
+    },
+});
