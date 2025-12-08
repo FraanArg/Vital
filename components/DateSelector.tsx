@@ -109,12 +109,40 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
         }
     };
 
+    // Desktop wheel/trackpad horizontal scroll
+    const wheelTimeout = useRef<NodeJS.Timeout | null>(null);
+    const accumulatedDelta = useRef(0);
+
+    const onWheel = (e: React.WheelEvent) => {
+        // Only handle horizontal scroll (deltaX)
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+            e.preventDefault();
+
+            accumulatedDelta.current += e.deltaX;
+
+            // Debounce to avoid multiple triggers
+            if (wheelTimeout.current) {
+                clearTimeout(wheelTimeout.current);
+            }
+
+            wheelTimeout.current = setTimeout(() => {
+                if (accumulatedDelta.current > 50) {
+                    onDateChange(addWeeks(selectedDate, 1)); // Scroll right = next week
+                } else if (accumulatedDelta.current < -50) {
+                    onDateChange(subWeeks(selectedDate, 1)); // Scroll left = previous week
+                }
+                accumulatedDelta.current = 0;
+            }, 100);
+        }
+    };
+
     return (
         <div
             className="w-full mb-8 touch-pan-y"
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
+            onWheel={onWheel}
         >
             <div className="flex items-center justify-between mb-6 px-2">
                 <h2 className="text-2xl md:text-4xl font-black tracking-tight">
