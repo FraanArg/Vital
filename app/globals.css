@@ -259,8 +259,10 @@ button {
 
 @media print {
   body {
-    background: white;
-    color: black;
+    background: white !important;
+    color: black !important;
+    overflow: visible !important;
+    height: auto !important;
   }
 
   /* Hide UI elements */
@@ -268,7 +270,8 @@ button {
   nav,
   button,
   header,
-  .no-print {
+  .no-print,
+  .print\:hidden {
     display: none !important;
   }
 
@@ -279,9 +282,32 @@ button {
     margin: 0 !important;
   }
 
-  /* Reset layout for printing */
+  /* Reset layout for printing - critical for full report */
   .min-h-screen {
     min-height: auto !important;
+  }
+
+  /* Fix scrollable containers for print */
+  .fixed {
+    position: static !important;
+  }
+
+  .overflow-auto,
+  .overflow-hidden,
+  .overflow-scroll,
+  .overflow-y-auto,
+  .overflow-x-auto {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  /* Remove backdrop blur and fixed elements that break printing */
+  .backdrop-blur-sm,
+  .backdrop-blur-md,
+  .backdrop-blur {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 
   /* Ensure text is black */
@@ -289,6 +315,11 @@ button {
     color: black !important;
     text-shadow: none !important;
     box-shadow: none !important;
+  }
+
+  /* Allow page breaks between days */
+  .break-inside-avoid {
+    break-inside: avoid;
   }
 }
 

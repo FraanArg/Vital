@@ -107,7 +107,7 @@ const getMoodLabel = (mood: number) => {
 
 export default function ReportView({ data, startDate, endDate, userName = "Usuario" }: ReportViewProps) {
     return (
-        <div className="bg-white text-black p-8 max-w-[297mm] mx-auto min-h-screen print:p-0 print:max-w-none font-sans text-xs selection:bg-blue-100 flex flex-col">
+        <div className="bg-white text-black p-8 max-w-[297mm] mx-auto min-h-screen print:min-h-0 print:h-auto print:p-4 print:max-w-none font-sans text-xs selection:bg-blue-100 flex flex-col">
             {/* Header */}
             <div className="mb-8 border-b-2 border-gray-900 pb-4 flex justify-between items-end">
                 <div>

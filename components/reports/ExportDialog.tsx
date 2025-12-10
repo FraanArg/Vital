@@ -136,7 +136,7 @@ export default function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
                 </div>
             ) : (
                 /* Full Screen Report Preview */
-                <div className="fixed inset-0 z-[100] bg-white overflow-auto animate-in fade-in duration-300">
+                <div className="fixed inset-0 z-[100] bg-white overflow-auto animate-in fade-in duration-300 print:static print:overflow-visible print:h-auto print:z-auto">
                     {/* Toolbar */}
                     <div className="sticky top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-gray-200 p-4 flex justify-between items-center print:hidden z-10">
                         <button
@@ -158,7 +158,7 @@ export default function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
                     </div>
 
                     {/* Content */}
-                    <div className="min-h-screen bg-gray-50 print:bg-white pb-20">
+                    <div className="min-h-screen bg-gray-50 print:bg-white print:min-h-0 print:h-auto pb-20 print:pb-0">
                         {reportData === undefined ? (
                             <div className="flex flex-col items-center justify-center h-[60vh] text-gray-400 gap-4">
                                 <Loader2 className="w-8 h-8 animate-spin" />
