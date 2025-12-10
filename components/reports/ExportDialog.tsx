@@ -136,7 +136,7 @@ export default function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
                 </div>
             ) : (
                 /* Full Screen Report Preview */
-                <div className="fixed inset-0 z-[100] bg-white overflow-auto animate-in fade-in duration-300 print:static print:overflow-visible print:h-auto print:z-auto">
+                <div className="fixed inset-0 z-[100] bg-white overflow-auto animate-in fade-in duration-300 print:block print:relative print:overflow-visible print:h-auto">
                     {/* Toolbar */}
                     <div className="sticky top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-gray-200 p-4 flex justify-between items-center print:hidden z-10">
                         <button
