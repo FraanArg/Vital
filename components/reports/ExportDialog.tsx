@@ -138,7 +138,7 @@ export default function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
                 /* Full Screen Report Preview */
                 <div id="printable-report" className="fixed inset-0 z-[100] bg-white overflow-auto animate-in fade-in duration-300">
                     {/* Toolbar */}
-                    <div className="sticky top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-gray-200 p-4 flex justify-between items-center print:hidden z-10">
+                    <div className="sticky top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-gray-200 p-4 flex justify-between items-center z-10">
                         <button
                             onClick={() => setShowReport(false)}
                             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
@@ -148,7 +148,36 @@ export default function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
                         </button>
                         <div className="flex gap-2">
                             <button
-                                onClick={() => window.print()}
+                                onClick={() => {
+                                    const printContent = document.getElementById('printable-report');
+                                    if (!printContent) return;
+
+                                    const printWindow = window.open('', '_blank');
+                                    if (!printWindow) return;
+
+                                    printWindow.document.write(`
+                                        <!DOCTYPE html>
+                                        <html>
+                                        <head>
+                                            <title>Reporte de Salud</title>
+                                            <style>
+                                                * { margin: 0; padding: 0; box-sizing: border-box; }
+                                                body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+                                                @media print {
+                                                    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                                                }
+                                            </style>
+                                        </head>
+                                        <body>${printContent.innerHTML}</body>
+                                        </html>
+                                    `);
+                                    printWindow.document.close();
+                                    printWindow.focus();
+                                    setTimeout(() => {
+                                        printWindow.print();
+                                        printWindow.close();
+                                    }, 250);
+                                }}
                                 className="flex items-center gap-2 px-6 py-2 bg-black text-white rounded-full font-medium hover:bg-gray-800 transition-colors shadow-lg"
                             >
                                 <Printer className="w-4 h-4" />
