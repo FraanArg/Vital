@@ -51,10 +51,21 @@ const getMealLabel = (type?: string) => {
     return MEAL_LABELS[type] || type.charAt(0).toUpperCase() + type.slice(1);
 };
 
-// Order for meal display
-const MEAL_ORDER = ["desayuno", "colacion_am", "almuerzo", "colacion_pm", "merienda", "cena", "colacion_night", "postre"];
+// Helper to convert time string to minutes for sorting
+const timeToMinutes = (time: string | undefined): number => {
+    if (!time) return 9999; // No time = sort to end
+    const [h, m] = time.split(':').map(Number);
+    return h * 60 + (m || 0);
+};
 
 const ACTIVITY_TRANSLATIONS: Record<string, string> = {
+    // Specific football types (must come before generic "football")
+    "football 5 match": "Fútbol 5",
+    "football 6 match": "Fútbol 6",
+    "football 8 match": "Fútbol 8",
+    "football league match": "Fútbol Partido Liga",
+    "football club training": "Fútbol Entrenamiento",
+    // Generic sports
     "football": "Fútbol",
     "soccer": "Fútbol",
     "tennis": "Tenis",
@@ -122,7 +133,7 @@ export default function ReportView({ data, startDate, endDate, userName = "Usuar
 
                     if (!hasData) return null;
 
-                    // Group meals
+                    // Group meals by type
                     const mealsByType: Record<string, MealItem[]> = {};
                     day.food?.forEach(meal => {
                         const type = meal.type || "other";
@@ -130,14 +141,11 @@ export default function ReportView({ data, startDate, endDate, userName = "Usuar
                         mealsByType[type].push(meal);
                     });
 
-                    // Sort types based on MEAL_ORDER
+                    // Sort meal types by their earliest time (not by static MEAL_ORDER)
                     const sortedMealTypes = Object.keys(mealsByType).sort((a, b) => {
-                        const idxA = MEAL_ORDER.indexOf(a);
-                        const idxB = MEAL_ORDER.indexOf(b);
-                        if (idxA === -1 && idxB === -1) return 0;
-                        if (idxA === -1) return 1;
-                        if (idxB === -1) return -1;
-                        return idxA - idxB;
+                        const timeA = mealsByType[a]?.[0]?.time;
+                        const timeB = mealsByType[b]?.[0]?.time;
+                        return timeToMinutes(timeA) - timeToMinutes(timeB);
                     });
 
                     return (
