@@ -275,6 +275,17 @@ button {
     display: none !important;
   }
 
+  /* The printable report should be visible even when parent is hidden */
+  #printable-report {
+    display: block !important;
+    position: relative !important;
+    overflow: visible !important;
+    height: auto !important;
+    width: 100% !important;
+    inset: auto !important;
+    z-index: auto !important;
+  }
+
   /* Ensure content is visible */
   .container {
     max-width: 100% !important;
