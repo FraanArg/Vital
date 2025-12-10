@@ -51,7 +51,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <ToastProvider>
-              <div className="flex h-screen bg-background print:hidden">
+              <div className="flex h-screen bg-background">
                 <Sidebar />
                 <main className="flex-1 overflow-y-auto pb-20 sm:pb-0">
                   {children}
