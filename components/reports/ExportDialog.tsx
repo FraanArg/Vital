@@ -149,11 +149,14 @@ export default function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
                         <div className="flex gap-2">
                             <button
                                 onClick={() => {
-                                    const printContent = document.getElementById('printable-report');
+                                    const printContent = document.getElementById('report-content');
                                     if (!printContent) return;
 
-                                    const printWindow = window.open('', '_blank');
-                                    if (!printWindow) return;
+                                    const printWindow = window.open('', '_blank', 'width=800,height=600');
+                                    if (!printWindow) {
+                                        alert('Please allow popups to print the report');
+                                        return;
+                                    }
 
                                     printWindow.document.write(`
                                         <!DOCTYPE html>
@@ -162,7 +165,12 @@ export default function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
                                             <title>Reporte de Salud</title>
                                             <style>
                                                 * { margin: 0; padding: 0; box-sizing: border-box; }
-                                                body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+                                                body { 
+                                                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                                                    background: white;
+                                                    color: black;
+                                                    font-size: 12px;
+                                                }
                                                 @media print {
                                                     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
                                                 }
@@ -176,7 +184,7 @@ export default function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
                                     setTimeout(() => {
                                         printWindow.print();
                                         printWindow.close();
-                                    }, 250);
+                                    }, 500);
                                 }}
                                 className="flex items-center gap-2 px-6 py-2 bg-black text-white rounded-full font-medium hover:bg-gray-800 transition-colors shadow-lg"
                             >
@@ -187,7 +195,7 @@ export default function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
                     </div>
 
                     {/* Content */}
-                    <div className="min-h-screen bg-gray-50 print:bg-white print:min-h-0 print:h-auto pb-20 print:pb-0">
+                    <div id="report-content" className="min-h-screen bg-gray-50 print:bg-white print:min-h-0 print:h-auto pb-20 print:pb-0">
                         {reportData === undefined ? (
                             <div className="flex flex-col items-center justify-center h-[60vh] text-gray-400 gap-4">
                                 <Loader2 className="w-8 h-8 animate-spin" />
