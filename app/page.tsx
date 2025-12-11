@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { startOfDay, endOfDay } from "date-fns";
@@ -13,6 +13,7 @@ import NotificationCenter from "../components/NotificationCenter";
 import OfflineIndicator from "../components/OfflineIndicator";
 import DateSelector from "../components/DateSelector";
 import UndoToast from "../components/UndoToast";
+import PullToRefresh from "../components/PullToRefresh";
 import { TRACKERS } from "../lib/tracker-registry";
 import { Doc } from "../convex/_generated/dataModel";
 
@@ -60,13 +61,22 @@ export default function Home() {
     }
   };
 
+  // Handle pull-to-refresh for mobile
+  const handleRefresh = useCallback(async () => {
+    // Simple reload - Convex will re-fetch data automatically
+    window.location.reload();
+  }, []);
+
   if (!isMounted) {
     return null;
   }
 
   return (
     <div className="flex flex-col h-full bg-background">
-      <div className="flex-1 overflow-y-auto pb-24 sm:pb-8">
+      <PullToRefresh
+        onRefresh={handleRefresh}
+        className="flex-1 overflow-y-auto pb-24 sm:pb-8"
+      >
         <div className="w-full max-w-[1600px] mx-auto p-4 lg:p-8 space-y-6">
           <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-2 pt-safe">
             <div className="flex items-center gap-3">
@@ -123,7 +133,7 @@ export default function Home() {
             <WeeklyDashboard selectedDate={selectedDate} />
           )}
         </div>
-      </div>
+      </PullToRefresh>
       <PrefetchDays date={selectedDate} />
       <UndoToast />
     </div>
