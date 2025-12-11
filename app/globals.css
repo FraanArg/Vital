@@ -56,20 +56,44 @@
 
 
 .dark {
+  --background: #09090B;
   --foreground: #FAFAFA;
   --card: #18181B;
   --card-foreground: #FAFAFA;
+  --popover: #18181B;
+  --popover-foreground: #FAFAFA;
+
   --primary: #60A5FA;
   /* Slightly lighter blue for dark mode */
-  --primary-foreground: #FFFFFF;
+  --primary-foreground: #09090B;
   --secondary: #27272A;
   --secondary-foreground: #FAFAFA;
-  --muted: #A1A1AA;
+  --muted: #52525B;
+  --muted-foreground: #A1A1AA;
+  --accent: #27272A;
+  --accent-foreground: #FAFAFA;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
   --border: #3F3F46;
-  /* Lighter border for better contrast */
-  --glass-bg: rgba(24, 24, 27, 0.6);
+  --input: #3F3F46;
+  --ring: #60A5FA;
+
+  /* Enhanced Dark Mode Accent Colors - brighter for contrast */
+  --accent-food: 25 95% 60%;
+  /* Brighter orange */
+  --accent-exercise: 158 70% 45%;
+  /* Brighter emerald */
+  --accent-water: 199 95% 55%;
+  /* Brighter blue */
+  --accent-sleep: 263 85% 65%;
+  /* Brighter violet */
+  --accent-mood: 48 96% 60%;
+  /* Brighter yellow */
+
+  /* Glassmorphism */
+  --glass-bg: rgba(24, 24, 27, 0.8);
   /* More opaque for legibility */
-  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.1);
   --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
   --shadow-hover: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
 }
