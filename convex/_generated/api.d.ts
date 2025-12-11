@@ -9,6 +9,7 @@
  */
 
 import type * as analysis from "../analysis.js";
+import type * as body from "../body.js";
 import type * as data from "../data.js";
 import type * as exercises from "../exercises.js";
 import type * as foodItems from "../foodItems.js";
@@ -17,6 +18,7 @@ import type * as history from "../history.js";
 import type * as icons from "../icons.js";
 import type * as insights from "../insights.js";
 import type * as logs from "../logs.js";
+import type * as notifications from "../notifications.js";
 import type * as reports from "../reports.js";
 import type * as routines from "../routines.js";
 import type * as sports from "../sports.js";
@@ -32,6 +34,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   analysis: typeof analysis;
+  body: typeof body;
   data: typeof data;
   exercises: typeof exercises;
   foodItems: typeof foodItems;
@@ -40,6 +43,7 @@ declare const fullApi: ApiFromModules<{
   icons: typeof icons;
   insights: typeof insights;
   logs: typeof logs;
+  notifications: typeof notifications;
   reports: typeof reports;
   routines: typeof routines;
   sports: typeof sports;

@@ -6,6 +6,7 @@ import { LayoutDashboard, BarChart3, User, Folder } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import StreakCounter from "./StreakCounter";
+import NotificationCenter from "./NotificationCenter";
 
 const LINKS = [
     { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -24,7 +25,8 @@ export default function Sidebar() {
                     <span className="text-primary-foreground font-bold">V</span>
                 </div>
                 <h1 className="font-bold text-xl tracking-tight">Vital</h1>
-                <div className="ml-auto">
+                <div className="ml-auto flex items-center gap-1">
+                    <NotificationCenter />
                     <StreakCounter />
                 </div>
             </div>

@@ -121,5 +121,47 @@ export default defineSchema({
         snapshot: v.any(), // Full log data before change
         createdAt: v.string(),
     }).index("by_user_time", ["userId", "createdAt"]),
+
+    // Notification preferences per user
+    notificationPreferences: defineTable({
+        userId: v.string(),
+        enabled: v.boolean(),
+        mealReminders: v.boolean(),
+        waterReminders: v.boolean(),
+        exerciseReminders: v.boolean(),
+        streakAlerts: v.boolean(),
+        smartNudges: v.boolean(),
+        quietHoursStart: v.optional(v.string()), // "22:00"
+        quietHoursEnd: v.optional(v.string()),   // "08:00"
+        pushSubscription: v.optional(v.string()), // JSON string of push subscription
+        updatedAt: v.string(),
+    }).index("by_user", ["userId"]),
+
+    // Cached meal timing patterns per user
+    mealPatterns: defineTable({
+        userId: v.string(),
+        mealType: v.string(), // "desayuno", "almuerzo", etc.
+        weekday: v.boolean(), // true = weekday pattern, false = weekend
+        averageTime: v.string(), // "12:30" - typical meal time
+        variance: v.number(), // minutes of variance
+        sampleCount: v.number(), // how many meals analyzed
+        lastUpdated: v.string(),
+    }).index("by_user", ["userId"])
+        .index("by_user_meal", ["userId", "mealType"]),
+
+    // In-app notifications queue
+    notifications: defineTable({
+        userId: v.string(),
+        type: v.string(), // "meal_reminder", "missing_meal", "streak", "nudge"
+        title: v.string(),
+        message: v.string(),
+        icon: v.string(),
+        read: v.boolean(),
+        actionUrl: v.optional(v.string()),
+        metadata: v.optional(v.any()), // Additional data
+        createdAt: v.string(),
+        expiresAt: v.optional(v.string()), // Auto-dismiss after this time
+    }).index("by_user", ["userId"])
+        .index("by_user_unread", ["userId", "read"]),
 });
 
