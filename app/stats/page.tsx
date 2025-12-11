@@ -20,6 +20,7 @@ const SleepAnalysis = dynamic(() => import("../../components/stats/SleepAnalysis
 const ExerciseBreakdown = dynamic(() => import("../../components/stats/ExerciseBreakdown"), { ssr: false });
 const TimePatterns = dynamic(() => import("../../components/stats/TimePatterns"), { ssr: false });
 const PersonalBests = dynamic(() => import("../../components/stats/PersonalBests"), { ssr: false });
+const PersonalRecords = dynamic(() => import("../../components/stats/PersonalRecords"), { ssr: false });
 const Achievements = dynamic(() => import("../../components/stats/Achievements"), { ssr: false });
 const WeekComparison = dynamic(() => import("../../components/stats/WeekComparison"), { ssr: false });
 const MonthlySummary = dynamic(() => import("../../components/stats/MonthlySummary"), { ssr: false });
