@@ -26,6 +26,8 @@ const MonthlySummary = dynamic(() => import("../../components/stats/MonthlySumma
 const FoodFrequency = dynamic(() => import("../../components/stats/FoodFrequency"), { ssr: false });
 const ActivityCalendar = dynamic(() => import("../../components/stats/ActivityCalendar"), { ssr: false });
 const CalendarView = dynamic(() => import("../../components/CalendarView"), { ssr: false });
+const WeeklyReport = dynamic(() => import("../../components/stats/WeeklyReport"), { ssr: false });
+const MonthlyReportComponent = dynamic(() => import("../../components/stats/MonthlyReport"), { ssr: false });
 
 // AI-powered components
 const HealthScore = dynamic(() => import("../../components/stats/HealthScore"), { ssr: false });
@@ -166,7 +168,13 @@ export default function StatisticsPage() {
                     <Predictions />
                 </div>
 
-                {/* Monthly Summary */}
+                {/* Weekly & Monthly Reports */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <WeeklyReport />
+                    <MonthlyReportComponent />
+                </div>
+
+                {/* Monthly Summary - compact version */}
                 <MonthlySummary />
 
                 {/* Overview Row */}
