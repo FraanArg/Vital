@@ -45,6 +45,12 @@ export default function NotificationCenter() {
     const smartNudges = useQuery(api.notifications.getSmartNudges);
     const notifications = useQuery(api.notifications.getNotifications, { unreadOnly: false });
     const preferences = useQuery(api.notifications.getNotificationPreferences);
+    const streakAlert = useQuery(api.notifications.getStreakProtectionAlert,
+        currentTime ? { currentTime } : "skip"
+    );
+    const endOfDaySummary = useQuery(api.notifications.getEndOfDaySummary,
+        currentTime ? { currentTime } : "skip"
+    );
 
     // Mutations
     const markRead = useMutation(api.notifications.markNotificationRead);
@@ -56,6 +62,7 @@ export default function NotificationCenter() {
         ...(upcomingReminders || []),
         ...(missingMeals || []),
         ...(notifications?.filter(n => !n.read) || []),
+        ...(streakAlert ? [streakAlert] : []),
     ];
     const unreadCount = activeItems.length;
 
@@ -160,8 +167,27 @@ export default function NotificationCenter() {
 
                             {/* Content */}
                             <div className="overflow-y-auto max-h-[calc(70vh-60px)]">
-                                {/* Streak Banner */}
-                                {streak && streak.streak > 0 && (
+                                {/* Streak Protection Alert */}
+                                {streakAlert && streakAlert.isAtRisk && (
+                                    <div className={`p-3 m-3 rounded-xl border ${streakAlert.urgency === 'high' ? 'bg-gradient-to-r from-red-500/20 to-orange-500/20 border-red-500/30 animate-pulse' : 'bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/20'}`}>
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${streakAlert.urgency === 'high' ? 'bg-red-500/20' : 'bg-amber-500/20'}`}>
+                                                <Flame className={`w-5 h-5 ${streakAlert.urgency === 'high' ? 'text-red-500' : 'text-amber-500'}`} />
+                                            </div>
+                                            <div>
+                                                <p className={`font-semibold ${streakAlert.urgency === 'high' ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                                                    {streakAlert.message}
+                                                </p>
+                                                <p className="text-xs text-muted-foreground">
+                                                    {streakAlert.hoursLeft > 0 ? `Quedan ${streakAlert.hoursLeft}h para registrar` : '¡Última hora!'}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Streak Banner (when not at risk) */}
+                                {streak && streak.streak > 0 && !streakAlert?.isAtRisk && (
                                     <div className="p-3 m-3 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20">
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
@@ -178,6 +204,28 @@ export default function NotificationCenter() {
                                                 </p>
                                             </div>
                                         </div>
+                                    </div>
+                                )}
+
+                                {/* End of Day Summary */}
+                                {endOfDaySummary && (
+                                    <div className="p-3 m-3 rounded-xl bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <p className="font-semibold text-indigo-600 dark:text-indigo-400">📊 Resumen del día</p>
+                                            <span className="text-xs font-bold text-indigo-500">{endOfDaySummary.completenessPercent}%</span>
+                                        </div>
+                                        <div className="h-2 bg-muted rounded-full overflow-hidden mb-2">
+                                            <div
+                                                className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all"
+                                                style={{ width: `${endOfDaySummary.completenessPercent}%` }}
+                                            />
+                                        </div>
+                                        <p className="text-xs text-muted-foreground">{endOfDaySummary.message}</p>
+                                        {endOfDaySummary.missing.meals.length > 0 && (
+                                            <p className="text-xs text-muted-foreground mt-1">
+                                                Falta: {endOfDaySummary.missing.meals.slice(0, 3).join(', ')}
+                                            </p>
+                                        )}
                                     </div>
                                 )}
 

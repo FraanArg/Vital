@@ -579,3 +579,204 @@ export const getSmartNudges = query({
         return nudges;
     },
 });
+
+// ============================================
+// END OF DAY SUMMARY
+// ============================================
+
+// Get summary of what was logged today vs what's typically logged
+export const getEndOfDaySummary = query({
+    args: { currentTime: v.string() },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) return null;
+        const userId = identity.subject;
+
+        const currentMinutes = timeToMinutes(args.currentTime);
+
+        // Only show after 8 PM (20:00)
+        if (currentMinutes < 20 * 60) return null;
+
+        const now = new Date();
+        const weekday = isWeekday(now);
+        const todayStart = new Date(now);
+        todayStart.setHours(0, 0, 0, 0);
+        const todayEnd = new Date(now);
+        todayEnd.setHours(23, 59, 59, 999);
+
+        // Get today's logs
+        const todayLogs = await ctx.db
+            .query("logs")
+            .withIndex("by_userId_date", (q) =>
+                q.eq("userId", userId)
+                    .gte("date", todayStart.toISOString())
+                    .lte("date", todayEnd.toISOString())
+            )
+            .collect();
+
+        // What was logged today
+        const loggedMealTypes = new Set(todayLogs.map(l => l.meal?.type).filter(Boolean));
+        const hasWater = todayLogs.some(l => l.water);
+        const totalWater = todayLogs.reduce((sum, l) => sum + (l.water || 0), 0);
+        const hasExercise = todayLogs.some(l => l.exercise);
+        const hasSleep = todayLogs.some(l => l.sleep);
+        const hasMood = todayLogs.some(l => l.mood);
+
+        // Get typical patterns
+        const patterns = await ctx.db
+            .query("mealPatterns")
+            .withIndex("by_user", (q) => q.eq("userId", userId))
+            .filter((q) => q.eq(q.field("weekday"), weekday))
+            .collect();
+
+        const expectedMeals = patterns.map(p => p.mealType);
+        const missingMeals = expectedMeals.filter(m => !loggedMealTypes.has(m));
+
+        // Calculate completeness score
+        let completedItems = 0;
+        let totalItems = 0;
+
+        // Meals
+        totalItems += expectedMeals.length || 3; // At least 3 typical meals
+        completedItems += Math.min(loggedMealTypes.size, expectedMeals.length || 3);
+
+        // Water (target 2L)
+        totalItems += 1;
+        if (totalWater >= 2) completedItems += 1;
+        else if (totalWater >= 1) completedItems += 0.5;
+
+        const completenessPercent = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+
+        return {
+            logged: {
+                meals: Array.from(loggedMealTypes),
+                mealCount: loggedMealTypes.size,
+                water: totalWater,
+                hasExercise,
+                hasSleep,
+                hasMood,
+            },
+            missing: {
+                meals: missingMeals,
+                needsWater: totalWater < 1.5,
+            },
+            completenessPercent,
+            message: completenessPercent >= 80
+                ? "¡Excelente día de registro! 🌟"
+                : completenessPercent >= 50
+                    ? "Buen progreso hoy. ¿Falta algo?"
+                    : "Todavía hay tiempo para completar tu día",
+        };
+    },
+});
+
+// ============================================
+// STREAK PROTECTION ALERT
+// ============================================
+
+// Check if streak is at risk
+export const getStreakProtectionAlert = query({
+    args: { currentTime: v.string() },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) return null;
+        const userId = identity.subject;
+
+        const currentMinutes = timeToMinutes(args.currentTime);
+
+        // Only show after 7 PM (19:00)
+        if (currentMinutes < 19 * 60) return null;
+
+        // Get streak info
+        const sixtyDaysAgo = new Date();
+        sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+
+        const logs = await ctx.db
+            .query("logs")
+            .withIndex("by_userId_date", (q) =>
+                q.eq("userId", userId).gte("date", sixtyDaysAgo.toISOString())
+            )
+            .order("desc")
+            .collect();
+
+        if (logs.length === 0) return null;
+
+        // Group by date
+        const logDates = new Set<string>();
+        for (const log of logs) {
+            const dateStr = log.date.split('T')[0];
+            logDates.add(dateStr);
+        }
+
+        // Calculate streak
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayStr = today.toISOString().split('T')[0];
+        const hasLoggedToday = logDates.has(todayStr);
+
+        // Count streak (excluding today if not logged)
+        let streak = 0;
+        for (let i = hasLoggedToday ? 0 : 1; i < 60; i++) {
+            const checkDate = new Date(today);
+            checkDate.setDate(checkDate.getDate() - i);
+            const dateStr = checkDate.toISOString().split('T')[0];
+
+            if (logDates.has(dateStr)) {
+                streak++;
+            } else {
+                break;
+            }
+        }
+
+        // Only alert if there's a streak worth protecting and haven't logged today
+        if (streak >= 3 && !hasLoggedToday) {
+            return {
+                streak,
+                isAtRisk: true,
+                hoursLeft: Math.max(0, Math.floor((24 * 60 - currentMinutes) / 60)),
+                message: streak >= 7
+                    ? `¡Tu racha de ${streak} días está en riesgo! 🔥`
+                    : `Tienes una racha de ${streak} días. ¡No la pierdas!`,
+                urgency: currentMinutes >= 22 * 60 ? "high" : "medium",
+            };
+        }
+
+        return null;
+    },
+});
+
+// ============================================
+// COMBINED DAILY ALERTS
+// ============================================
+
+// Get all alerts for the notification center in one call
+export const getDailyAlerts = query({
+    args: { currentTime: v.string() },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) return { alerts: [], badge: 0 };
+
+        const currentMinutes = timeToMinutes(args.currentTime);
+        const isEvening = currentMinutes >= 19 * 60; // After 7 PM
+        const isLateEvening = currentMinutes >= 21 * 60; // After 9 PM
+
+        const alerts: {
+            type: string;
+            icon: string;
+            title: string;
+            message: string;
+            priority: number;
+            color: string;
+        }[] = [];
+
+        // Evening-only alerts would be added via other queries
+        // This is a placeholder for combining multiple alert sources
+
+        return {
+            alerts,
+            badge: alerts.length,
+            isEvening,
+            isLateEvening,
+        };
+    },
+});
