@@ -2,8 +2,9 @@
 
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
-import { Bell, Utensils, Droplets, Dumbbell, Flame, Sparkles, Clock, Loader2 } from "lucide-react";
+import { Bell, Utensils, Droplets, Dumbbell, Flame, Sparkles, Clock, Loader2, Smartphone, CheckCircle, XCircle } from "lucide-react";
 import { useState, useEffect } from "react";
+import { usePushNotifications } from "../hooks/usePushNotifications";
 
 interface ToggleProps {
     enabled: boolean;
@@ -57,6 +58,9 @@ export default function NotificationSettings() {
     const preferences = useQuery(api.notifications.getNotificationPreferences);
     const updatePreferences = useMutation(api.notifications.updateNotificationPreferences);
     const [isSaving, setIsSaving] = useState(false);
+
+    // Push notifications hook
+    const push = usePushNotifications();
 
     // Local state
     const [settings, setSettings] = useState({
@@ -120,6 +124,63 @@ export default function NotificationSettings() {
 
     return (
         <div className="space-y-4">
+            {/* Push Notification Enable */}
+            {push.isSupported && (
+                <div className="p-4 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-xl">
+                    <div className="flex items-center gap-3 mb-3">
+                        <div className="p-2 rounded-xl bg-blue-500/20">
+                            <Smartphone className="w-5 h-5 text-blue-500" />
+                        </div>
+                        <div className="flex-1">
+                            <p className="font-semibold">Push Notifications</p>
+                            <p className="text-xs text-muted-foreground">
+                                Recibe alertas incluso con la app cerrada
+                            </p>
+                        </div>
+                        {push.isSubscribed ? (
+                            <CheckCircle className="w-5 h-5 text-green-500" />
+                        ) : push.permission === 'denied' ? (
+                            <XCircle className="w-5 h-5 text-red-500" />
+                        ) : null}
+                    </div>
+
+                    {push.error && (
+                        <p className="text-xs text-red-500 mb-2">{push.error}</p>
+                    )}
+
+                    <div className="flex gap-2">
+                        {!push.isSubscribed ? (
+                            <button
+                                onClick={push.subscribe}
+                                disabled={push.isLoading || push.permission === 'denied'}
+                                className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                                {push.isLoading ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : null}
+                                {push.permission === 'denied' ? 'Permisos denegados' : 'Activar Push'}
+                            </button>
+                        ) : (
+                            <>
+                                <button
+                                    onClick={push.sendTestNotification}
+                                    className="flex-1 px-4 py-2 bg-green-500/20 text-green-600 rounded-lg text-sm font-medium hover:bg-green-500/30"
+                                >
+                                    Probar 🔔
+                                </button>
+                                <button
+                                    onClick={push.unsubscribe}
+                                    disabled={push.isLoading}
+                                    className="px-4 py-2 bg-red-500/10 text-red-500 rounded-lg text-sm font-medium hover:bg-red-500/20"
+                                >
+                                    Desactivar
+                                </button>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
+
             {/* Master Toggle */}
             <div className="flex items-center justify-between p-4 bg-muted/50 rounded-xl">
                 <div className="flex items-center gap-3">
@@ -127,7 +188,7 @@ export default function NotificationSettings() {
                         <Bell className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                        <p className="font-semibold">Notificaciones</p>
+                        <p className="font-semibold">Notificaciones In-App</p>
                         <p className="text-xs text-muted-foreground">
                             {settings.enabled ? "Activas" : "Desactivadas"}
                         </p>
