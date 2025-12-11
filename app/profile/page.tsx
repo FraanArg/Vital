@@ -5,12 +5,13 @@ import { useUser, useClerk } from "@clerk/nextjs";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import SyncData from "../../components/SyncData";
-import { Settings, Shield, Mail, Loader2, Trash2, FileText, Heart, Check, Scale, ArrowRight } from "lucide-react";
+import { Settings, Shield, Mail, Loader2, Trash2, FileText, Heart, Check, Scale, ArrowRight, Bell } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { ThemeToggle } from "../../components/ThemeToggle";
 import DataExport from "../../components/DataExport";
 import ExportDialog from "../../components/reports/ExportDialog";
+import NotificationSettings from "../../components/NotificationSettings";
 import { db } from "../../lib/db";
 
 export default function ProfilePage() {
@@ -218,6 +219,15 @@ export default function ProfilePage() {
                         </div>
                         <ArrowRight className="w-5 h-5 text-muted-foreground" />
                     </Link>
+                </section>
+
+                {/* Notifications */}
+                <section className="bg-card p-6 rounded-2xl border border-border/50 shadow-sm">
+                    <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                        <Bell className="w-5 h-5 text-primary" />
+                        Notificaciones
+                    </h2>
+                    <NotificationSettings />
                 </section>
 
                 {/* Appearance */}
