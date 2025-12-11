@@ -7,8 +7,12 @@ import { Dumbbell, Timer, Activity, Plus } from "lucide-react";
 import { Skeleton } from "../ui/Skeleton";
 import Link from "next/link";
 
-export default function ExerciseBreakdown() {
-    const data = useQuery(api.stats.getExerciseBreakdown, { days: 30 });
+interface ExerciseBreakdownProps {
+    days?: number;
+}
+
+export default function ExerciseBreakdown({ days = 30 }: ExerciseBreakdownProps) {
+    const data = useQuery(api.stats.getExerciseBreakdown, { days });
 
     // Loading state
     if (data === undefined) {

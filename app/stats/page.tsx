@@ -41,6 +41,17 @@ const MealSuggestions = dynamic(() => import("../../components/MealSuggestions")
 export default function StatisticsPage() {
     const [range, setRange] = useState<"week" | "month" | "year">("week");
 
+    // Convert range to days for component props
+    const rangeToDays = (r: "week" | "month" | "year"): number => {
+        switch (r) {
+            case "week": return 7;
+            case "month": return 30;
+            case "year": return 365;
+        }
+    };
+
+    const days = rangeToDays(range);
+
     // Calculate date range
     const { start, end } = useMemo(() => {
         const now = new Date();
@@ -190,11 +201,11 @@ export default function StatisticsPage() {
 
                 {/* Detailed Analysis */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <SleepAnalysis />
+                    <SleepAnalysis days={days} />
                     <TimePatterns />
                 </div>
 
-                <ExerciseBreakdown />
+                <ExerciseBreakdown days={days} />
 
                 {/* Nutrition */}
                 <DailyNutrientBalance />

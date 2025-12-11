@@ -5,8 +5,12 @@ import { api } from "../../convex/_generated/api";
 import { motion } from "framer-motion";
 import { Moon, Clock, TrendingUp, Sparkles } from "lucide-react";
 
-export default function SleepAnalysis() {
-    const data = useQuery(api.stats.getSleepAnalysis, { days: 30 });
+interface SleepAnalysisProps {
+    days?: number;
+}
+
+export default function SleepAnalysis({ days = 30 }: SleepAnalysisProps) {
+    const data = useQuery(api.stats.getSleepAnalysis, { days });
 
     if (!data) return null;
 
