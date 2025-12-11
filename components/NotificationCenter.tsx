@@ -5,6 +5,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { Bell, X, Check, ChevronRight, Utensils, Droplets, Dumbbell, Flame, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useHaptics } from "../hooks/useHaptics";
 
 const MEAL_LABELS: Record<string, string> = {
     desayuno: "Breakfast",
@@ -22,6 +23,7 @@ const getMealLabel = (type: string) => MEAL_LABELS[type] || type;
 export default function NotificationCenter() {
     const [isOpen, setIsOpen] = useState(false);
     const [currentTime, setCurrentTime] = useState("");
+    const haptics = useHaptics();
 
     // Update current time every minute
     useEffect(() => {
@@ -112,7 +114,10 @@ export default function NotificationCenter() {
         <div className="relative">
             {/* Bell Button */}
             <button
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => {
+                    haptics.light();
+                    setIsOpen(!isOpen);
+                }}
                 className="relative p-2 rounded-full hover:bg-secondary transition-colors"
             >
                 <Bell className="w-5 h-5 text-muted-foreground" />

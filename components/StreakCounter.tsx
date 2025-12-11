@@ -7,12 +7,19 @@ import { Flame } from "lucide-react";
 import { motion } from "framer-motion";
 import { Skeleton } from "./ui/Skeleton";
 import { triggerConfetti } from "./ui/Confetti";
+import { useAnimatedCounter } from "../hooks/useAnimatedCounter";
 
 const MILESTONE_STREAKS = [7, 14, 30, 60, 100, 365];
 
 export default function StreakCounter() {
     const streakData = useQuery(api.gamification.getStreak);
     const previousStreak = useRef<number | null>(null);
+
+    // Animate the streak number
+    const animatedStreak = useAnimatedCounter(streakData?.currentStreak || 0, {
+        duration: 800,
+        easing: "easeOut"
+    });
 
     // Trigger confetti on milestone achievements
     useEffect(() => {
@@ -44,8 +51,8 @@ export default function StreakCounter() {
 
     return (
         <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all ${isMilestone
-                ? "bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border border-orange-500/30 shadow-lg shadow-orange-500/10"
-                : "bg-orange-500/10 border border-orange-500/20"
+            ? "bg-gradient-to-r from-orange-500/20 to-yellow-500/20 border border-orange-500/30 shadow-lg shadow-orange-500/10"
+            : "bg-orange-500/10 border border-orange-500/20"
             }`}>
             <motion.div
                 animate={{
@@ -60,8 +67,8 @@ export default function StreakCounter() {
             >
                 <Flame className="w-4 h-4 text-orange-500 fill-orange-500" />
             </motion.div>
-            <span className="text-2xl font-black text-orange-600 dark:text-orange-400">
-                {streakData.currentStreak}
+            <span className="text-2xl font-black text-orange-600 dark:text-orange-400 tabular-nums">
+                {Math.round(animatedStreak)}
             </span>
             {isMilestone && (
                 <motion.span

@@ -4,9 +4,17 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown, Minus, Sparkles, Moon, Dumbbell, Calendar, Utensils } from "lucide-react";
+import { useAnimatedCounter } from "../../hooks/useAnimatedCounter";
 
 export default function HealthScore() {
     const data = useQuery(api.stats.getHealthScore);
+
+    // Animate the score
+    const animatedScore = useAnimatedCounter(data?.score || 0, {
+        duration: 1200,
+        delay: 200,
+        easing: "easeOut"
+    });
 
     if (!data) return null;
 
@@ -75,7 +83,9 @@ export default function HealthScore() {
                             />
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <span className={`text-3xl font-bold ${getScoreColor(score)}`}>{score}</span>
+                            <span className={`text-3xl font-bold tabular-nums ${getScoreColor(score)}`}>
+                                {Math.round(animatedScore)}
+                            </span>
                             <span className="text-[10px] text-muted-foreground uppercase tracking-wider">/ 100</span>
                         </div>
                     </div>
