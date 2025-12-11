@@ -54,7 +54,7 @@ export default function AICoach() {
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: index * 0.1 }}
-                            className={`relative bg-gradient-to-r ${priorityStyles[item.priority]} border p-4 rounded-xl overflow-hidden`}
+                            className={`relative bg-gradient-to-r ${priorityStyles[item.priority]} border p-4 rounded-xl overflow-hidden card-interactive cursor-default`}
                         >
                             <div className="flex items-start gap-3">
                                 <span className="text-2xl shrink-0">{item.icon}</span>

@@ -44,7 +44,7 @@ export default function Sidebar() {
                                 : "text-muted-foreground hover:bg-white/50 hover:text-foreground"
                                 }`}
                         >
-                            <Icon className={`w-5 h-5 ${isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground"}`} />
+                            <Icon className={`w-5 h-5 icon-hover ${isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground group-hover:scale-110"}`} />
                             <span>{link.label}</span>
                         </Link>
                     );
