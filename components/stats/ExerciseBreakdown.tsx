@@ -3,12 +3,60 @@
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { motion } from "framer-motion";
-import { Dumbbell, Timer, Activity } from "lucide-react";
+import { Dumbbell, Timer, Activity, Plus } from "lucide-react";
+import { Skeleton } from "../ui/Skeleton";
+import Link from "next/link";
 
 export default function ExerciseBreakdown() {
     const data = useQuery(api.stats.getExerciseBreakdown, { days: 30 });
 
-    if (!data) return null;
+    // Loading state
+    if (data === undefined) {
+        return (
+            <div className="bg-card rounded-2xl border border-border/50 p-5">
+                <div className="flex items-center gap-2 mb-4">
+                    <Skeleton className="w-5 h-5 rounded" />
+                    <Skeleton className="h-5 w-36" />
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                        {[1, 2, 3].map(i => <Skeleton key={i} className="h-10 rounded" />)}
+                    </div>
+                    <div className="space-y-3">
+                        {[1, 2, 3].map(i => <Skeleton key={i} className="h-10 rounded" />)}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Empty state - no workouts
+    if (!data || data.totalWorkouts === 0) {
+        return (
+            <div className="bg-card rounded-2xl border border-border/50 p-5">
+                <div className="flex items-center gap-2 mb-4">
+                    <Dumbbell className="w-5 h-5 text-blue-500" />
+                    <h3 className="font-semibold">Exercise Breakdown</h3>
+                </div>
+                <div className="text-center py-8">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-500/10 flex items-center justify-center">
+                        <Dumbbell className="w-8 h-8 text-blue-500/50" />
+                    </div>
+                    <p className="text-muted-foreground mb-2">No workouts logged yet</p>
+                    <p className="text-sm text-muted-foreground/70 mb-4">
+                        Start tracking to see your exercise breakdown
+                    </p>
+                    <Link
+                        href="/"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                    >
+                        <Plus className="w-4 h-4" />
+                        Log your first workout
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     const totalIntensity = data.intensities.low + data.intensities.mid + data.intensities.high;
 
