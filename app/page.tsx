@@ -8,7 +8,6 @@ import DailyDashboard from "../components/DailyDashboard";
 import WeeklyDashboard from "../components/WeeklyDashboard";
 import { SegmentedControl } from "../components/ui/SegmentedControl";
 import DailyProgress from "../components/DailyProgress";
-import StreakCounter from "../components/StreakCounter";
 import NotificationCenter from "../components/NotificationCenter";
 import OfflineIndicator from "../components/OfflineIndicator";
 import DateSelector from "../components/DateSelector";
@@ -112,7 +111,6 @@ export default function Home() {
                 </button>
                 <DailyProgress selectedDate={selectedDate} />
                 <NotificationCenter />
-                <StreakCounter />
                 <OfflineIndicator />
               </div>
             </div>
