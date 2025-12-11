@@ -26,15 +26,28 @@ export interface Log {
     date: Date;
 }
 
+// Sync queue for offline operations
+export interface SyncQueueItem {
+    id?: number;
+    operationType: 'create' | 'update' | 'delete';
+    tableName: string;
+    data: Record<string, unknown>;
+    createdAt: Date;
+    retryCount: number;
+    lastError?: string;
+}
+
 export class PersonalTrackerDB extends Dexie {
     logs!: Table<Log>;
     foodItems!: Table<FoodItem>;
+    syncQueue!: Table<SyncQueueItem>;
 
     constructor() {
         super('PersonalTrackerDB');
-        this.version(8).stores({
+        this.version(9).stores({
             logs: '++id, mood, work, sleep, sleep_start, sleep_end, water, food, journal, date',
-            foodItems: '++id, &name, usage_count'
+            foodItems: '++id, &name, usage_count',
+            syncQueue: '++id, operationType, tableName, createdAt'
         });
     }
 }
