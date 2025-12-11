@@ -25,6 +25,7 @@ const WeekComparison = dynamic(() => import("../../components/stats/WeekComparis
 const MonthlySummary = dynamic(() => import("../../components/stats/MonthlySummary"), { ssr: false });
 const FoodFrequency = dynamic(() => import("../../components/stats/FoodFrequency"), { ssr: false });
 const ActivityCalendar = dynamic(() => import("../../components/stats/ActivityCalendar"), { ssr: false });
+const CalendarView = dynamic(() => import("../../components/CalendarView"), { ssr: false });
 
 // AI-powered components
 const HealthScore = dynamic(() => import("../../components/stats/HealthScore"), { ssr: false });
@@ -197,6 +198,8 @@ export default function StatisticsPage() {
                 <TrendCharts data={processedData || []} range={range} />
 
                 {/* Calendar Views */}
+                <CalendarView />
+
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <ActivityCalendar />
                     <ConsistencyGrid logs={consistencyLogs} />

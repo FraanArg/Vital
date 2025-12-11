@@ -1814,3 +1814,104 @@ export const getProgressiveSuggestions = query({
         return suggestions;
     },
 });
+
+// ============================================
+// MONTH COMPLETENESS - Detailed calendar data
+// ============================================
+export const getMonthCompleteness = query({
+    args: { month: v.number(), year: v.number() },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+        if (!identity) return [];
+
+        const userId = identity.subject;
+        const { month, year } = args;
+
+        const monthStart = new Date(year, month, 1);
+        const monthEnd = new Date(year, month + 1, 0);
+
+        const logs = await ctx.db
+            .query("logs")
+            .withIndex("by_userId_date", (q) =>
+                q.eq("userId", userId)
+                    .gte("date", monthStart.toISOString())
+                    .lte("date", monthEnd.toISOString())
+            )
+            .collect();
+
+        // Group by day
+        const dayData: Record<string, {
+            meals: number;
+            water: number;
+            sleep: number | null;
+            exercise: boolean;
+            exerciseType: string | null;
+            mood: number | null;
+        }> = {};
+
+        for (const log of logs) {
+            const day = log.date.split("T")[0];
+            if (!dayData[day]) {
+                dayData[day] = {
+                    meals: 0,
+                    water: 0,
+                    sleep: null,
+                    exercise: false,
+                    exerciseType: null,
+                    mood: null,
+                };
+            }
+            if (log.meal) dayData[day].meals++;
+            if (log.water) dayData[day].water += log.water;
+            if (log.sleep) dayData[day].sleep = log.sleep;
+            if (log.exercise) {
+                dayData[day].exercise = true;
+                dayData[day].exerciseType = log.exercise.type;
+            }
+            if (log.mood) dayData[day].mood = log.mood;
+        }
+
+        // Build result with completeness scores
+        const result = [];
+        for (let d = 1; d <= monthEnd.getDate(); d++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+            const data = dayData[dateStr];
+
+            // Calculate completeness (0-100)
+            let completeness = 0;
+            if (data) {
+                // Meals (40 points max - assume 3 meals = ideal)
+                completeness += Math.min(40, (data.meals / 3) * 40);
+                // Water (20 points max - 2L = ideal)
+                completeness += Math.min(20, (data.water / 2) * 20);
+                // Sleep (20 points max - logged = 20)
+                if (data.sleep) completeness += 20;
+                // Exercise (20 points max)
+                if (data.exercise) completeness += 20;
+            }
+
+            // Determine color level (0-4)
+            let level = 0;
+            if (completeness > 0) level = 1;
+            if (completeness >= 30) level = 2;
+            if (completeness >= 60) level = 3;
+            if (completeness >= 80) level = 4;
+
+            result.push({
+                date: dateStr,
+                day: d,
+                completeness: Math.round(completeness),
+                level,
+                hasData: !!data,
+                meals: data?.meals || 0,
+                water: data?.water || 0,
+                sleep: data?.sleep,
+                exercise: data?.exercise || false,
+                exerciseType: data?.exerciseType,
+                mood: data?.mood,
+            });
+        }
+
+        return result;
+    },
+});
