@@ -11,7 +11,6 @@
     "dependencies": {
         "@clerk/nextjs": "^6.35.5",
         "@ducanh2912/next-pwa": "^10.2.9",
-        "@types/canvas-confetti": "^1.9.0",
         "canvas-confetti": "^1.9.4",
         "clsx": "^2.1.1",
         "convex": "^1.29.3",
@@ -31,6 +30,7 @@
         "uuid": "^11.0.3"
     },
     "devDependencies": {
+        "@types/canvas-confetti": "^1.9.0",
         "@types/node": "^20",
         "@types/react": "^19",
         "@types/react-dom": "^19",

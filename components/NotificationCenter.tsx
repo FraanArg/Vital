@@ -7,14 +7,14 @@ import { Bell, X, Check, ChevronRight, Utensils, Droplets, Dumbbell, Flame, Spar
 import { motion, AnimatePresence } from "framer-motion";
 
 const MEAL_LABELS: Record<string, string> = {
-    desayuno: "Desayuno",
-    colacion_am: "Col. AM",
-    almuerzo: "Almuerzo",
-    colacion_pm: "Col. PM",
-    merienda: "Merienda",
-    colacion_night: "Col. Noche",
-    cena: "Cena",
-    postre: "Postre"
+    desayuno: "Breakfast",
+    colacion_am: "Morning Snack",
+    almuerzo: "Lunch",
+    colacion_pm: "Afternoon Snack",
+    merienda: "Snack",
+    colacion_night: "Night Snack",
+    cena: "Dinner",
+    postre: "Dessert"
 };
 
 const getMealLabel = (type: string) => MEAL_LABELS[type] || type;
@@ -145,7 +145,7 @@ export default function NotificationCenter() {
                             <div className="p-4 border-b border-border flex justify-between items-center bg-muted/30">
                                 <div className="flex items-center gap-2">
                                     <Bell className="w-5 h-5 text-primary" />
-                                    <h3 className="font-semibold">Notificaciones</h3>
+                                    <h3 className="font-semibold">Notifications</h3>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     {notifications && notifications.some(n => !n.read) && (
@@ -153,7 +153,7 @@ export default function NotificationCenter() {
                                             onClick={() => markAllRead()}
                                             className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                                         >
-                                            Marcar todo leído
+                                            Mark all read
                                         </button>
                                     )}
                                     <button
@@ -179,7 +179,7 @@ export default function NotificationCenter() {
                                                     {streakAlert.message}
                                                 </p>
                                                 <p className="text-xs text-muted-foreground">
-                                                    {streakAlert.hoursLeft > 0 ? `Quedan ${streakAlert.hoursLeft}h para registrar` : '¡Última hora!'}
+                                                    {streakAlert.hoursLeft > 0 ? `${streakAlert.hoursLeft}h left to log` : 'Last hour!'}
                                                 </p>
                                             </div>
                                         </div>
@@ -195,12 +195,12 @@ export default function NotificationCenter() {
                                             </div>
                                             <div>
                                                 <p className="font-semibold text-amber-600 dark:text-amber-400">
-                                                    🔥 {streak.streak} días de racha
+                                                    🔥 {streak.streak} day streak
                                                 </p>
                                                 <p className="text-xs text-muted-foreground">
                                                     {streak.hasLoggedToday
-                                                        ? "¡Ya registraste hoy!"
-                                                        : "¡No olvides registrar hoy!"}
+                                                        ? "Already logged today!"
+                                                        : "Don't forget to log today!"}
                                                 </p>
                                             </div>
                                         </div>
@@ -211,7 +211,7 @@ export default function NotificationCenter() {
                                 {endOfDaySummary && (
                                     <div className="p-3 m-3 rounded-xl bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20">
                                         <div className="flex items-center justify-between mb-2">
-                                            <p className="font-semibold text-indigo-600 dark:text-indigo-400">📊 Resumen del día</p>
+                                            <p className="font-semibold text-indigo-600 dark:text-indigo-400">📊 Daily Summary</p>
                                             <span className="text-xs font-bold text-indigo-500">{endOfDaySummary.completenessPercent}%</span>
                                         </div>
                                         <div className="h-2 bg-muted rounded-full overflow-hidden mb-2">
@@ -223,7 +223,7 @@ export default function NotificationCenter() {
                                         <p className="text-xs text-muted-foreground">{endOfDaySummary.message}</p>
                                         {endOfDaySummary.missing.meals.length > 0 && (
                                             <p className="text-xs text-muted-foreground mt-1">
-                                                Falta: {endOfDaySummary.missing.meals.slice(0, 3).join(', ')}
+                                                Missing: {endOfDaySummary.missing.meals.slice(0, 3).join(', ')}
                                             </p>
                                         )}
                                     </div>
@@ -233,7 +233,7 @@ export default function NotificationCenter() {
                                 {upcomingReminders && upcomingReminders.length > 0 && (
                                     <div className="p-3">
                                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-1">
-                                            Recordatorios
+                                            Reminders
                                         </p>
                                         {upcomingReminders.map((reminder, i) => (
                                             <div
@@ -245,10 +245,10 @@ export default function NotificationCenter() {
                                                 </div>
                                                 <div className="flex-1">
                                                     <p className="font-medium text-sm">
-                                                        Hora de {getMealLabel(reminder.mealType).toLowerCase()}
+                                                        Time for {getMealLabel(reminder.mealType).toLowerCase()}
                                                     </p>
                                                     <p className="text-xs text-muted-foreground">
-                                                        Generalmente comes a las {reminder.typicalTime}
+                                                        Usually you eat at {reminder.typicalTime}
                                                     </p>
                                                 </div>
                                             </div>
@@ -260,7 +260,7 @@ export default function NotificationCenter() {
                                 {missingMeals && missingMeals.length > 0 && (
                                     <div className="p-3">
                                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-1">
-                                            Comidas sin registrar
+                                            Unlogged meals
                                         </p>
                                         {missingMeals.slice(0, 3).map((meal, i) => (
                                             <div
@@ -272,10 +272,10 @@ export default function NotificationCenter() {
                                                 </div>
                                                 <div className="flex-1">
                                                     <p className="font-medium text-sm">
-                                                        ¿Ya comiste {getMealLabel(meal.mealType).toLowerCase()}?
+                                                        Did you have {getMealLabel(meal.mealType).toLowerCase()}?
                                                     </p>
                                                     <p className="text-xs text-muted-foreground">
-                                                        Normalmente a las {meal.expectedTime}
+                                                        Usually at {meal.expectedTime}
                                                     </p>
                                                 </div>
                                             </div>
@@ -287,7 +287,7 @@ export default function NotificationCenter() {
                                 {smartNudges && smartNudges.length > 0 && (
                                     <div className="p-3">
                                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 px-1">
-                                            Insights de la semana
+                                            Weekly Insights
                                         </p>
                                         {smartNudges.map((nudge, i) => (
                                             <div
@@ -312,10 +312,10 @@ export default function NotificationCenter() {
                                         <div className="p-8 text-center">
                                             <Bell className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
                                             <p className="text-sm text-muted-foreground">
-                                                No hay notificaciones
+                                                No notifications
                                             </p>
                                             <p className="text-xs text-muted-foreground/70 mt-1">
-                                                Registra comidas para recibir recordatorios inteligentes
+                                                Log meals to receive smart reminders
                                             </p>
                                         </div>
                                     )}
@@ -327,7 +327,7 @@ export default function NotificationCenter() {
                                     href="/profile"
                                     className="flex items-center justify-between px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
                                 >
-                                    <span>Configurar notificaciones</span>
+                                    <span>Notification settings</span>
                                     <ChevronRight className="w-4 h-4" />
                                 </a>
                             </div>

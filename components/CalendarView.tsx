@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
-import { ChevronLeft, ChevronRight, Utensils, Droplets, Dumbbell, Moon, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight, Utensils, Droplets, Dumbbell, Moon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { Skeleton } from "./ui/Skeleton";
 
 const LEVEL_COLORS = [
     "bg-muted",
@@ -15,7 +16,7 @@ const LEVEL_COLORS = [
     "bg-emerald-600 dark:bg-emerald-400",
 ];
 
-const WEEKDAYS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 interface DayData {
     date: string;
@@ -31,6 +32,43 @@ interface DayData {
     mood: number | null;
 }
 
+// Skeleton loader for the calendar
+function CalendarSkeleton() {
+    return (
+        <div className="bg-card rounded-2xl border border-border/50 p-5 shadow-sm animate-pulse">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+                <Skeleton className="h-7 w-40" />
+                <div className="flex items-center gap-1">
+                    <Skeleton className="w-9 h-9 rounded-xl" />
+                    <Skeleton className="w-16 h-9 rounded-xl" />
+                    <Skeleton className="w-9 h-9 rounded-xl" />
+                </div>
+            </div>
+
+            {/* Weekday headers */}
+            <div className="grid grid-cols-7 gap-1 mb-2">
+                {WEEKDAYS.map((_, i) => (
+                    <Skeleton key={i} className="h-6 w-full rounded" />
+                ))}
+            </div>
+
+            {/* Calendar grid */}
+            <div className="grid grid-cols-7 gap-1.5">
+                {Array.from({ length: 35 }).map((_, i) => (
+                    <Skeleton key={i} className="aspect-square rounded-xl" />
+                ))}
+            </div>
+
+            {/* Legend */}
+            <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/50">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-4 w-48" />
+            </div>
+        </div>
+    );
+}
+
 export default function CalendarView() {
     const router = useRouter();
     const [monthOffset, setMonthOffset] = useState(0);
@@ -44,7 +82,7 @@ export default function CalendarView() {
         year: targetMonth.getFullYear()
     });
 
-    const monthName = targetMonth.toLocaleDateString("es-AR", { month: "long", year: "numeric" });
+    const monthName = targetMonth.toLocaleDateString("en-US", { month: "long", year: "numeric" });
 
     // Get the day of week the month starts on (0 = Sunday)
     const firstDayOfWeek = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), 1).getDay();
@@ -75,6 +113,11 @@ export default function CalendarView() {
         }
     };
 
+    // Show skeleton while loading
+    if (!data) {
+        return <CalendarSkeleton />;
+    }
+
     return (
         <div className="bg-card rounded-2xl border border-border/50 p-5 shadow-sm">
             {/* Header */}
@@ -91,7 +134,7 @@ export default function CalendarView() {
                         onClick={() => { setMonthOffset(0); setSelectedDay(null); }}
                         className="px-3 py-1.5 text-sm font-medium hover:bg-secondary rounded-xl transition-colors"
                     >
-                        Hoy
+                        Today
                     </button>
                     <button
                         onClick={() => { setMonthOffset(m => Math.min(m + 1, 0)); setSelectedDay(null); }}
@@ -120,7 +163,7 @@ export default function CalendarView() {
                 ))}
 
                 {/* Day cells */}
-                {data?.map((day) => {
+                {data.map((day) => {
                     const isSelected = selectedDay?.date === day.date;
                     const dayIsToday = isToday(day.date);
                     const dayIsFuture = isFuture(day.date);
@@ -159,24 +202,24 @@ export default function CalendarView() {
             {/* Legend */}
             <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/50">
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <span>Menos</span>
+                    <span>Less</span>
                     {LEVEL_COLORS.map((color, i) => (
                         <div key={i} className={`w-4 h-4 rounded ${color}`} />
                     ))}
-                    <span>Más</span>
+                    <span>More</span>
                 </div>
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
                     <div className="flex items-center gap-1">
                         <div className="w-2 h-2 rounded-full bg-orange-500" />
-                        <span>Comidas</span>
+                        <span>Meals</span>
                     </div>
                     <div className="flex items-center gap-1">
                         <div className="w-2 h-2 rounded-full bg-blue-500" />
-                        <span>Agua</span>
+                        <span>Water</span>
                     </div>
                     <div className="flex items-center gap-1">
                         <div className="w-2 h-2 rounded-full bg-green-600" />
-                        <span>Ejercicio</span>
+                        <span>Exercise</span>
                     </div>
                 </div>
             </div>
@@ -193,7 +236,7 @@ export default function CalendarView() {
                         <div className="mt-4 p-4 rounded-xl bg-muted/50 border border-border/50">
                             <div className="flex items-center justify-between mb-3">
                                 <h3 className="font-semibold">
-                                    {new Date(selectedDay.date).toLocaleDateString("es-AR", {
+                                    {new Date(selectedDay.date).toLocaleDateString("en-US", {
                                         weekday: "long",
                                         day: "numeric",
                                         month: "long"
@@ -201,8 +244,8 @@ export default function CalendarView() {
                                 </h3>
                                 <div className="flex items-center gap-2">
                                     <span className={`text-sm font-bold px-2 py-0.5 rounded ${selectedDay.completeness >= 80 ? "bg-emerald-500/20 text-emerald-600" :
-                                            selectedDay.completeness >= 50 ? "bg-yellow-500/20 text-yellow-600" :
-                                                "bg-muted text-muted-foreground"
+                                        selectedDay.completeness >= 50 ? "bg-yellow-500/20 text-yellow-600" :
+                                            "bg-muted text-muted-foreground"
                                         }`}>
                                         {selectedDay.completeness}%
                                     </span>
@@ -213,28 +256,28 @@ export default function CalendarView() {
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                     <div className="flex items-center gap-2 p-2 rounded-lg bg-background">
                                         <Utensils className="w-4 h-4 text-orange-500" />
-                                        <span className="text-sm">{selectedDay.meals} comidas</span>
+                                        <span className="text-sm">{selectedDay.meals} meals</span>
                                     </div>
                                     <div className="flex items-center gap-2 p-2 rounded-lg bg-background">
                                         <Droplets className="w-4 h-4 text-blue-500" />
-                                        <span className="text-sm">{selectedDay.water.toFixed(1)}L agua</span>
+                                        <span className="text-sm">{selectedDay.water.toFixed(1)}L water</span>
                                     </div>
                                     <div className="flex items-center gap-2 p-2 rounded-lg bg-background">
                                         <Moon className="w-4 h-4 text-indigo-500" />
                                         <span className="text-sm">
-                                            {selectedDay.sleep ? `${selectedDay.sleep}h sueño` : "Sin registro"}
+                                            {selectedDay.sleep ? `${selectedDay.sleep}h sleep` : "Not logged"}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-2 p-2 rounded-lg bg-background">
                                         <Dumbbell className="w-4 h-4 text-green-500" />
                                         <span className="text-sm">
-                                            {selectedDay.exercise ? (selectedDay.exerciseType || "Ejercicio") : "Sin ejercicio"}
+                                            {selectedDay.exercise ? (selectedDay.exerciseType || "Exercise") : "No exercise"}
                                         </span>
                                     </div>
                                 </div>
                             ) : (
                                 <p className="text-sm text-muted-foreground text-center py-4">
-                                    No hay registros para este día
+                                    No logs for this day
                                 </p>
                             )}
 
@@ -242,7 +285,7 @@ export default function CalendarView() {
                                 onClick={() => router.push(`/?date=${selectedDay.date}`)}
                                 className="w-full mt-3 p-2 text-sm font-medium text-primary hover:bg-primary/10 rounded-lg transition-colors"
                             >
-                                Ver este día →
+                                View this day →
                             </button>
                         </div>
                     </motion.div>

@@ -2,12 +2,13 @@
 
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { TrendingUp, TrendingDown, Minus, Utensils, Droplets, Dumbbell, Moon, Calendar, Flame } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, Utensils, Droplets, Dumbbell, Moon, Flame } from "lucide-react";
 import {
     BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell, AreaChart, Area
 } from "recharts";
+import { Skeleton } from "../ui/Skeleton";
 
-const DAYS_ES = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 interface ChangeIndicatorProps {
     value: number;
@@ -19,7 +20,7 @@ function ChangeIndicator({ value, unit = "", inverted = false }: ChangeIndicator
     if (value === 0) {
         return (
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Minus className="w-3 h-3" /> Sin cambio
+                <Minus className="w-3 h-3" /> No change
             </span>
         );
     }
@@ -30,7 +31,7 @@ function ChangeIndicator({ value, unit = "", inverted = false }: ChangeIndicator
     return (
         <span className={`flex items-center gap-1 text-xs ${isPositive ? "text-emerald-500" : "text-red-500"}`}>
             <Icon className="w-3 h-3" />
-            {value > 0 ? "+" : ""}{value}{unit} vs semana pasada
+            {value > 0 ? "+" : ""}{value}{unit} vs last week
         </span>
     );
 }
@@ -59,26 +60,52 @@ function StatCard({ icon, label, value, subValue, change, unit, bgColor = "bg-mu
     );
 }
 
+function StatCardSkeleton() {
+    return (
+        <div className="p-4 rounded-xl bg-muted/50">
+            <div className="flex items-center gap-2 mb-2">
+                <Skeleton className="w-4 h-4 rounded" />
+                <Skeleton className="h-4 w-20" />
+            </div>
+            <Skeleton className="h-8 w-16 mb-1" />
+            <Skeleton className="h-3 w-24" />
+        </div>
+    );
+}
+
+function WeeklyReportSkeleton() {
+    return (
+        <div className="bg-card rounded-2xl border border-border/50 p-6">
+            <div className="flex items-center justify-between mb-6">
+                <div>
+                    <Skeleton className="h-6 w-36 mb-2" />
+                    <Skeleton className="h-4 w-48" />
+                </div>
+                <Skeleton className="h-8 w-20 rounded-full" />
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                {[1, 2, 3, 4].map(i => <StatCardSkeleton key={i} />)}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Skeleton className="h-40 rounded-xl" />
+                <Skeleton className="h-40 rounded-xl" />
+            </div>
+        </div>
+    );
+}
+
 export default function WeeklyReport() {
     const comparison = useQuery(api.stats.getWeekComparison);
     const streak = useQuery(api.notifications.getLoggingStreak);
-    const trendData = useQuery(api.insights.getWeeklyTrends);
 
     if (!comparison) {
-        return (
-            <div className="bg-card rounded-2xl border border-border/50 p-6 animate-pulse">
-                <div className="h-6 w-48 bg-muted rounded mb-4" />
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-muted rounded-xl" />)}
-                </div>
-            </div>
-        );
+        return <WeeklyReportSkeleton />;
     }
 
-    const { thisWeek, lastWeek, changes } = comparison;
+    const { thisWeek, changes } = comparison;
 
-    // Prepare chart data (mock for now - would need actual daily breakdown)
-    const chartData = DAYS_ES.map((day, i) => ({
+    // Prepare chart data
+    const chartData = DAYS.map((day) => ({
         name: day,
         exercise: Math.random() > 0.4 ? Math.floor(Math.random() * 60) + 20 : 0,
         water: Math.random() * 2 + 0.5,
@@ -89,14 +116,14 @@ export default function WeeklyReport() {
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h2 className="text-xl font-bold">Resumen Semanal</h2>
-                    <p className="text-sm text-muted-foreground">Esta semana vs la anterior</p>
+                    <h2 className="text-xl font-bold">Weekly Summary</h2>
+                    <p className="text-sm text-muted-foreground">This week vs last week</p>
                 </div>
                 {streak && streak.streak > 0 && (
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 rounded-full">
                         <Flame className="w-4 h-4 text-amber-500" />
                         <span className="text-sm font-medium text-amber-600 dark:text-amber-400">
-                            {streak.streak} días
+                            {streak.streak} days
                         </span>
                     </div>
                 )}
@@ -106,22 +133,22 @@ export default function WeeklyReport() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <StatCard
                     icon={<Dumbbell className="w-4 h-4 text-green-500" />}
-                    label="Entrenamientos"
+                    label="Workouts"
                     value={thisWeek.workouts}
-                    subValue={`${thisWeek.exerciseMinutes} min totales`}
+                    subValue={`${thisWeek.exerciseMinutes} min total`}
                     change={changes.workouts}
                     bgColor="bg-green-500/10"
                 />
                 <StatCard
                     icon={<Utensils className="w-4 h-4 text-orange-500" />}
-                    label="Comidas"
+                    label="Meals"
                     value={thisWeek.meals}
                     change={changes.meals}
                     bgColor="bg-orange-500/10"
                 />
                 <StatCard
                     icon={<Droplets className="w-4 h-4 text-blue-500" />}
-                    label="Agua Total"
+                    label="Total Water"
                     value={`${thisWeek.totalWater.toFixed(1)}L`}
                     change={changes.totalWater}
                     unit="L"
@@ -129,7 +156,7 @@ export default function WeeklyReport() {
                 />
                 <StatCard
                     icon={<Moon className="w-4 h-4 text-indigo-500" />}
-                    label="Sueño Prom."
+                    label="Avg. Sleep"
                     value={`${thisWeek.avgSleep.toFixed(1)}h`}
                     change={changes.avgSleep}
                     unit="h"
@@ -141,7 +168,7 @@ export default function WeeklyReport() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Exercise Chart */}
                 <div className="p-4 bg-muted/50 rounded-xl">
-                    <h3 className="text-sm font-medium mb-3">Ejercicio por día</h3>
+                    <h3 className="text-sm font-medium mb-3">Exercise by day</h3>
                     <ResponsiveContainer width="100%" height={120}>
                         <BarChart data={chartData}>
                             <XAxis dataKey="name" fontSize={10} tickLine={false} axisLine={false} />
@@ -169,7 +196,7 @@ export default function WeeklyReport() {
 
                 {/* Water Chart */}
                 <div className="p-4 bg-muted/50 rounded-xl">
-                    <h3 className="text-sm font-medium mb-3">Agua por día</h3>
+                    <h3 className="text-sm font-medium mb-3">Water by day</h3>
                     <ResponsiveContainer width="100%" height={120}>
                         <AreaChart data={chartData}>
                             <XAxis dataKey="name" fontSize={10} tickLine={false} axisLine={false} />
@@ -197,18 +224,18 @@ export default function WeeklyReport() {
 
             {/* Week over Week Summary */}
             <div className="mt-6 p-4 bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl">
-                <h3 className="text-sm font-medium mb-2">📈 Comparación</h3>
+                <h3 className="text-sm font-medium mb-2">📈 Comparison</h3>
                 <div className="flex flex-wrap gap-4 text-sm">
                     <div className="flex items-center gap-2">
-                        <span className="text-muted-foreground">Entrenamientos:</span>
+                        <span className="text-muted-foreground">Workouts:</span>
                         <ChangeIndicator value={changes.workouts} />
                     </div>
                     <div className="flex items-center gap-2">
-                        <span className="text-muted-foreground">Minutos:</span>
+                        <span className="text-muted-foreground">Minutes:</span>
                         <ChangeIndicator value={changes.exerciseMinutes} unit=" min" />
                     </div>
                     <div className="flex items-center gap-2">
-                        <span className="text-muted-foreground">Sueño:</span>
+                        <span className="text-muted-foreground">Sleep:</span>
                         <ChangeIndicator value={changes.avgSleep} unit="h" />
                     </div>
                 </div>
