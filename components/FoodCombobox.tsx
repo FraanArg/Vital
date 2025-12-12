@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo, useCallback, memo } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { Doc } from "../convex/_generated/dataModel";
@@ -11,7 +11,7 @@ interface FoodComboboxProps {
     onItemsChange: (items: string[]) => void;
 }
 
-export default function FoodCombobox({ selectedItems, onItemsChange }: FoodComboboxProps) {
+function FoodCombobox({ selectedItems, onItemsChange }: FoodComboboxProps) {
     const [query, setQuery] = useState("");
     const [isOpen, setIsOpen] = useState(false);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -20,12 +20,17 @@ export default function FoodCombobox({ selectedItems, onItemsChange }: FoodCombo
     const createItem = useMutation(api.foodItems.create);
     const incrementUsage = useMutation(api.foodItems.incrementUsage);
 
-    // Filter and sort items
-    const suggestions = allItems?.filter((item: Doc<"foodItems">) => {
-        if (!query) return true;
-        return item.name.toLowerCase().includes(query.toLowerCase());
-    }).sort((a: Doc<"foodItems">, b: Doc<"foodItems">) => (b.usage_count || 0) - (a.usage_count || 0))
-        .slice(0, 5);
+    // Memoize filtered suggestions to avoid recalculating on every render
+    const suggestions = useMemo(() => {
+        if (!allItems) return [];
+        const filtered = allItems.filter((item: Doc<"foodItems">) => {
+            if (!query) return true;
+            return item.name.toLowerCase().includes(query.toLowerCase());
+        });
+        return filtered
+            .sort((a: Doc<"foodItems">, b: Doc<"foodItems">) => (b.usage_count || 0) - (a.usage_count || 0))
+            .slice(0, 5);
+    }, [allItems, query]);
 
     const addItem = async (name: string) => {
         if (!selectedItems.includes(name)) {
@@ -134,3 +139,5 @@ export default function FoodCombobox({ selectedItems, onItemsChange }: FoodCombo
         </div>
     );
 }
+
+export default memo(FoodCombobox);

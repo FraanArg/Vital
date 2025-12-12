@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo, memo } from "react";
 import { format, addDays, addWeeks, subWeeks, isSameDay, startOfDay, endOfDay, startOfWeek } from "date-fns";
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,7 +12,7 @@ interface DateSelectorProps {
     onDateChange: (date: Date) => void;
 }
 
-export default function DateSelector({ selectedDate, onDateChange }: DateSelectorProps) {
+function DateSelector({ selectedDate, onDateChange }: DateSelectorProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
     const [slideDirection, setSlideDirection] = useState<"left" | "right" | null>(null);
 
@@ -281,3 +281,5 @@ export default function DateSelector({ selectedDate, onDateChange }: DateSelecto
         </div>
     );
 }
+
+export default memo(DateSelector);
