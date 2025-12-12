@@ -5,6 +5,7 @@ import LogEntry from "./LogEntry";
 import LogList from "./LogList";
 import dynamic from "next/dynamic";
 import TodaySummary from "./TodaySummary";
+import StreakBadge from "./StreakBadge";
 import { Doc } from "../convex/_generated/dataModel";
 
 const WeeklyDigest = dynamic(() => import("./insights/WeeklyDigest"), { ssr: false });
@@ -39,6 +40,7 @@ export default function DailyDashboard({
                 {/* Left Column: Summary + Insights (Desktop only) */}
                 <aside className="hidden lg:flex lg:col-span-3 flex-col gap-4" aria-label="Daily insights">
                     <TodaySummary selectedDate={selectedDate} onQuickAdd={onTrackerChange} />
+                    <StreakBadge />
                     <SmartReminders />
                     <SleepDebt />
                     <WeeklyDigest />

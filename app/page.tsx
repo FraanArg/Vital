@@ -14,6 +14,7 @@ import DateSelector from "../components/DateSelector";
 import UndoToast from "../components/UndoToast";
 import PullToRefresh from "../components/PullToRefresh";
 import QuickAddFAB from "../components/QuickAddFAB";
+import Onboarding, { useOnboarding } from "../components/Onboarding";
 import { TRACKERS } from "../lib/tracker-registry";
 import { Doc } from "../convex/_generated/dataModel";
 import { Plus } from "lucide-react";
@@ -42,6 +43,7 @@ export default function Home() {
   const [activeTracker, setActiveTracker] = useState<string | null>(null);
   const [editingLog, setEditingLog] = useState<Doc<"logs"> | null>(null);
   const [viewMode, setViewMode] = useState<"daily" | "weekly">("daily");
+  const { showOnboarding, completeOnboarding } = useOnboarding();
 
   useEffect(() => {
     setTimeout(() => setIsMounted(true), 0);
@@ -146,6 +148,7 @@ export default function Home() {
       <PrefetchDays date={selectedDate} />
       <QuickAddFAB selectedDate={selectedDate} onTrackerSelect={handleTrackerChange} />
       <UndoToast />
+      {showOnboarding && <Onboarding onComplete={completeOnboarding} />}
     </div>
   );
 }
