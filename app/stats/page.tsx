@@ -4,17 +4,17 @@ import { useState, useMemo } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subDays, format } from "date-fns";
-import StatsHeader from "../../components/stats/StatsHeader";
+import { motion, AnimatePresence } from "framer-motion";
+import { Activity, Moon, Dumbbell, Utensils, Sparkles, TrendingUp } from "lucide-react";
 import dynamic from "next/dynamic";
 
 import ConsistencyGrid from "../../components/stats/ConsistencyGrid";
 import { Skeleton } from "../../components/ui/Skeleton";
 
+// Lazy load all stat components
 const ActivityRings = dynamic(() => import("../../components/stats/ActivityRings"), { ssr: false });
 const TrendCharts = dynamic(() => import("../../components/stats/TrendCharts"), { ssr: false });
 const InsightsSection = dynamic(() => import("../../components/insights/InsightsSection"), { ssr: false });
-
-// New stats components
 const NutritionBreakdown = dynamic(() => import("../../components/stats/NutritionBreakdown"), { ssr: false });
 const SleepAnalysis = dynamic(() => import("../../components/stats/SleepAnalysis"), { ssr: false });
 const ExerciseBreakdown = dynamic(() => import("../../components/stats/ExerciseBreakdown"), { ssr: false });
@@ -29,8 +29,6 @@ const ActivityCalendar = dynamic(() => import("../../components/stats/ActivityCa
 const CalendarView = dynamic(() => import("../../components/CalendarView"), { ssr: false });
 const WeeklyReport = dynamic(() => import("../../components/stats/WeeklyReport"), { ssr: false });
 const MonthlyReportComponent = dynamic(() => import("../../components/stats/MonthlyReport"), { ssr: false });
-
-// AI-powered components
 const HealthScore = dynamic(() => import("../../components/stats/HealthScore"), { ssr: false });
 const AICoach = dynamic(() => import("../../components/stats/AICoach"), { ssr: false });
 const Predictions = dynamic(() => import("../../components/stats/Predictions"), { ssr: false });
@@ -38,10 +36,20 @@ const DailyNutrientBalance = dynamic(() => import("../../components/stats/DailyN
 const AdvancedCorrelations = dynamic(() => import("../../components/stats/AdvancedCorrelations"), { ssr: false });
 const MealSuggestions = dynamic(() => import("../../components/MealSuggestions"), { ssr: false });
 
+type TabId = "overview" | "sleep" | "exercise" | "nutrition" | "insights";
+
+const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
+    { id: "overview", label: "Overview", icon: Activity },
+    { id: "sleep", label: "Sleep", icon: Moon },
+    { id: "exercise", label: "Exercise", icon: Dumbbell },
+    { id: "nutrition", label: "Nutrition", icon: Utensils },
+    { id: "insights", label: "Insights", icon: Sparkles },
+];
+
 export default function StatisticsPage() {
     const [range, setRange] = useState<"week" | "month" | "year">("week");
+    const [activeTab, setActiveTab] = useState<TabId>("overview");
 
-    // Convert range to days for component props
     const rangeToDays = (r: "week" | "month" | "year"): number => {
         switch (r) {
             case "week": return 7;
@@ -52,7 +60,6 @@ export default function StatisticsPage() {
 
     const days = rangeToDays(range);
 
-    // Calculate date range
     const { start, end } = useMemo(() => {
         const now = new Date();
         switch (range) {
@@ -70,7 +77,6 @@ export default function StatisticsPage() {
         to: end.toISOString()
     });
 
-    // Fetch longer history for consistency grid (last 90 days)
     const now = useMemo(() => new Date(), []);
     const consistencyStart = useMemo(() => subDays(now, 90), [now]);
     const consistencyLogs = useQuery(api.logs.getStats, {
@@ -78,20 +84,18 @@ export default function StatisticsPage() {
         to: now.toISOString()
     });
 
-
+    interface AggregatedDay {
+        date: string;
+        work: number;
+        sleep: number;
+        water: number;
+        mood: number;
+        exerciseDuration: number;
+        moodCount: number;
+    }
 
     const processedData = useMemo(() => {
         if (!logs) return null;
-
-        interface AggregatedDay {
-            date: string;
-            work: number;
-            sleep: number;
-            water: number;
-            mood: number;
-            exerciseDuration: number;
-            moodCount: number;
-        }
 
         const aggregated = logs.reduce((acc, log) => {
             const dateKey = format(new Date(log.date), "yyyy-MM-dd");
@@ -141,26 +145,16 @@ export default function StatisticsPage() {
         };
     }, [processedData]);
 
-
-
     if (!logs || !consistencyLogs) {
         return (
             <div className="min-h-screen p-4 sm:p-8 pb-24 flex flex-col items-center justify-center">
                 <div className="w-full max-w-5xl space-y-8">
                     <div className="text-center text-muted-foreground mb-4">Loading statistics...</div>
-                    <div className="flex justify-between items-center">
-                        <Skeleton className="h-10 w-48" />
-                        <Skeleton className="h-8 w-64 rounded-xl" />
-                    </div>
+                    <Skeleton className="h-12 w-full rounded-2xl" />
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <Skeleton className="h-[250px] rounded-3xl" />
-                        <div className="space-y-4">
-                            <Skeleton className="h-20 rounded-2xl" />
-                            <Skeleton className="h-20 rounded-2xl" />
-                            <Skeleton className="h-20 rounded-2xl" />
-                        </div>
+                        <Skeleton className="h-[250px] rounded-3xl" />
                     </div>
-                    <Skeleton className="h-[300px] rounded-3xl" />
                 </div>
             </div>
         );
@@ -169,70 +163,121 @@ export default function StatisticsPage() {
     return (
         <div className="min-h-screen p-4 sm:p-8 pb-24 flex flex-col items-center">
             <div className="w-full max-w-5xl space-y-6">
-                <StatsHeader range={range} setRange={setRange} />
-
-                {/* AI Hero Section - Health Score */}
-                <HealthScore />
-
-                {/* AI Coach & Predictions Row */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <AICoach />
-                    <Predictions />
+                {/* Header with Range Selector */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-2xl font-bold tracking-tight">Statistics</h1>
+                        <p className="text-sm text-muted-foreground">Track your progress over time</p>
+                    </div>
+                    <div className="flex items-center gap-1 p-1 bg-secondary/50 rounded-xl">
+                        {(["week", "month", "year"] as const).map((r) => (
+                            <button
+                                key={r}
+                                onClick={() => setRange(r)}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${range === r
+                                        ? "bg-card shadow-sm text-foreground"
+                                        : "text-muted-foreground hover:text-foreground"
+                                    }`}
+                            >
+                                {r.charAt(0).toUpperCase() + r.slice(1)}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
-                {/* Weekly & Monthly Reports */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <WeeklyReport />
-                    <MonthlyReportComponent />
+                {/* Tab Navigation */}
+                <div className="flex gap-1 p-1 bg-secondary/30 rounded-2xl overflow-x-auto">
+                    {TABS.map((tab) => {
+                        const Icon = tab.icon;
+                        const isActive = activeTab === tab.id;
+                        return (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${isActive
+                                        ? "bg-card shadow-sm text-foreground"
+                                        : "text-muted-foreground hover:text-foreground hover:bg-card/50"
+                                    }`}
+                                aria-selected={isActive}
+                                role="tab"
+                            >
+                                <Icon className="w-4 h-4" />
+                                <span className="hidden sm:inline">{tab.label}</span>
+                            </button>
+                        );
+                    })}
                 </div>
 
-                {/* Monthly Summary - compact version */}
-                <MonthlySummary />
+                {/* Tab Content */}
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={activeTab}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className="space-y-6"
+                    >
+                        {activeTab === "overview" && (
+                            <>
+                                <HealthScore />
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    <ActivityRings averages={averages} />
+                                    <WeekComparison />
+                                </div>
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    <WeeklyReport />
+                                    <MonthlyReportComponent />
+                                </div>
+                                <MonthlySummary />
+                                <TrendCharts data={processedData || []} range={range} />
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    <ActivityCalendar />
+                                    <ConsistencyGrid logs={consistencyLogs} />
+                                </div>
+                            </>
+                        )}
 
-                {/* Overview Row */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <ActivityRings averages={averages} />
-                    <WeekComparison />
-                </div>
+                        {activeTab === "sleep" && (
+                            <>
+                                <SleepAnalysis days={days} />
+                                <TimePatterns />
+                                <CalendarView />
+                            </>
+                        )}
 
-                {/* Personal Bests & Achievements */}
-                <PersonalBests />
-                <Achievements />
+                        {activeTab === "exercise" && (
+                            <>
+                                <ExerciseBreakdown days={days} />
+                                <PersonalBests />
+                                <PersonalRecords />
+                                <Achievements />
+                            </>
+                        )}
 
-                {/* Detailed Analysis */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <SleepAnalysis days={days} />
-                    <TimePatterns />
-                </div>
+                        {activeTab === "nutrition" && (
+                            <>
+                                <DailyNutrientBalance />
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    <NutritionBreakdown />
+                                    <FoodFrequency />
+                                </div>
+                                <MealSuggestions />
+                            </>
+                        )}
 
-                <ExerciseBreakdown days={days} />
-
-                {/* Nutrition */}
-                <DailyNutrientBalance />
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <NutritionBreakdown />
-                    <FoodFrequency />
-                </div>
-
-                {/* Trends & Charts */}
-                <TrendCharts data={processedData || []} range={range} />
-
-                {/* Calendar Views */}
-                <CalendarView />
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <ActivityCalendar />
-                    <ConsistencyGrid logs={consistencyLogs} />
-                </div>
-
-                {/* AI Insights & Correlations */}
-                <AdvancedCorrelations />
-
-                {/* Meal Suggestions */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <MealSuggestions />
-                    <InsightsSection />
-                </div>
+                        {activeTab === "insights" && (
+                            <>
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    <AICoach />
+                                    <Predictions />
+                                </div>
+                                <AdvancedCorrelations />
+                                <InsightsSection />
+                            </>
+                        )}
+                    </motion.div>
+                </AnimatePresence>
             </div>
         </div>
     );

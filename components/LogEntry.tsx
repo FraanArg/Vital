@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import { TRACKERS } from '../lib/tracker-registry';
 import { useHaptic } from '../hooks/useHaptic';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 import { Doc } from "../convex/_generated/dataModel";
 
 interface LogEntryProps {
@@ -16,6 +17,7 @@ interface LogEntryProps {
 
 export default function LogEntry({ selectedDate, activeTracker, onTrackerChange, editingLog }: LogEntryProps) {
     const { trigger } = useHaptic();
+    const focusTrapRef = useFocusTrap(!!activeTracker);
 
     const handleClose = useCallback(() => {
         onTrackerChange(null);
@@ -90,14 +92,19 @@ export default function LogEntry({ selectedDate, activeTracker, onTrackerChange,
                             className="absolute inset-0 bg-background/80 backdrop-blur-sm pointer-events-auto"
                         />
                         <motion.div
+                            ref={focusTrapRef}
                             initial={{ y: "100%", opacity: 0, scale: 0.95 }}
                             animate={{ y: 0, opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
                             transition={{ type: "spring", damping: 25, stiffness: 350, mass: 0.5 }}
                             className="w-full sm:max-w-lg bg-card rounded-t-[2rem] sm:rounded-3xl shadow-2xl border border-border/50 max-h-[85vh] overflow-y-auto relative z-10 pointer-events-auto"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="tracker-modal-title"
                         >
                             <div className="p-6 pb-24">
                                 <div className="w-12 h-1.5 bg-muted/30 rounded-full mx-auto mb-6" />
+                                <h2 id="tracker-modal-title" className="sr-only">Log {activeTrackerConfig?.label}</h2>
 
 
                                 <activeTrackerConfig.component

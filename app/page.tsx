@@ -139,7 +139,7 @@ export default function Home() {
               onEdit={handleEdit}
             />
           ) : (
-            <WeeklyDashboard selectedDate={selectedDate} />
+            <WeeklyDashboard selectedDate={selectedDate} onTrackerSelect={handleTrackerChange} />
           )}
         </div>
       </PullToRefresh>

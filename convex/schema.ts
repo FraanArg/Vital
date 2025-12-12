@@ -95,6 +95,12 @@ export default defineSchema({
         age: v.optional(v.number()),
         weight: v.optional(v.number()), // kg
         height: v.optional(v.number()), // cm
+        // Daily goals
+        goalSleep: v.optional(v.number()), // hours, default 8
+        goalWater: v.optional(v.number()), // ml, default 2000
+        goalExercise: v.optional(v.number()), // minutes, default 30
+        goalMeals: v.optional(v.number()), // count, default 3
+        goalWork: v.optional(v.number()), // hours, default 8
         updatedAt: v.string(),
     }).index("by_user", ["userId"]),
 

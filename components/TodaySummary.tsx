@@ -19,13 +19,6 @@ interface KPIData {
     meals: number;
 }
 
-const GOALS = {
-    sleep: 8, // hours
-    water: 2000, // ml
-    exercise: 30, // minutes
-    meals: 3, // count
-};
-
 /**
  * Today Summary with KPI cards and "what's missing" nudge
  */
@@ -38,7 +31,10 @@ export default function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryP
         to: end.toISOString()
     });
 
-    if (logs === undefined) {
+    // Fetch user goals (with defaults)
+    const goals = useQuery(api.userProfile.getGoals);
+
+    if (logs === undefined || goals === undefined) {
         return (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[1, 2, 3, 4].map((i) => (
@@ -62,7 +58,7 @@ export default function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryP
             label: "Sleep",
             value: totals.sleep,
             unit: "h",
-            goal: GOALS.sleep,
+            goal: goals.goalSleep,
             icon: Moon,
             color: "text-indigo-500",
             bgColor: "bg-indigo-500/10",
@@ -73,7 +69,7 @@ export default function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryP
             label: "Water",
             value: totals.water,
             unit: "ml",
-            goal: GOALS.water,
+            goal: goals.goalWater,
             icon: Droplets,
             color: "text-blue-500",
             bgColor: "bg-blue-500/10",
@@ -84,7 +80,7 @@ export default function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryP
             label: "Exercise",
             value: totals.exercise,
             unit: "min",
-            goal: GOALS.exercise,
+            goal: goals.goalExercise,
             icon: Dumbbell,
             color: "text-emerald-500",
             bgColor: "bg-emerald-500/10",
@@ -95,7 +91,7 @@ export default function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryP
             label: "Meals",
             value: totals.meals,
             unit: "",
-            goal: GOALS.meals,
+            goal: goals.goalMeals,
             icon: Utensils,
             color: "text-orange-500",
             bgColor: "bg-orange-500/10",

@@ -12,6 +12,7 @@ import { ThemeToggle } from "../../components/ThemeToggle";
 import DataExport from "../../components/DataExport";
 import ExportDialog from "../../components/reports/ExportDialog";
 import NotificationSettings from "../../components/NotificationSettings";
+import GoalSettings from "../../components/GoalSettings";
 import { db } from "../../lib/db";
 
 export default function ProfilePage() {
@@ -221,11 +222,14 @@ export default function ProfilePage() {
                     </Link>
                 </section>
 
+                {/* Daily Goals */}
+                <GoalSettings />
+
                 {/* Notifications */}
                 <section className="bg-card p-6 rounded-2xl border border-border/50 shadow-sm">
                     <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
                         <Bell className="w-5 h-5 text-primary" />
-                        Notificaciones
+                        Notifications
                     </h2>
                     <NotificationSettings />
                 </section>
@@ -288,10 +292,10 @@ export default function ProfilePage() {
                         </div>
                     </div>
                 </section>
-            </div>
+            </div >
 
             <ExportDialog isOpen={showExportDialog} onClose={() => setShowExportDialog(false)} />
-        </div>
+        </div >
     );
 }
 
