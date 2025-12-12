@@ -2,7 +2,7 @@ import {
     // Sports & Activities
     Trophy, Activity, Dumbbell, Timer, Footprints, Swords, Circle, Target, Waves, Bike, Mountain, Tent, Fish, Sailboat,
     Medal, Crown, Flag, Hourglass, Crosshair, Shield, HeartPulse, Snowflake, Wind, Rocket,
-    Volleyball, Club, MountainSnow, PersonStanding,
+    Volleyball, Club, MountainSnow, PersonStanding, CircleDot, Shirt, Siren,
     // Hobbies
     Gamepad, Gamepad2, Dices, Palette, Guitar, Drum, Spade, Diamond,
     // Food
@@ -11,24 +11,19 @@ import {
     Star, Heart, Zap, Flame, Droplets, Moon, Sun, Cloud, Umbrella, Anchor, Key, Lock, Map, Compass, Gift, Bell, Book, Briefcase, Calculator, Camera, Car, CreditCard, DollarSign, Eye, Globe, Headphones, Home, Image, Laptop, Mail, Mic, Music, Package, Pen, Phone, Plane, Printer, Radio, Scissors, Search, Settings, ShoppingBag, ShoppingCart, Smartphone, Smile, Speaker, Tag, Thermometer, ThumbsUp, Trash, Truck, Tv, User, Video, Watch, Wifi, Wrench
 } from "lucide-react";
 
-// React Icons
-import { FaBasketballBall, FaFootballBall, FaSwimmer, FaTableTennis } from "react-icons/fa";
-import { IoMdFootball } from "react-icons/io";
-import { GiTennisBall, GiBoxingGlove } from "react-icons/gi";
-
 export const ICON_LIBRARY: Record<string, React.ElementType> = {
     // Sports (Lucide)
     Trophy, Activity, Dumbbell, Timer, Footprints, Swords, Circle, Target, Waves, Bike, Mountain, Tent, Fish, Sailboat,
     Medal, Crown, Flag, Hourglass, Crosshair, Shield, HeartPulse, Snowflake, Wind, Rocket,
     Volleyball, Club, MountainSnow, PersonStanding,
-    // Sports (React Icons)
-    Basketball: FaBasketballBall,
-    AmericanFootball: FaFootballBall,
-    Football: IoMdFootball,
-    Swimmer: FaSwimmer,
-    TableTennis: FaTableTennis,
-    TennisBall: GiTennisBall,
-    Boxing: GiBoxingGlove,
+    // Sports (using Circle/CircleDot as ball placeholders - lightweight alternative)
+    Basketball: CircleDot,
+    AmericanFootball: Circle,
+    Football: Circle,
+    Swimmer: Waves,
+    TableTennis: CircleDot,
+    TennisBall: CircleDot,
+    Boxing: Shirt,
     // Hobbies
     Gamepad, Gamepad2, Dices, Palette, Guitar, Drum, Spade, Diamond,
     // Food
