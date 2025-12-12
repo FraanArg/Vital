@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, memo } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
@@ -18,7 +18,7 @@ interface LogListProps {
     onEdit?: (log: Doc<"logs">) => void;
 }
 
-export default function LogList({ selectedDate, onEdit }: LogListProps) {
+function LogList({ selectedDate, onEdit }: LogListProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const iconMappings = useQuery(api.icons.getIconMappings);
     const { toast } = useToast();
@@ -311,3 +311,5 @@ export default function LogList({ selectedDate, onEdit }: LogListProps) {
         </div>
     );
 }
+
+export default memo(LogList);

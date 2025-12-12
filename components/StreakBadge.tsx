@@ -1,8 +1,9 @@
 "use client";
 
+import { memo } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
-import { subDays, startOfDay, endOfDay, isSameDay, format } from "date-fns";
+import { subDays, format } from "date-fns";
 import { motion } from "framer-motion";
 import { Flame, Trophy, Star, Zap } from "lucide-react";
 
@@ -76,7 +77,7 @@ function calculateStreak(logs: { date: string }[] | undefined): StreakData {
     return { currentStreak, longestStreak, todayLogged };
 }
 
-export default function StreakBadge() {
+function StreakBadge() {
     // Fetch last 100 days of logs for streak calculation
     const logs = useQuery(api.logs.getStats, {
         from: subDays(new Date(), 100).toISOString(),
@@ -149,3 +150,5 @@ export default function StreakBadge() {
         </motion.div>
     );
 }
+
+export default memo(StreakBadge);

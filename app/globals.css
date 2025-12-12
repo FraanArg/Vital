@@ -118,6 +118,25 @@ body {
   font-feature-settings: "cv05", "cv08";
 }
 
+/* Touch responsiveness optimizations */
+button,
+a,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+.touch-target {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Active state feedback for instant response */
+button:active,
+a:active,
+[role="button"]:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
 /* Aurora Background Animation */
 /* Aurora Background Animation */
 body::before {

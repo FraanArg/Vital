@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { startOfDay, endOfDay } from "date-fns";
@@ -21,8 +22,9 @@ interface KPIData {
 
 /**
  * Today Summary with KPI cards and "what's missing" nudge
+ * Memoized to prevent re-renders when parent state changes
  */
-export default function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
+function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
     const start = startOfDay(selectedDate);
     const end = endOfDay(selectedDate);
 
@@ -166,3 +168,5 @@ export default function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryP
         </div>
     );
 }
+
+export default memo(TodaySummary);
