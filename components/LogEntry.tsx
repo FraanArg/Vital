@@ -97,16 +97,35 @@ export default function LogEntry({ selectedDate, activeTracker, onTrackerChange,
                             animate={{ y: 0, opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
                             transition={{ type: "spring", damping: 25, stiffness: 350, mass: 0.5 }}
-                            className="w-full sm:max-w-lg bg-card rounded-t-[2rem] sm:rounded-3xl shadow-2xl border border-border/50 max-h-[85vh] overflow-y-auto relative z-10 pointer-events-auto"
+                            className="w-full sm:max-w-lg bg-card rounded-t-[2rem] sm:rounded-3xl shadow-2xl border border-border/50 max-h-[80vh] sm:max-h-[85vh] flex flex-col relative z-10 pointer-events-auto"
                             role="dialog"
                             aria-modal="true"
                             aria-labelledby="tracker-modal-title"
                         >
-                            <div className="p-6 pb-24">
-                                <div className="w-12 h-1.5 bg-muted/30 rounded-full mx-auto mb-6" />
-                                <h2 id="tracker-modal-title" className="sr-only">Log {activeTrackerConfig?.label}</h2>
+                            {/* Sticky Header */}
+                            <div className="sticky top-0 z-10 bg-card rounded-t-[2rem] sm:rounded-t-3xl pt-4 pb-2 px-6 border-b border-border/30">
+                                <div className="w-12 h-1.5 bg-muted/30 rounded-full mx-auto mb-3" />
+                                <div className="flex items-center justify-between">
+                                    <h2 id="tracker-modal-title" className="text-lg font-semibold flex items-center gap-2">
+                                        {activeTrackerConfig && (
+                                            <>
+                                                <activeTrackerConfig.icon className={`w-5 h-5 ${activeTrackerConfig.color}`} />
+                                                {activeTrackerConfig.label}
+                                            </>
+                                        )}
+                                    </h2>
+                                    <button
+                                        onClick={handleClose}
+                                        className="p-2 rounded-full hover:bg-secondary transition-colors text-muted-foreground"
+                                        aria-label="Close"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                                    </button>
+                                </div>
+                            </div>
 
-
+                            {/* Scrollable Content */}
+                            <div className="flex-1 overflow-y-auto p-6 pb-safe">
                                 <activeTrackerConfig.component
                                     onClose={handleClose}
                                     selectedDate={selectedDate}

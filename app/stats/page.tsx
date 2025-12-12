@@ -10,6 +10,7 @@ import dynamic from "next/dynamic";
 
 import ConsistencyGrid from "../../components/stats/ConsistencyGrid";
 import { Skeleton } from "../../components/ui/Skeleton";
+import DataExport from "../../components/DataExport";
 
 // Lazy load all stat components
 const ActivityRings = dynamic(() => import("../../components/stats/ActivityRings"), { ssr: false });
@@ -35,6 +36,8 @@ const Predictions = dynamic(() => import("../../components/stats/Predictions"), 
 const DailyNutrientBalance = dynamic(() => import("../../components/stats/DailyNutrientBalance"), { ssr: false });
 const AdvancedCorrelations = dynamic(() => import("../../components/stats/AdvancedCorrelations"), { ssr: false });
 const MealSuggestions = dynamic(() => import("../../components/MealSuggestions"), { ssr: false });
+const MoodVisualization = dynamic(() => import("../../components/stats/MoodVisualization"), { ssr: false });
+const WeightTrends = dynamic(() => import("../../components/stats/WeightTrends"), { ssr: false });
 
 type TabId = "overview" | "sleep" | "exercise" | "nutrition" | "insights";
 
@@ -169,19 +172,22 @@ export default function StatisticsPage() {
                         <h1 className="text-2xl font-bold tracking-tight">Statistics</h1>
                         <p className="text-sm text-muted-foreground">Track your progress over time</p>
                     </div>
-                    <div className="flex items-center gap-1 p-1 bg-secondary/50 rounded-xl">
-                        {(["week", "month", "year"] as const).map((r) => (
-                            <button
-                                key={r}
-                                onClick={() => setRange(r)}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${range === r
+                    <div className="flex items-center gap-4">
+                        <DataExport />
+                        <div className="flex items-center gap-1 p-1 bg-secondary/50 rounded-xl">
+                            {(["week", "month", "year"] as const).map((r) => (
+                                <button
+                                    key={r}
+                                    onClick={() => setRange(r)}
+                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${range === r
                                         ? "bg-card shadow-sm text-foreground"
                                         : "text-muted-foreground hover:text-foreground"
-                                    }`}
-                            >
-                                {r.charAt(0).toUpperCase() + r.slice(1)}
-                            </button>
-                        ))}
+                                        }`}
+                                >
+                                    {r.charAt(0).toUpperCase() + r.slice(1)}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
@@ -195,8 +201,8 @@ export default function StatisticsPage() {
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${isActive
-                                        ? "bg-card shadow-sm text-foreground"
-                                        : "text-muted-foreground hover:text-foreground hover:bg-card/50"
+                                    ? "bg-card shadow-sm text-foreground"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-card/50"
                                     }`}
                                 aria-selected={isActive}
                                 role="tab"
@@ -229,7 +235,10 @@ export default function StatisticsPage() {
                                     <WeeklyReport />
                                     <MonthlyReportComponent />
                                 </div>
-                                <MonthlySummary />
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                    <WeightTrends />
+                                    <MonthlySummary />
+                                </div>
                                 <TrendCharts data={processedData || []} range={range} />
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                     <ActivityCalendar />
@@ -270,8 +279,9 @@ export default function StatisticsPage() {
                             <>
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                     <AICoach />
-                                    <Predictions />
+                                    <MoodVisualization />
                                 </div>
+                                <Predictions />
                                 <AdvancedCorrelations />
                                 <InsightsSection />
                             </>
