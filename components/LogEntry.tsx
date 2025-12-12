@@ -52,11 +52,13 @@ export default function LogEntry({ selectedDate, activeTracker, onTrackerChange,
                                 trigger("light");
                                 onTrackerChange(tracker.id);
                             }}
+                            aria-label={`Log ${tracker.label}`}
                             className={`
                                 relative overflow-hidden rounded-xl bg-card border border-border/50 
                                 shadow-sm hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] 
                                 transition-all duration-200 group py-3.5 px-4 flex items-center gap-3
                                 border-l-[3px] ${borderColor}
+                                focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2
                             `}
                         >
                             {/* Subtle background tint on hover */}

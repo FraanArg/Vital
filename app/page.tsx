@@ -13,8 +13,10 @@ import OfflineIndicator from "../components/OfflineIndicator";
 import DateSelector from "../components/DateSelector";
 import UndoToast from "../components/UndoToast";
 import PullToRefresh from "../components/PullToRefresh";
+import QuickAddFAB from "../components/QuickAddFAB";
 import { TRACKERS } from "../lib/tracker-registry";
 import { Doc } from "../convex/_generated/dataModel";
+import { Plus } from "lucide-react";
 
 // Prefetch adjacent days
 function PrefetchDays({ date }: { date: Date }) {
@@ -102,6 +104,15 @@ export default function Home() {
                 labels={{ daily: "Daily", weekly: "Weekly" }}
               />
               <div className="flex items-center gap-2">
+                {/* Desktop Log Activity button */}
+                <button
+                  onClick={() => setActiveTracker("work")}
+                  className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors"
+                  aria-label="Log activity"
+                >
+                  <Plus className="w-4 h-4" />
+                  Log Activity
+                </button>
                 <button
                   onClick={() => window.location.reload()}
                   className="p-2 rounded-full hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground"
@@ -133,6 +144,7 @@ export default function Home() {
         </div>
       </PullToRefresh>
       <PrefetchDays date={selectedDate} />
+      <QuickAddFAB selectedDate={selectedDate} onTrackerSelect={handleTrackerChange} />
       <UndoToast />
     </div>
   );
