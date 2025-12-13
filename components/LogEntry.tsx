@@ -97,13 +97,13 @@ export default function LogEntry({ selectedDate, activeTracker, onTrackerChange,
                             animate={{ y: 0, opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
                             transition={{ type: "spring", damping: 25, stiffness: 350, mass: 0.5 }}
-                            className="w-full sm:max-w-lg bg-card rounded-t-[2rem] sm:rounded-3xl shadow-2xl border border-border/50 max-h-[80vh] sm:max-h-[85vh] flex flex-col relative z-10 pointer-events-auto"
+                            className="w-full sm:max-w-lg bg-card rounded-t-[2rem] sm:rounded-3xl shadow-2xl border border-border/50 max-h-[85vh] sm:max-h-[90vh] flex flex-col relative z-10 pointer-events-auto"
                             role="dialog"
                             aria-modal="true"
                             aria-labelledby="tracker-modal-title"
                         >
                             {/* Sticky Header */}
-                            <div className="sticky top-0 z-10 bg-card rounded-t-[2rem] sm:rounded-t-3xl pt-4 pb-2 px-6 border-b border-border/30">
+                            <div className="shrink-0 bg-card rounded-t-[2rem] sm:rounded-t-3xl pt-4 pb-2 px-6 border-b border-border/30">
                                 <div className="w-12 h-1.5 bg-muted/30 rounded-full mx-auto mb-3" />
                                 <div className="flex items-center justify-between">
                                     <h2 id="tracker-modal-title" className="text-lg font-semibold flex items-center gap-2">
@@ -125,7 +125,7 @@ export default function LogEntry({ selectedDate, activeTracker, onTrackerChange,
                             </div>
 
                             {/* Scrollable Content */}
-                            <div className="flex-1 overflow-y-auto p-6 pb-safe">
+                            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-6 pb-safe">
                                 <activeTrackerConfig.component
                                     onClose={handleClose}
                                     selectedDate={selectedDate}
