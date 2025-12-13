@@ -128,7 +128,7 @@ function FoodCombobox({ selectedItems, onItemsChange }: FoodComboboxProps) {
             )}
 
             {/* Input */}
-            <div className="relative">
+            <div>
                 <input
                     ref={inputRef}
                     type="text"
@@ -143,37 +143,37 @@ function FoodCombobox({ selectedItems, onItemsChange }: FoodComboboxProps) {
                     placeholder="Add food (type & press Enter)"
                     className="w-full p-3.5 rounded-xl bg-background border border-border/50 focus:ring-2 focus:ring-primary focus:border-transparent placeholder:text-muted-foreground/60 text-base"
                 />
-
-                {/* Suggestions Dropdown - Opens ABOVE to avoid clipping */}
-                {isOpen && (suggestions.length > 0 || query) && (
-                    <div className="absolute bottom-full left-0 w-full mb-2 bg-card border border-border/50 rounded-xl shadow-lg z-[100] overflow-hidden max-h-[200px] overflow-y-auto">
-                        {suggestions.map((item: Doc<"foodItems">) => (
-                            <button
-                                key={item._id}
-                                onClick={() => addItem(item.name)}
-                                className="w-full text-left px-4 py-3 hover:bg-secondary/50 transition-colors flex items-center justify-between border-b border-border/30 last:border-none"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <span className="text-lg">{item.icon || "🍽️"}</span>
-                                    <span className="font-medium">{item.name}</span>
-                                </div>
-                                {selectedItems.includes(item.name) && (
-                                    <Check className="w-4 h-4 text-primary" />
-                                )}
-                            </button>
-                        ))}
-                        {query && !suggestions.some((s: Doc<"foodItems">) => s.name.toLowerCase() === query.toLowerCase()) && (
-                            <button
-                                onClick={() => addItem(query)}
-                                className="w-full text-left px-4 py-3 hover:bg-secondary/50 transition-colors text-primary font-medium flex items-center gap-2"
-                            >
-                                <Plus className="w-4 h-4" />
-                                Add "{query}"
-                            </button>
-                        )}
-                    </div>
-                )}
             </div>
+
+            {/* Suggestions List - Inline to avoid clipping */}
+            {isOpen && (suggestions.length > 0 || query) && (
+                <div className="bg-card border border-border/50 rounded-xl overflow-hidden">
+                    {suggestions.map((item: Doc<"foodItems">) => (
+                        <button
+                            key={item._id}
+                            onClick={() => addItem(item.name)}
+                            className="w-full text-left px-4 py-3 hover:bg-secondary/50 transition-colors flex items-center justify-between border-b border-border/30 last:border-none"
+                        >
+                            <div className="flex items-center gap-3">
+                                <span className="text-lg">{item.icon || "🍽️"}</span>
+                                <span className="font-medium">{item.name}</span>
+                            </div>
+                            {selectedItems.includes(item.name) && (
+                                <Check className="w-4 h-4 text-primary" />
+                            )}
+                        </button>
+                    ))}
+                    {query && !suggestions.some((s: Doc<"foodItems">) => s.name.toLowerCase() === query.toLowerCase()) && (
+                        <button
+                            onClick={() => addItem(query)}
+                            className="w-full text-left px-4 py-3 hover:bg-secondary/50 transition-colors text-primary font-medium flex items-center gap-2"
+                        >
+                            <Plus className="w-4 h-4" />
+                            Add "{query}"
+                        </button>
+                    )}
+                </div>
+            )}
 
             {/* Recent Items Quick Add */}
             {availableRecent.length > 0 && !isOpen && (
