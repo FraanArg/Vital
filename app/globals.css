@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  /* Cozy Apple-like Palette (Light) */
+  /* Apple-like Palette (Light) */
   --background: #F5F5F7;
   --foreground: #1D1D1F;
   --card: #FFFFFF;
@@ -11,91 +11,118 @@
   --popover: #FFFFFF;
   --popover-foreground: #1D1D1F;
 
-  --primary: #0071E3;
+  --primary: #007AFF;
   --primary-foreground: #FFFFFF;
 
-  --secondary: #F5F5F7;
+  --secondary: #F2F2F7;
   --secondary-foreground: #1D1D1F;
 
-  --muted: #86868B;
-  --muted-foreground: #86868B;
-  --accent: #F5F5F7;
+  --muted: #8E8E93;
+  --muted-foreground: #8E8E93;
+  --accent: #F2F2F7;
   --accent-foreground: #1D1D1F;
-  --destructive: #EF4444;
+  --destructive: #FF3B30;
   --destructive-foreground: #FFFFFF;
-  --border: #D2D2D7;
-  --input: #D2D2D7;
-  --ring: #0071E3;
+  --border: #C6C6C8;
+  --input: #E5E5EA;
+  --ring: #007AFF;
 
-  --radius: 32px;
+  /* Tracker Category Colors */
+  --color-food: #FF9500;
+  --color-exercise: #30D158;
+  --color-water: #5AC8FA;
+  --color-sleep: #BF5AF2;
+  --color-mood: #FFD60A;
+  --color-work: #007AFF;
 
-  /* Custom Accents */
-  --accent-food: 24 94% 53%;
-  /* Orange 500 */
-  --accent-exercise: 158 64% 52%;
-  /* Emerald 400 */
-  --accent-water: 189 94% 43%;
-  /* Cyan 500 */
-  --accent-sleep: 262 83% 58%;
-  /* Violet 500 */
-  --accent-mood: 47 95% 57%;
-  /* Yellow 400 */
+  /* Typography Scale */
+  --text-xs: 0.6875rem;
+  /* 11px */
+  --text-sm: 0.8125rem;
+  /* 13px */
+  --text-base: 0.9375rem;
+  /* 15px */
+  --text-lg: 1.0625rem;
+  /* 17px */
+  --text-xl: 1.25rem;
+  /* 20px */
+  --text-2xl: 1.375rem;
+  /* 22px */
+  --text-3xl: 1.75rem;
+  /* 28px - Large title */
+  --text-4xl: 2.125rem;
+  /* 34px - Display */
 
-  /* Glassmorphism */
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.5);
-  --shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.02),
-    0 10px 15px -3px rgba(0, 0, 0, 0.04),
-    0 20px 25px -5px rgba(0, 0, 0, 0.02);
-  --shadow-hover:
-    0 10px 15px -3px rgba(0, 0, 0, 0.04),
-    0 25px 30px -5px rgba(0, 0, 0, 0.05);
+  /* Radii (iOS-like) */
+  --radius-sm: 0.5rem;
+  /* 8px */
+  --radius-md: 0.625rem;
+  /* 10px */
+  --radius-lg: 0.75rem;
+  /* 12px */
+  --radius-xl: 1rem;
+  /* 16px */
+  --radius-2xl: 1.25rem;
+  /* 20px */
+  --radius-full: 9999px;
+
+  /* Timing */
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Shadows (subtle) */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+
+  /* Separator */
+  --separator: rgba(60, 60, 67, 0.12);
 }
 
 
 
 .dark {
-  --background: #09090B;
-  --foreground: #FAFAFA;
-  --card: #18181B;
-  --card-foreground: #FAFAFA;
-  --popover: #18181B;
-  --popover-foreground: #FAFAFA;
+  --background: #000000;
+  --foreground: #FFFFFF;
+  --card: #1C1C1E;
+  --card-foreground: #FFFFFF;
+  --popover: #1C1C1E;
+  --popover-foreground: #FFFFFF;
 
-  --primary: #60A5FA;
-  /* Slightly lighter blue for dark mode */
-  --primary-foreground: #09090B;
-  --secondary: #27272A;
-  --secondary-foreground: #FAFAFA;
-  --muted: #52525B;
-  --muted-foreground: #A1A1AA;
-  --accent: #27272A;
-  --accent-foreground: #FAFAFA;
-  --destructive: #EF4444;
+  --primary: #0A84FF;
+  --primary-foreground: #FFFFFF;
+  --secondary: #2C2C2E;
+  --secondary-foreground: #FFFFFF;
+  --muted: #636366;
+  --muted-foreground: #EBEBF5;
+  --accent: #2C2C2E;
+  --accent-foreground: #FFFFFF;
+  --destructive: #FF453A;
   --destructive-foreground: #FFFFFF;
-  --border: #3F3F46;
-  --input: #3F3F46;
-  --ring: #60A5FA;
+  --border: #38383A;
+  --input: #3A3A3C;
+  --ring: #0A84FF;
 
-  /* Enhanced Dark Mode Accent Colors - brighter for contrast */
-  --accent-food: 25 95% 60%;
-  /* Brighter orange */
-  --accent-exercise: 158 70% 45%;
-  /* Brighter emerald */
-  --accent-water: 199 95% 55%;
-  /* Brighter blue */
-  --accent-sleep: 263 85% 65%;
-  /* Brighter violet */
-  --accent-mood: 48 96% 60%;
-  /* Brighter yellow */
+  /* Tracker Category Colors (brighter for dark) */
+  --color-food: #FF9F0A;
+  --color-exercise: #30D158;
+  --color-water: #64D2FF;
+  --color-sleep: #BF5AF2;
+  --color-mood: #FFD60A;
+  --color-work: #0A84FF;
 
-  /* Glassmorphism */
-  --glass-bg: rgba(24, 24, 27, 0.8);
-  /* More opaque for legibility */
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
-  --shadow-hover: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+
+  /* Separator */
+  --separator: rgba(84, 84, 88, 0.65);
 }
 
 html,
