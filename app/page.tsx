@@ -17,7 +17,9 @@ import QuickAddFAB from "../components/QuickAddFAB";
 import Onboarding, { useOnboarding } from "../components/Onboarding";
 import { TRACKERS } from "../lib/tracker-registry";
 import { Doc } from "../convex/_generated/dataModel";
-import { Plus } from "lucide-react";
+import { Plus, RefreshCw } from "lucide-react";
+import { Button } from "../components/ui/Button";
+import { IconButton } from "../components/ui/IconButton";
 
 // Prefetch adjacent days
 function PrefetchDays({ date }: { date: Date }) {
@@ -107,21 +109,22 @@ export default function Home() {
               />
               <div className="flex items-center gap-2">
                 {/* Desktop Log Activity button */}
-                <button
+                <Button
                   onClick={() => setActiveTracker("work")}
-                  className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors"
-                  aria-label="Log activity"
+                  leftIcon={<Plus className="w-4 h-4" />}
+                  size="sm"
+                  className="hidden md:flex"
                 >
-                  <Plus className="w-4 h-4" />
                   Log Activity
-                </button>
-                <button
+                </Button>
+                <IconButton
                   onClick={() => window.location.reload()}
-                  className="p-2 rounded-full hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground"
-                  aria-label="Refresh"
+                  label="Refresh"
+                  variant="ghost"
+                  size="sm"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" /><path d="M16 21h5v-5" /></svg>
-                </button>
+                  <RefreshCw className="w-4 h-4" />
+                </IconButton>
                 <DailyProgress selectedDate={selectedDate} />
                 <NotificationCenter />
                 <OfflineIndicator />
