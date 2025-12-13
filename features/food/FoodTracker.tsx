@@ -1,33 +1,44 @@
-import { useState, useEffect } from "react";
+"use client";
+
+import { useState, useEffect, useMemo, useCallback, memo } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Doc } from "../../convex/_generated/dataModel";
 import FoodCombobox from "../../components/FoodCombobox";
-import { Utensils } from "lucide-react";
-import TrackerLayout from "../../components/ui/TrackerLayout";
-import SaveButton from "../../components/ui/SaveButton";
-import ChipSelector from "../../components/ui/ChipSelector";
-import TimePicker from "../../components/ui/TimePicker";
-import CollapsibleNote from "../../components/ui/CollapsibleNote";
+import { Clock, ChevronRight, Check } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const MEAL_TYPES = [
     { id: "desayuno", label: "Desayuno", icon: "☕" },
-    { id: "colacion_am", label: "Colación (AM)", icon: "🍎" },
+    { id: "colacion_am", label: "Colación AM", icon: "🍎" },
     { id: "almuerzo", label: "Almuerzo", icon: "🍽️" },
-    { id: "colacion_pm", label: "Colación (Siesta)", icon: "🍎" },
+    { id: "colacion_pm", label: "Colación PM", icon: "🍎" },
     { id: "merienda", label: "Merienda", icon: "🫖" },
-    { id: "colacion_night", label: "Colación (PM)", icon: "🍎" },
     { id: "cena", label: "Cena", icon: "🌙" },
-    { id: "postre", label: "Postre", icon: "🍰" }
 ];
 
-export default function FoodTracker({ onClose, selectedDate, initialData }: { onClose: () => void, selectedDate: Date, initialData?: Doc<"logs"> | null }) {
+const TIME_PRESETS = [
+    { label: "Now", value: "now" },
+    { label: "08:00", value: "08:00" },
+    { label: "12:00", value: "12:00" },
+    { label: "16:00", value: "16:00" },
+    { label: "20:00", value: "20:00" },
+];
+
+interface FoodTrackerProps {
+    onClose: () => void;
+    selectedDate: Date;
+    initialData?: Doc<"logs"> | null;
+}
+
+function FoodTracker({ onClose, selectedDate, initialData }: FoodTrackerProps) {
     const [activeTab, setActiveTab] = useState<"meal" | "quick">("meal");
     const [mealType, setMealType] = useState<string | null>(initialData?.meal?.type || null);
     const [time, setTime] = useState(initialData?.meal?.time || "12:00");
     const [items, setItems] = useState<string[]>(initialData?.meal?.items || []);
     const [quickLog, setQuickLog] = useState(initialData?.food || "");
     const [isSaving, setIsSaving] = useState(false);
+    const [showTimePicker, setShowTimePicker] = useState(false);
 
     const createLog = useMutation(api.logs.createLog);
     const updateLog = useMutation(api.logs.updateLog);
@@ -43,8 +54,8 @@ export default function FoodTracker({ onClose, selectedDate, initialData }: { on
         const currentHour = now.getHours();
         const currentMinute = now.getMinutes();
 
-        // Round to nearest 15 minutes
-        let roundedMinute = Math.round(currentMinute / 15) * 15;
+        // Round to nearest 5 minutes
+        let roundedMinute = Math.round(currentMinute / 5) * 5;
         let roundedHour = currentHour;
         if (roundedMinute === 60) {
             roundedMinute = 0;
@@ -57,13 +68,22 @@ export default function FoodTracker({ onClose, selectedDate, initialData }: { on
             if (currentHour >= 6 && currentHour < 10) setMealType("desayuno");
             else if (currentHour >= 10 && currentHour < 12) setMealType("colacion_am");
             else if (currentHour >= 12 && currentHour < 15) setMealType("almuerzo");
-            else if (currentHour >= 15 && currentHour < 17) setMealType("colacion_pm");
-            else if (currentHour >= 17 && currentHour < 19) setMealType("merienda");
-            else if (currentHour >= 19 && currentHour < 21) setMealType("colacion_night");
-            else if (currentHour >= 21 && currentHour < 23) setMealType("cena");
-            else setMealType("postre");
+            else if (currentHour >= 15 && currentHour < 18) setMealType("colacion_pm");
+            else if (currentHour >= 18 && currentHour < 20) setMealType("merienda");
+            else setMealType("cena");
         }
-    }, [initialData]);
+    }, [initialData, mealType]);
+
+    const handleTimePreset = useCallback((preset: string) => {
+        if (preset === "now") {
+            const now = new Date();
+            const h = now.getHours().toString().padStart(2, '0');
+            const m = (Math.round(now.getMinutes() / 5) * 5).toString().padStart(2, '0');
+            setTime(`${h}:${m === '60' ? '00' : m}`);
+        } else {
+            setTime(preset);
+        }
+    }, []);
 
     const handleSave = async () => {
         setIsSaving(true);
@@ -106,80 +126,183 @@ export default function FoodTracker({ onClose, selectedDate, initialData }: { on
             onClose();
         } catch (error: any) {
             console.error("Failed to save meal:", error);
-            alert(`Failed to save meal: ${error.message || "Unknown error"}`);
         } finally {
             setIsSaving(false);
         }
     };
 
+    const isValid = activeTab === "meal" ? (mealType && items.length > 0) : quickLog.trim().length > 0;
+
     return (
-        <TrackerLayout
-            title="Food & Meals"
-            icon={Utensils}
-            iconColor="text-orange-600 dark:text-orange-400"
-            iconBgColor="bg-orange-100 dark:bg-orange-900/30"
-            onClose={onClose}
-        >
-            <div className="flex p-1 bg-secondary/50 rounded-xl mb-6">
-                <button
-                    onClick={() => setActiveTab("meal")}
-                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === "meal" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                >
-                    Detailed Meal
-                </button>
-                <button
-                    onClick={() => setActiveTab("quick")}
-                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === "quick" ? "bg-background shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-                >
-                    Quick Log
-                </button>
-            </div>
+        <div className="flex flex-col h-full max-h-[70vh]">
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto px-1 space-y-6">
 
-            {activeTab === "meal" ? (
-                <div className="space-y-8">
-                    {/* Time & Meal Type */}
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <label className="text-sm font-medium text-muted-foreground">Time</label>
-                            <TimePicker value={time} onChange={setTime} />
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-muted-foreground">Meal Type</label>
-                            <ChipSelector
-                                options={MEAL_TYPES}
-                                selectedId={mealType}
-                                onSelect={setMealType}
-                            />
-                        </div>
-                    </div>
-
-                    {/* Food Selection */}
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-muted-foreground">Items</label>
-                        <FoodCombobox selectedItems={items} onItemsChange={setItems} />
-                    </div>
-                </div>
-            ) : (
-                <div className="space-y-4">
-                    <textarea
-                        value={quickLog}
-                        onChange={(e) => setQuickLog(e.target.value)}
-                        placeholder="What did you eat?"
-                        className="w-full p-0 text-lg bg-transparent border-none focus:ring-0 placeholder:text-muted-foreground/50 resize-none min-h-[120px]"
-                        autoFocus
+                {/* iOS Segmented Control */}
+                <div className="relative flex p-1 bg-secondary/50 rounded-xl">
+                    <motion.div
+                        className="absolute inset-y-1 bg-background rounded-lg shadow-sm"
+                        initial={false}
+                        animate={{
+                            x: activeTab === "meal" ? 4 : "calc(50% + 2px)",
+                            width: "calc(50% - 6px)"
+                        }}
+                        transition={{ type: "spring", stiffness: 500, damping: 35 }}
                     />
+                    <button
+                        onClick={() => setActiveTab("meal")}
+                        className={`relative flex-1 py-2.5 text-sm font-semibold rounded-lg transition-colors z-10 ${activeTab === "meal" ? "text-foreground" : "text-muted-foreground"
+                            }`}
+                    >
+                        Detailed
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("quick")}
+                        className={`relative flex-1 py-2.5 text-sm font-semibold rounded-lg transition-colors z-10 ${activeTab === "quick" ? "text-foreground" : "text-muted-foreground"
+                            }`}
+                    >
+                        Quick Note
+                    </button>
                 </div>
-            )}
 
-            <div className="mt-8">
-                <SaveButton
-                    onClick={handleSave}
-                    disabled={activeTab === "meal" ? (!mealType || items.length === 0) : !quickLog.trim()}
-                    isSaving={isSaving}
-                    label="Save Meal"
-                />
+                <AnimatePresence mode="wait">
+                    {activeTab === "meal" ? (
+                        <motion.div
+                            key="meal"
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 10 }}
+                            transition={{ duration: 0.15 }}
+                            className="space-y-5"
+                        >
+                            {/* Time Section - iOS Form Row Style */}
+                            <div className="bg-secondary/30 rounded-2xl overflow-hidden">
+                                <div className="px-4 py-3 border-b border-border/30">
+                                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Time</span>
+                                </div>
+
+                                {/* Time Row */}
+                                <div className="px-4 py-3 flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <Clock className="w-5 h-5 text-muted-foreground" />
+                                        <input
+                                            type="time"
+                                            value={time}
+                                            onChange={(e) => setTime(e.target.value)}
+                                            className="bg-transparent text-lg font-medium border-none focus:outline-none focus:ring-0 p-0"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Time Presets */}
+                                <div className="px-4 pb-3 flex gap-2 flex-wrap">
+                                    {TIME_PRESETS.map((preset) => (
+                                        <button
+                                            key={preset.value}
+                                            onClick={() => handleTimePreset(preset.value)}
+                                            className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${time === preset.value || (preset.value === "now" && false)
+                                                    ? "bg-primary text-primary-foreground"
+                                                    : "bg-secondary text-muted-foreground hover:text-foreground"
+                                                }`}
+                                        >
+                                            {preset.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Meal Type Section - 2 Column Grid */}
+                            <div className="bg-secondary/30 rounded-2xl overflow-hidden">
+                                <div className="px-4 py-3 border-b border-border/30">
+                                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Meal Type</span>
+                                </div>
+                                <div className="p-3 grid grid-cols-2 gap-2">
+                                    {MEAL_TYPES.map((meal) => {
+                                        const isSelected = mealType === meal.id;
+                                        return (
+                                            <button
+                                                key={meal.id}
+                                                onClick={() => setMealType(meal.id)}
+                                                className={`flex items-center gap-2.5 px-3 py-3 rounded-xl transition-all ${isSelected
+                                                        ? "bg-primary text-primary-foreground shadow-sm"
+                                                        : "bg-background/50 text-foreground hover:bg-background"
+                                                    }`}
+                                            >
+                                                <span className="text-xl">{meal.icon}</span>
+                                                <span className="text-sm font-medium truncate">{meal.label}</span>
+                                                {isSelected && <Check className="w-4 h-4 ml-auto shrink-0" />}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Food Items Section */}
+                            <div className="bg-secondary/30 rounded-2xl overflow-hidden">
+                                <div className="px-4 py-3 border-b border-border/30">
+                                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Items</span>
+                                </div>
+                                <div className="p-4">
+                                    <FoodCombobox selectedItems={items} onItemsChange={setItems} />
+                                    {items.length === 0 && (
+                                        <p className="text-xs text-muted-foreground mt-2">Add at least one item to save</p>
+                                    )}
+                                </div>
+                            </div>
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="quick"
+                            initial={{ opacity: 0, x: 10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -10 }}
+                            transition={{ duration: 0.15 }}
+                        >
+                            <div className="bg-secondary/30 rounded-2xl overflow-hidden">
+                                <div className="px-4 py-3 border-b border-border/30">
+                                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Quick Note</span>
+                                </div>
+                                <div className="p-4">
+                                    <textarea
+                                        value={quickLog}
+                                        onChange={(e) => setQuickLog(e.target.value)}
+                                        placeholder="What did you eat? (e.g., 'Salad with chicken for lunch')"
+                                        className="w-full text-base bg-transparent border-none focus:ring-0 placeholder:text-muted-foreground/50 resize-none min-h-[100px] p-0"
+                                        autoFocus
+                                    />
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
-        </TrackerLayout>
+
+            {/* Sticky Bottom Save Area */}
+            <div className="pt-4 mt-4 border-t border-border/30 bg-card sticky bottom-0">
+                <button
+                    onClick={handleSave}
+                    disabled={!isValid || isSaving}
+                    className={`w-full py-4 rounded-2xl text-base font-semibold transition-all ${isValid && !isSaving
+                            ? "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.98]"
+                            : "bg-secondary text-muted-foreground cursor-not-allowed"
+                        }`}
+                >
+                    {isSaving ? (
+                        <span className="flex items-center justify-center gap-2">
+                            <motion.div
+                                className="w-4 h-4 border-2 border-current border-t-transparent rounded-full"
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            />
+                            Saving...
+                        </span>
+                    ) : (
+                        `Save ${activeTab === "meal" ? "Meal" : "Note"}`
+                    )}
+                </button>
+            </div>
+        </div>
     );
 }
+
+export default memo(FoodTracker);
