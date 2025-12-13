@@ -125,7 +125,13 @@ export default function LogEntry({ selectedDate, activeTracker, onTrackerChange,
                             </div>
 
                             {/* Scrollable Content */}
-                            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-6 pb-safe">
+                            <div
+                                className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-6 pb-safe"
+                                style={{
+                                    WebkitOverflowScrolling: 'touch',
+                                    touchAction: 'pan-y',
+                                }}
+                            >
                                 <activeTrackerConfig.component
                                     onClose={handleClose}
                                     selectedDate={selectedDate}
