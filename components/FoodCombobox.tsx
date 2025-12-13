@@ -144,9 +144,9 @@ function FoodCombobox({ selectedItems, onItemsChange }: FoodComboboxProps) {
                     className="w-full p-3.5 rounded-xl bg-background border border-border/50 focus:ring-2 focus:ring-primary focus:border-transparent placeholder:text-muted-foreground/60 text-base"
                 />
 
-                {/* Suggestions Dropdown */}
+                {/* Suggestions Dropdown - Opens ABOVE to avoid clipping */}
                 {isOpen && (suggestions.length > 0 || query) && (
-                    <div className="absolute w-full mt-2 bg-card border border-border/50 rounded-xl shadow-lg z-[100] overflow-hidden max-h-[200px] overflow-y-auto">
+                    <div className="absolute bottom-full left-0 w-full mb-2 bg-card border border-border/50 rounded-xl shadow-lg z-[100] overflow-hidden max-h-[200px] overflow-y-auto">
                         {suggestions.map((item: Doc<"foodItems">) => (
                             <button
                                 key={item._id}
