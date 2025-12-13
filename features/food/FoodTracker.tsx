@@ -134,151 +134,147 @@ function FoodTracker({ onClose, selectedDate, initialData }: FoodTrackerProps) {
     const isValid = activeTab === "meal" ? (mealType && items.length > 0) : quickLog.trim().length > 0;
 
     return (
-        <div className="flex flex-col h-full max-h-[70vh]">
-            {/* Scrollable Content */}
-            <div className="flex-1 overflow-y-auto px-1 space-y-6">
+        <div className="flex flex-col space-y-6">
+            {/* iOS Segmented Control */}
+            <div className="relative flex p-1 bg-secondary/50 rounded-xl">
+                <motion.div
+                    className="absolute inset-y-1 bg-background rounded-lg shadow-sm"
+                    initial={false}
+                    animate={{
+                        x: activeTab === "meal" ? 4 : "calc(50% + 2px)",
+                        width: "calc(50% - 6px)"
+                    }}
+                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                />
+                <button
+                    onClick={() => setActiveTab("meal")}
+                    className={`relative flex-1 py-2.5 text-sm font-semibold rounded-lg transition-colors z-10 ${activeTab === "meal" ? "text-foreground" : "text-muted-foreground"
+                        }`}
+                >
+                    Detailed
+                </button>
+                <button
+                    onClick={() => setActiveTab("quick")}
+                    className={`relative flex-1 py-2.5 text-sm font-semibold rounded-lg transition-colors z-10 ${activeTab === "quick" ? "text-foreground" : "text-muted-foreground"
+                        }`}
+                >
+                    Quick Note
+                </button>
+            </div>
 
-                {/* iOS Segmented Control */}
-                <div className="relative flex p-1 bg-secondary/50 rounded-xl">
+            <AnimatePresence mode="wait">
+                {activeTab === "meal" ? (
                     <motion.div
-                        className="absolute inset-y-1 bg-background rounded-lg shadow-sm"
-                        initial={false}
-                        animate={{
-                            x: activeTab === "meal" ? 4 : "calc(50% + 2px)",
-                            width: "calc(50% - 6px)"
-                        }}
-                        transition={{ type: "spring", stiffness: 500, damping: 35 }}
-                    />
-                    <button
-                        onClick={() => setActiveTab("meal")}
-                        className={`relative flex-1 py-2.5 text-sm font-semibold rounded-lg transition-colors z-10 ${activeTab === "meal" ? "text-foreground" : "text-muted-foreground"
-                            }`}
+                        key="meal"
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 10 }}
+                        transition={{ duration: 0.15 }}
+                        className="space-y-5"
                     >
-                        Detailed
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("quick")}
-                        className={`relative flex-1 py-2.5 text-sm font-semibold rounded-lg transition-colors z-10 ${activeTab === "quick" ? "text-foreground" : "text-muted-foreground"
-                            }`}
-                    >
-                        Quick Note
-                    </button>
-                </div>
-
-                <AnimatePresence mode="wait">
-                    {activeTab === "meal" ? (
-                        <motion.div
-                            key="meal"
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: 10 }}
-                            transition={{ duration: 0.15 }}
-                            className="space-y-5"
-                        >
-                            {/* Time Section - iOS Form Row Style */}
-                            <div className="bg-secondary/30 rounded-2xl overflow-hidden">
-                                <div className="px-4 py-3 border-b border-border/30">
-                                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Time</span>
-                                </div>
-
-                                {/* Time Row */}
-                                <div className="px-4 py-3 flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <Clock className="w-5 h-5 text-muted-foreground" />
-                                        <input
-                                            type="time"
-                                            value={time}
-                                            onChange={(e) => setTime(e.target.value)}
-                                            className="bg-transparent text-lg font-medium border-none focus:outline-none focus:ring-0 p-0"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Time Presets */}
-                                <div className="px-4 pb-3 flex gap-2 flex-wrap">
-                                    {TIME_PRESETS.map((preset) => (
-                                        <button
-                                            key={preset.value}
-                                            onClick={() => handleTimePreset(preset.value)}
-                                            className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${time === preset.value || (preset.value === "now" && false)
-                                                    ? "bg-primary text-primary-foreground"
-                                                    : "bg-secondary text-muted-foreground hover:text-foreground"
-                                                }`}
-                                        >
-                                            {preset.label}
-                                        </button>
-                                    ))}
-                                </div>
+                        {/* Time Section - iOS Form Row Style */}
+                        <div className="bg-secondary/30 rounded-2xl overflow-hidden">
+                            <div className="px-4 py-3 border-b border-border/30">
+                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Time</span>
                             </div>
 
-                            {/* Meal Type Section - 2 Column Grid */}
-                            <div className="bg-secondary/30 rounded-2xl overflow-hidden">
-                                <div className="px-4 py-3 border-b border-border/30">
-                                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Meal Type</span>
-                                </div>
-                                <div className="p-3 grid grid-cols-2 gap-2">
-                                    {MEAL_TYPES.map((meal) => {
-                                        const isSelected = mealType === meal.id;
-                                        return (
-                                            <button
-                                                key={meal.id}
-                                                onClick={() => setMealType(meal.id)}
-                                                className={`flex items-center gap-2.5 px-3 py-3 rounded-xl transition-all ${isSelected
-                                                        ? "bg-primary text-primary-foreground shadow-sm"
-                                                        : "bg-background/50 text-foreground hover:bg-background"
-                                                    }`}
-                                            >
-                                                <span className="text-xl">{meal.icon}</span>
-                                                <span className="text-sm font-medium truncate">{meal.label}</span>
-                                                {isSelected && <Check className="w-4 h-4 ml-auto shrink-0" />}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-
-                            {/* Food Items Section */}
-                            <div className="bg-secondary/30 rounded-2xl overflow-hidden">
-                                <div className="px-4 py-3 border-b border-border/30">
-                                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Items</span>
-                                </div>
-                                <div className="p-4">
-                                    <FoodCombobox selectedItems={items} onItemsChange={setItems} />
-                                    {items.length === 0 && (
-                                        <p className="text-xs text-muted-foreground mt-2">Add at least one item to save</p>
-                                    )}
-                                </div>
-                            </div>
-                        </motion.div>
-                    ) : (
-                        <motion.div
-                            key="quick"
-                            initial={{ opacity: 0, x: 10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -10 }}
-                            transition={{ duration: 0.15 }}
-                        >
-                            <div className="bg-secondary/30 rounded-2xl overflow-hidden">
-                                <div className="px-4 py-3 border-b border-border/30">
-                                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Quick Note</span>
-                                </div>
-                                <div className="p-4">
-                                    <textarea
-                                        value={quickLog}
-                                        onChange={(e) => setQuickLog(e.target.value)}
-                                        placeholder="What did you eat? (e.g., 'Salad with chicken for lunch')"
-                                        className="w-full text-base bg-transparent border-none focus:ring-0 placeholder:text-muted-foreground/50 resize-none min-h-[100px] p-0"
-                                        autoFocus
+                            {/* Time Row */}
+                            <div className="px-4 py-3 flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <Clock className="w-5 h-5 text-muted-foreground" />
+                                    <input
+                                        type="time"
+                                        value={time}
+                                        onChange={(e) => setTime(e.target.value)}
+                                        className="bg-transparent text-lg font-medium border-none focus:outline-none focus:ring-0 p-0"
                                     />
                                 </div>
                             </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-            </div>
 
-            {/* Sticky Bottom Save Area */}
-            <div className="pt-4 mt-4 border-t border-border/30 bg-card sticky bottom-0">
+                            {/* Time Presets */}
+                            <div className="px-4 pb-3 flex gap-2 flex-wrap">
+                                {TIME_PRESETS.map((preset) => (
+                                    <button
+                                        key={preset.value}
+                                        onClick={() => handleTimePreset(preset.value)}
+                                        className={`px-3 py-1.5 text-xs font-medium rounded-full transition-all ${time === preset.value || (preset.value === "now" && false)
+                                            ? "bg-primary text-primary-foreground"
+                                            : "bg-secondary text-muted-foreground hover:text-foreground"
+                                            }`}
+                                    >
+                                        {preset.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Meal Type Section - 2 Column Grid */}
+                        <div className="bg-secondary/30 rounded-2xl overflow-hidden">
+                            <div className="px-4 py-3 border-b border-border/30">
+                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Meal Type</span>
+                            </div>
+                            <div className="p-3 grid grid-cols-2 gap-2">
+                                {MEAL_TYPES.map((meal) => {
+                                    const isSelected = mealType === meal.id;
+                                    return (
+                                        <button
+                                            key={meal.id}
+                                            onClick={() => setMealType(meal.id)}
+                                            className={`flex items-center gap-2.5 px-3 py-3 rounded-xl transition-all ${isSelected
+                                                ? "bg-primary text-primary-foreground shadow-sm"
+                                                : "bg-background/50 text-foreground hover:bg-background"
+                                                }`}
+                                        >
+                                            <span className="text-xl">{meal.icon}</span>
+                                            <span className="text-sm font-medium truncate">{meal.label}</span>
+                                            {isSelected && <Check className="w-4 h-4 ml-auto shrink-0" />}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Food Items Section */}
+                        <div className="bg-secondary/30 rounded-2xl overflow-hidden">
+                            <div className="px-4 py-3 border-b border-border/30">
+                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Items</span>
+                            </div>
+                            <div className="p-4">
+                                <FoodCombobox selectedItems={items} onItemsChange={setItems} />
+                                {items.length === 0 && (
+                                    <p className="text-xs text-muted-foreground mt-2">Add at least one item to save</p>
+                                )}
+                            </div>
+                        </div>
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        key="quick"
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        transition={{ duration: 0.15 }}
+                    >
+                        <div className="bg-secondary/30 rounded-2xl overflow-hidden">
+                            <div className="px-4 py-3 border-b border-border/30">
+                                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Quick Note</span>
+                            </div>
+                            <div className="p-4">
+                                <textarea
+                                    value={quickLog}
+                                    onChange={(e) => setQuickLog(e.target.value)}
+                                    placeholder="What did you eat? (e.g., 'Salad with chicken for lunch')"
+                                    className="w-full text-base bg-transparent border-none focus:ring-0 placeholder:text-muted-foreground/50 resize-none min-h-[100px] p-0"
+                                    autoFocus
+                                />
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Save Button */}
+            <div className="pt-4 border-t border-border/30">
                 <button
                     onClick={handleSave}
                     disabled={!isValid || isSaving}
