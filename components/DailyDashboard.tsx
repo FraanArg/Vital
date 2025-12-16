@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import TodaySummary from "./TodaySummary";
 import StreakBadge from "./StreakBadge";
 import { Doc } from "../convex/_generated/dataModel";
+import { motion } from "framer-motion";
 
 const WeeklyDigest = dynamic(() => import("./insights/WeeklyDigest"), { ssr: false });
 const SmartReminders = dynamic(() => import("./SmartReminders"), { ssr: false });
@@ -20,6 +21,20 @@ interface DailyDashboardProps {
     onEdit: (log: Doc<"logs">) => void;
 }
 
+/**
+ * Section header component for consistent styling
+ */
+function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
+    return (
+        <div className="mb-4">
+            <h2 className="text-lg font-bold tracking-tight">{title}</h2>
+            {subtitle && (
+                <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>
+            )}
+        </div>
+    );
+}
+
 export default function DailyDashboard({
     selectedDate,
     activeTracker,
@@ -28,56 +43,50 @@ export default function DailyDashboard({
     onEdit
 }: DailyDashboardProps) {
     return (
-        <div className="space-y-6">
-            {/* Mobile: Today Summary KPIs at top */}
-            <section className="lg:hidden" aria-label="Today's progress">
+        <div className="space-y-8">
+            {/* Summary Stats - Full Width */}
+            <section aria-label="Today's progress">
                 <TodaySummary selectedDate={selectedDate} onQuickAdd={onTrackerChange} />
             </section>
 
-            {/* Main Grid: Responsive layout */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 lg:gap-6">
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
 
-                {/* Left Column: Summary + Insights (Desktop only) */}
-                <aside className="hidden lg:flex lg:col-span-3 flex-col gap-4" aria-label="Daily insights">
-                    <TodaySummary selectedDate={selectedDate} onQuickAdd={onTrackerChange} />
-                    <StreakBadge />
-                    <SmartReminders />
-                    <SleepDebt />
-                    <WeeklyDigest />
-                </aside>
+                {/* Left Column: Log Activity + Insights */}
+                <section className="lg:col-span-4 space-y-6" aria-label="Log activity">
+                    <div>
+                        <SectionHeader title="Log Activity" />
+                        <LogEntry
+                            selectedDate={selectedDate}
+                            activeTracker={activeTracker}
+                            onTrackerChange={onTrackerChange}
+                            editingLog={editingLog}
+                        />
+                    </div>
 
-                {/* Center Column: Log Activity */}
-                <section className="md:col-span-1 lg:col-span-2" aria-label="Log activity">
-                    <h3 className="text-xs font-semibold uppercase tracking-wider mb-3 text-muted-foreground">
-                        Log Activity
-                    </h3>
-                    <LogEntry
-                        selectedDate={selectedDate}
-                        activeTracker={activeTracker}
-                        onTrackerChange={onTrackerChange}
-                        editingLog={editingLog}
-                    />
-                    {/* Mobile: Show insights below log entry */}
-                    <div className="lg:hidden mt-4 space-y-4">
+                    {/* Insights Section */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="space-y-3"
+                    >
+                        <StreakBadge />
                         <SmartReminders />
                         <SleepDebt />
                         <WeeklyDigest />
-                    </div>
+                    </motion.div>
                 </section>
 
                 {/* Right Column: History */}
                 <section
-                    className="md:col-span-1 lg:col-span-7 flex flex-col min-h-0 lg:h-[calc(100vh-280px)] lg:min-h-[400px]"
+                    className="lg:col-span-8 flex flex-col min-h-0 lg:min-h-[500px]"
                     aria-label="Activity history"
                 >
-                    <div className="flex items-center justify-between mb-3 shrink-0">
-                        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                            History
-                        </h2>
-                        <span className="text-xs text-muted-foreground tabular-nums">
-                            {format(selectedDate, "MMM d, yyyy")}
-                        </span>
-                    </div>
+                    <SectionHeader
+                        title="History"
+                        subtitle={format(selectedDate, "EEEE, MMMM d, yyyy")}
+                    />
                     <div className="flex-1 overflow-y-auto min-h-0 -mr-1 pr-1">
                         <LogList selectedDate={selectedDate} onEdit={onEdit} />
                     </div>

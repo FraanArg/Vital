@@ -5,8 +5,9 @@ import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { startOfDay, endOfDay } from "date-fns";
 import { motion } from "framer-motion";
-import { Moon, Droplets, Dumbbell, Utensils, AlertCircle } from "lucide-react";
+import { Moon, Droplets, Dumbbell, Utensils } from "lucide-react";
 import { Skeleton } from "./ui/Skeleton";
+import { MiniRing } from "./ui/MiniRing";
 
 interface TodaySummaryProps {
     selectedDate: Date;
@@ -21,8 +22,7 @@ interface KPIData {
 }
 
 /**
- * Today Summary with KPI cards and "what's missing" nudge
- * Memoized to prevent re-renders when parent state changes
+ * Today Summary with Apple Watch-style activity rings
  */
 function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
     const start = startOfDay(selectedDate);
@@ -33,14 +33,13 @@ function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
         to: end.toISOString()
     });
 
-    // Fetch user goals (with defaults)
     const goals = useQuery(api.userProfile.getGoals);
 
     if (logs === undefined || goals === undefined) {
         return (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {[1, 2, 3, 4].map((i) => (
-                    <Skeleton key={i} className="h-24 rounded-2xl" />
+                    <Skeleton key={i} className="h-32 rounded-2xl" />
                 ))}
             </div>
         );
@@ -62,8 +61,8 @@ function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
             unit: "h",
             goal: goals.goalSleep,
             icon: Moon,
-            color: "text-indigo-500",
-            bgColor: "bg-indigo-500/10",
+            ringColor: "#8B5CF6", // violet
+            bgGradient: "from-violet-500/20 to-violet-600/5",
             trackerId: "sleep",
         },
         {
@@ -73,8 +72,8 @@ function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
             unit: "ml",
             goal: goals.goalWater,
             icon: Droplets,
-            color: "text-blue-500",
-            bgColor: "bg-blue-500/10",
+            ringColor: "#06B6D4", // cyan
+            bgGradient: "from-cyan-500/20 to-cyan-600/5",
             trackerId: "water",
         },
         {
@@ -84,8 +83,8 @@ function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
             unit: "min",
             goal: goals.goalExercise,
             icon: Dumbbell,
-            color: "text-emerald-500",
-            bgColor: "bg-emerald-500/10",
+            ringColor: "#10B981", // emerald
+            bgGradient: "from-emerald-500/20 to-emerald-600/5",
             trackerId: "exercise",
         },
         {
@@ -95,76 +94,89 @@ function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
             unit: "",
             goal: goals.goalMeals,
             icon: Utensils,
-            color: "text-orange-500",
-            bgColor: "bg-orange-500/10",
+            ringColor: "#F97316", // orange
+            bgGradient: "from-orange-500/20 to-orange-600/5",
             trackerId: "food",
         },
     ];
 
-    // Find missing items for nudge
-    const missing = kpis.filter(k => k.value === 0);
-
     return (
-        <div className="space-y-4">
-            {/* KPI Cards Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {kpis.map((kpi, index) => {
-                    const Icon = kpi.icon;
-                    const progress = Math.min((kpi.value / kpi.goal) * 100, 100);
-                    const isComplete = kpi.value >= kpi.goal;
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {kpis.map((kpi, index) => {
+                const Icon = kpi.icon;
+                const progress = Math.min((kpi.value / kpi.goal) * 100, 100);
+                const isComplete = kpi.value >= kpi.goal;
 
-                    return (
-                        <motion.button
-                            key={kpi.id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.05 }}
-                            onClick={() => onQuickAdd?.(kpi.trackerId)}
-                            className="relative bg-card border border-border/50 rounded-2xl p-4 text-left card-interactive focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
-                        >
-                            {/* Progress bar background */}
-                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-secondary rounded-b-2xl overflow-hidden">
-                                <motion.div
-                                    className={`h-full ${isComplete ? "bg-green-500" : kpi.bgColor.replace("/10", "")}`}
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${progress}%` }}
-                                    transition={{ delay: index * 0.05 + 0.2, duration: 0.5 }}
+                return (
+                    <motion.button
+                        key={kpi.id}
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.08, type: "spring", stiffness: 300 }}
+                        onClick={() => onQuickAdd?.(kpi.trackerId)}
+                        className={`
+                            relative overflow-hidden bg-gradient-to-br ${kpi.bgGradient}
+                            bg-card border border-border/30 rounded-2xl p-5
+                            text-left transition-all duration-200
+                            hover:shadow-lg hover:scale-[1.02] hover:border-border/50
+                            active:scale-[0.98]
+                            focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2
+                        `}
+                    >
+                        {/* Ring + Icon */}
+                        <div className="flex items-center gap-3 mb-4">
+                            <MiniRing
+                                progress={progress}
+                                size={48}
+                                strokeWidth={5}
+                                color={kpi.ringColor}
+                                showCheck={isComplete}
+                                delay={index * 0.1}
+                            />
+                            <div
+                                className="p-2 rounded-xl"
+                                style={{ backgroundColor: `${kpi.ringColor}20` }}
+                            >
+                                <Icon
+                                    className="w-5 h-5"
+                                    style={{ color: kpi.ringColor }}
                                 />
                             </div>
+                        </div>
 
-                            <div className="flex items-start justify-between mb-2">
-                                <div className={`p-2 rounded-lg ${kpi.bgColor}`}>
-                                    <Icon className={`w-4 h-4 ${kpi.color}`} />
-                                </div>
-                                {isComplete && (
-                                    <span className="text-[10px] font-medium text-green-500">✓ Done</span>
-                                )}
-                            </div>
+                        {/* Value */}
+                        <div className="flex items-baseline gap-1">
+                            <motion.span
+                                className="text-3xl font-bold tabular-nums"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: index * 0.1 + 0.2 }}
+                            >
+                                {kpi.value}
+                            </motion.span>
+                            <span className="text-sm text-muted-foreground font-medium">
+                                {kpi.unit}
+                            </span>
+                        </div>
 
-                            <div className="tabular-nums">
-                                <span className="text-2xl font-bold">{kpi.value}</span>
-                                <span className="text-sm text-muted-foreground ml-0.5">{kpi.unit}</span>
-                            </div>
-                            <p className="text-xs text-muted-foreground">{kpi.label}</p>
-                        </motion.button>
-                    );
-                })}
-            </div>
-
-            {/* What's Missing Nudge */}
-            {missing.length > 0 && (
-                <motion.div
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20"
-                >
-                    <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
-                    <p className="text-sm text-amber-700 dark:text-amber-400">
-                        <span className="font-medium">Missing today:</span>{" "}
-                        {missing.map(m => m.label).join(", ")}
-                    </p>
-                </motion.div>
-            )}
+                        {/* Label + goal indicator */}
+                        <div className="flex items-center justify-between mt-1">
+                            <span className="text-sm text-muted-foreground font-medium">
+                                {kpi.label}
+                            </span>
+                            {isComplete ? (
+                                <span className="text-xs font-semibold text-green-500">
+                                    ✓ Done
+                                </span>
+                            ) : (
+                                <span className="text-xs text-muted-foreground/70">
+                                    /{kpi.goal}{kpi.unit}
+                                </span>
+                            )}
+                        </div>
+                    </motion.button>
+                );
+            })}
         </div>
     );
 }
