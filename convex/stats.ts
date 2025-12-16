@@ -1604,13 +1604,28 @@ export const getSmartReminders = query({
             }
         }
 
-        // Water reminder
+        // Water reminder - only show if significantly behind goal
         const todayWater = todayLogs.filter(l => l.date.startsWith(today)).reduce((sum, l) => sum + (l.water || 0), 0);
-        if (currentHour >= 12 && todayWater < 1) {
+
+        // Get user's water goal
+        const userProfile = await ctx.db.query("userProfile")
+            .filter((q) => q.eq(q.field("userId"), userId))
+            .first();
+        const waterGoal = userProfile?.goalWater ?? 2000;
+
+        // Calculate expected water intake by this hour (linear progression)
+        // E.g., at 3PM (hour 15), we'd expect ~63% of daily goal
+        const expectedWaterByNow = (currentHour / 24) * waterGoal;
+
+        // Only show reminder if:
+        // 1. It's after noon (hour >= 12)
+        // 2. User hasn't met their goal yet
+        // 3. They're significantly behind expected pace (< 50% of expected)
+        if (currentHour >= 12 && todayWater < waterGoal && todayWater < expectedWaterByNow * 0.5) {
             reminders.push({
                 icon: "💧",
                 title: "Hydration Check",
-                message: "You haven't logged much water today. Stay hydrated!",
+                message: `You've logged ${todayWater}ml of ${waterGoal}ml today. Drink up!`,
                 priority: "medium",
             });
         }
