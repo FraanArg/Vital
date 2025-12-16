@@ -4,7 +4,8 @@ import { useQuery } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { motion } from "framer-motion";
 import { subDays } from "date-fns";
-import { Trophy, Flame, Droplets, Moon, Dumbbell, Target, Zap, Star, Award } from "lucide-react";
+import { Trophy, Flame, Droplets, Moon, Dumbbell, Target, Zap, Star } from "lucide-react";
+import { useStreak } from "../hooks/useStreak";
 
 interface Badge {
     id: string;
@@ -17,9 +18,13 @@ interface Badge {
 /**
  * Zero app-style horizontal scrolling achievement badges
  * Shows recently earned achievements
+ * Uses unified useStreak hook for consistent streak calculation
  */
 export function AchievementBadges() {
-    // Get logs for achievement calculation
+    // Use unified streak hook
+    const { currentStreak } = useStreak();
+
+    // Get logs for other achievement calculations
     const logs = useQuery(api.logs.getStats, {
         from: subDays(new Date(), 30).toISOString(),
         to: new Date().toISOString(),
@@ -28,7 +33,6 @@ export function AchievementBadges() {
     if (!logs) return null;
 
     // Calculate achievements based on data
-    const streakDays = calculateStreak(logs);
     const totalWater = logs.reduce((sum, l) => sum + (l.water || 0), 0);
     const totalExercise = logs.reduce((sum, l) => sum + (l.exercise?.duration || 0), 0);
     const workoutCount = logs.filter(l => l.exercise).length;
@@ -40,14 +44,14 @@ export function AchievementBadges() {
             icon: <Flame className="w-4 h-4" />,
             label: "7 Day Streak",
             color: "bg-orange-500/10 text-orange-500 border-orange-500/20",
-            earned: streakDays >= 7,
+            earned: currentStreak >= 7,
         },
         {
             id: "streak-30",
             icon: <Flame className="w-4 h-4" />,
             label: "30 Day Streak",
             color: "bg-red-500/10 text-red-500 border-red-500/20",
-            earned: streakDays >= 30,
+            earned: currentStreak >= 30,
         },
         {
             id: "hydration-hero",
@@ -124,32 +128,6 @@ export function AchievementBadges() {
             </div>
         </div>
     );
-}
-
-// Helper: Calculate current streak
-function calculateStreak(logs: any[]): number {
-    if (!logs || logs.length === 0) return 0;
-
-    const dates = [...new Set(logs.map(l => l.date.split('T')[0]))].sort().reverse();
-    let streak = 0;
-    const today = new Date().toISOString().split('T')[0];
-
-    // Check if today is logged
-    if (dates[0] !== today) {
-        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-        if (dates[0] !== yesterday) return 0;
-    }
-
-    for (let i = 0; i < dates.length; i++) {
-        const expected = new Date(Date.now() - i * 86400000).toISOString().split('T')[0];
-        if (dates[i] === expected) {
-            streak++;
-        } else {
-            break;
-        }
-    }
-
-    return streak;
 }
 
 // Helper: Count perfect days (all 4 KPIs logged)
