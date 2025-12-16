@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useQuery } from "convex/react";
+import { useUser } from "@clerk/nextjs";
 import { api } from "../convex/_generated/api";
-import { startOfDay, endOfDay } from "date-fns";
+import { startOfDay, endOfDay, isSameDay } from "date-fns";
 import DailyDashboard from "../components/DailyDashboard";
 import WeeklyDashboard from "../components/WeeklyDashboard";
 import { SegmentedControl } from "../components/ui/SegmentedControl";
@@ -15,6 +16,7 @@ import UndoToast from "../components/UndoToast";
 import PullToRefresh from "../components/PullToRefresh";
 import QuickAddFAB from "../components/QuickAddFAB";
 import Onboarding, { useOnboarding } from "../components/Onboarding";
+import { CelebrationOverlay } from "../components/ui/CelebrationOverlay";
 import { TRACKERS } from "../lib/tracker-registry";
 import { Doc } from "../convex/_generated/dataModel";
 import { Plus, RefreshCw } from "lucide-react";
@@ -28,16 +30,29 @@ function PrefetchDays({ date }: { date: Date }) {
   const next = new Date(date);
   next.setDate(next.getDate() + 1);
 
-  // We just call the hooks to prime the cache
   useQuery(api.logs.getLogs, { from: startOfDay(prev).toISOString(), to: endOfDay(prev).toISOString() });
   useQuery(api.logs.getLogs, { from: startOfDay(next).toISOString(), to: endOfDay(next).toISOString() });
 
   return null;
 }
 
+// Get time-based greeting
+function getGreeting(hour: number): string {
+  if (hour < 5) return "Good Night";
+  if (hour < 12) return "Good Morning";
+  if (hour < 18) return "Good Afternoon";
+  return "Good Evening";
+}
 
-
-// ...
+// Motivational messages that rotate
+const MOTIVATIONAL_MESSAGES = [
+  "Ready to seize the day?",
+  "Let's make today count!",
+  "One step at a time!",
+  "You're doing great!",
+  "Keep up the momentum!",
+  "Small wins add up!",
+];
 
 export default function Home() {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -45,7 +60,47 @@ export default function Home() {
   const [activeTracker, setActiveTracker] = useState<string | null>(null);
   const [editingLog, setEditingLog] = useState<Doc<"logs"> | null>(null);
   const [viewMode, setViewMode] = useState<"daily" | "weekly">("daily");
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [lastCelebrationDate, setLastCelebrationDate] = useState<string | null>(null);
   const { showOnboarding, completeOnboarding } = useOnboarding();
+  const { user } = useUser();
+
+  // Get goals for celebration trigger
+  const goals = useQuery(api.userProfile.getGoals);
+
+  // Get today's logs for celebration trigger
+  const todayLogs = useQuery(api.logs.getStats, {
+    from: startOfDay(new Date()).toISOString(),
+    to: endOfDay(new Date()).toISOString(),
+  });
+
+  // Calculate if all goals are complete
+  const allGoalsComplete = useMemo(() => {
+    if (!todayLogs || !goals) return false;
+
+    const totals = todayLogs.reduce((acc, log) => ({
+      sleep: acc.sleep + (log.sleep || 0),
+      water: acc.water + (log.water || 0),
+      exercise: acc.exercise + (log.exercise?.duration || 0),
+      meals: acc.meals + (log.meal ? 1 : 0),
+    }), { sleep: 0, water: 0, exercise: 0, meals: 0 });
+
+    return (
+      totals.sleep >= goals.goalSleep &&
+      totals.water >= goals.goalWater &&
+      totals.exercise >= goals.goalExercise &&
+      totals.meals >= goals.goalMeals
+    );
+  }, [todayLogs, goals]);
+
+  // Trigger celebration when all goals complete (only once per day)
+  useEffect(() => {
+    const today = new Date().toDateString();
+    if (allGoalsComplete && lastCelebrationDate !== today && isSameDay(selectedDate, new Date())) {
+      setShowCelebration(true);
+      setLastCelebrationDate(today);
+    }
+  }, [allGoalsComplete, lastCelebrationDate, selectedDate]);
 
   useEffect(() => {
     setTimeout(() => setIsMounted(true), 0);
@@ -66,15 +121,26 @@ export default function Home() {
     }
   };
 
-  // Handle pull-to-refresh for mobile
   const handleRefresh = useCallback(async () => {
-    // Simple reload - Convex will re-fetch data automatically
     window.location.reload();
   }, []);
+
+  // Get user's first name from Clerk or fallback to "Friend"
+  const userName = useMemo(() => {
+    if (user?.firstName) {
+      return user.firstName;
+    }
+    return "Friend";
+  }, [user]);
+
+  // Rotate motivational message
+  const motivationalMessage = MOTIVATIONAL_MESSAGES[Math.floor(Date.now() / 60000) % MOTIVATIONAL_MESSAGES.length];
 
   if (!isMounted) {
     return null;
   }
+
+  const currentHour = new Date().getHours();
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -87,16 +153,10 @@ export default function Home() {
             <div className="flex items-center gap-3">
               <div>
                 <h1 className="text-2xl md:text-4xl font-black tracking-tighter">
-                  Good {new Date().getHours() < 12 ? "Morning" : new Date().getHours() < 18 ? "Afternoon" : "Evening"}, Friend
+                  {getGreeting(currentHour)}, {userName}
                 </h1>
                 <p className="text-muted-foreground text-sm">
-                  {[
-                    "Ready to seize the day?",
-                    "Let's make today count!",
-                    "Track your progress!",
-                    "One step at a time!",
-                    "You're doing great!"
-                  ][Math.floor(Date.now() / 60000) % 5]}
+                  {allGoalsComplete ? "🎉 All goals complete! Amazing!" : motivationalMessage}
                 </p>
               </div>
             </div>
@@ -108,7 +168,6 @@ export default function Home() {
                 labels={{ daily: "Daily", weekly: "Weekly" }}
               />
               <div className="flex items-center gap-2">
-                {/* Desktop Log Activity button */}
                 <Button
                   onClick={() => setActiveTracker("work")}
                   leftIcon={<Plus className="w-4 h-4" />}
@@ -134,7 +193,6 @@ export default function Home() {
 
           <DateSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
 
-
           {viewMode === "daily" ? (
             <DailyDashboard
               selectedDate={selectedDate}
@@ -148,10 +206,17 @@ export default function Home() {
           )}
         </div>
       </PullToRefresh>
+
       <PrefetchDays date={selectedDate} />
       <QuickAddFAB selectedDate={selectedDate} onTrackerSelect={handleTrackerChange} />
       <UndoToast />
       {showOnboarding && <Onboarding onComplete={completeOnboarding} />}
+
+      {/* Celebration overlay for all goals complete */}
+      <CelebrationOverlay
+        trigger={showCelebration}
+        onComplete={() => setShowCelebration(false)}
+      />
     </div>
   );
 }

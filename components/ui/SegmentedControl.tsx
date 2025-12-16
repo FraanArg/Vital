@@ -8,7 +8,7 @@ interface SegmentedControlProps<T extends string> {
     value: T;
     onChange: (value: T) => void;
     labels?: Record<T, string>;
-    size?: "sm" | "md";
+    size?: "sm" | "md" | "lg";
     fullWidth?: boolean;
 }
 
@@ -23,14 +23,15 @@ export function SegmentedControl<T extends string>({
     const activeIndex = options.indexOf(value);
 
     const sizeStyles = {
-        sm: "h-8 text-xs",
-        md: "h-9 text-sm",
+        sm: "h-8 text-xs px-3",
+        md: "h-10 text-sm px-4",
+        lg: "h-11 text-sm px-5",
     };
 
     return (
         <div
             className={clsx(
-                "relative inline-flex p-0.5 bg-secondary rounded-lg",
+                "relative inline-flex p-1 bg-secondary/80 rounded-xl border border-border/50 shadow-sm",
                 fullWidth && "w-full"
             )}
             role="tablist"
