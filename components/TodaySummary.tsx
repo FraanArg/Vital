@@ -116,32 +116,43 @@ function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
                         onClick={() => onQuickAdd?.(kpi.trackerId)}
                         className={`
                             relative overflow-hidden bg-gradient-to-br ${kpi.bgGradient}
-                            bg-card border border-border/30 rounded-2xl p-5
+                            bg-card border border-border/30 rounded-2xl p-4
                             text-left transition-all duration-200
                             hover:shadow-lg hover:scale-[1.02] hover:border-border/50
                             active:scale-[0.98]
                             focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2
                         `}
                     >
-                        {/* Ring + Icon */}
-                        <div className="flex items-center gap-3 mb-4">
-                            <MiniRing
-                                progress={progress}
-                                size={48}
-                                strokeWidth={5}
-                                color={kpi.ringColor}
-                                showCheck={isComplete}
-                                delay={index * 0.1}
-                            />
-                            <div
-                                className="p-2 rounded-xl"
-                                style={{ backgroundColor: `${kpi.ringColor}20` }}
-                            >
-                                <Icon
-                                    className="w-5 h-5"
-                                    style={{ color: kpi.ringColor }}
+                        {/* Ring with Icon inside */}
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="relative">
+                                <MiniRing
+                                    progress={progress}
+                                    size={52}
+                                    strokeWidth={5}
+                                    color={kpi.ringColor}
+                                    showCheck={isComplete}
+                                    delay={index * 0.1}
                                 />
+                                {/* Icon centered in ring */}
+                                {!isComplete && (
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <Icon
+                                            className="w-5 h-5"
+                                            style={{ color: kpi.ringColor }}
+                                        />
+                                    </div>
+                                )}
                             </div>
+                            <span
+                                className="text-xs font-medium px-2 py-0.5 rounded-full"
+                                style={{
+                                    backgroundColor: `${kpi.ringColor}15`,
+                                    color: kpi.ringColor
+                                }}
+                            >
+                                {kpi.label}
+                            </span>
                         </div>
 
                         {/* Value */}
@@ -157,22 +168,9 @@ function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
                             <span className="text-sm text-muted-foreground font-medium">
                                 {kpi.unit}
                             </span>
-                        </div>
-
-                        {/* Label + goal indicator */}
-                        <div className="flex items-center justify-between mt-1">
-                            <span className="text-sm text-muted-foreground font-medium">
-                                {kpi.label}
+                            <span className="text-xs text-muted-foreground/60 ml-auto">
+                                / {kpi.goal}{kpi.unit}
                             </span>
-                            {isComplete ? (
-                                <span className="text-xs font-semibold text-green-500">
-                                    ✓ Done
-                                </span>
-                            ) : (
-                                <span className="text-xs text-muted-foreground/70">
-                                    /{kpi.goal}{kpi.unit}
-                                </span>
-                            )}
                         </div>
                     </motion.button>
                 );
