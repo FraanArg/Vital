@@ -80,9 +80,9 @@ function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
         };
     }, [weekLogs, start]);
 
-    // Calculate weekly comparison
+    // Calculate weekly comparison (null = no data for comparison)
     const weeklyComparison = useMemo(() => {
-        if (!weekLogs || !lastWeekLogs) return { sleep: 0, water: 0, exercise: 0, meals: 0 };
+        if (!weekLogs || !lastWeekLogs) return { sleep: null, water: null, exercise: null, meals: null };
 
         const thisWeek = {
             sleep: weekLogs.reduce((s, l) => s + (l.sleep || 0), 0),
@@ -98,11 +98,12 @@ function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
             meals: lastWeekLogs.reduce((s, l) => s + (l.meal ? 1 : 0), 0),
         };
 
+        // Return null if no data last week (first week of use)
         return {
-            sleep: lastWeek.sleep ? Math.round(((thisWeek.sleep - lastWeek.sleep) / lastWeek.sleep) * 100) : 0,
-            water: lastWeek.water ? Math.round(((thisWeek.water - lastWeek.water) / lastWeek.water) * 100) : 0,
-            exercise: lastWeek.exercise ? Math.round(((thisWeek.exercise - lastWeek.exercise) / lastWeek.exercise) * 100) : 0,
-            meals: lastWeek.meals ? Math.round(((thisWeek.meals - lastWeek.meals) / lastWeek.meals) * 100) : 0,
+            sleep: lastWeek.sleep > 0 ? Math.round(((thisWeek.sleep - lastWeek.sleep) / lastWeek.sleep) * 100) : null,
+            water: lastWeek.water > 0 ? Math.round(((thisWeek.water - lastWeek.water) / lastWeek.water) * 100) : null,
+            exercise: lastWeek.exercise > 0 ? Math.round(((thisWeek.exercise - lastWeek.exercise) / lastWeek.exercise) * 100) : null,
+            meals: lastWeek.meals > 0 ? Math.round(((thisWeek.meals - lastWeek.meals) / lastWeek.meals) * 100) : null,
         };
     }, [weekLogs, lastWeekLogs]);
 
@@ -185,8 +186,9 @@ function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
                 const Icon = kpi.icon;
                 const progress = Math.min((kpi.value / kpi.goal) * 100, 100);
                 const isComplete = kpi.value >= kpi.goal;
-                const comparisonUp = kpi.comparison > 0;
-                const showComparison = kpi.comparison !== 0;
+                const comparison = kpi.comparison;
+                const hasComparison = comparison !== null && comparison !== 0;
+                const comparisonUp = hasComparison && comparison > 0;
 
                 return (
                     <motion.button
@@ -265,7 +267,7 @@ function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
                         </div>
 
                         {/* Weekly comparison */}
-                        {showComparison && (
+                        {hasComparison && (
                             <div className={`flex items-center gap-1 mt-1 text-[10px] font-medium ${comparisonUp ? "text-emerald-500" : "text-red-400"
                                 }`}>
                                 {comparisonUp ? (
@@ -273,7 +275,7 @@ function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
                                 ) : (
                                     <TrendingDown className="w-3 h-3" />
                                 )}
-                                <span>{comparisonUp ? "+" : ""}{kpi.comparison}% vs last week</span>
+                                <span>{comparisonUp ? "+" : ""}{comparison}% vs last week</span>
                             </div>
                         )}
                     </motion.button>

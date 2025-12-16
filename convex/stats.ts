@@ -1702,7 +1702,12 @@ export const getSleepDebt = query({
             .withIndex("by_userId_date", (q) => q.eq("userId", userId).gte("date", weekStart))
             .collect();
 
-        const TARGET_HOURS = 8; // Could be from user profile later
+        // Get user's sleep goal from profile
+        const userProfile = await ctx.db.query("userProfile")
+            .filter((q) => q.eq(q.field("userId"), userId))
+            .first();
+        const TARGET_HOURS = userProfile?.goalSleep ?? 8;
+
         const daysInWeek = Math.min(7, Math.floor((Date.now() - new Date(weekStart).getTime()) / (1000 * 60 * 60 * 24)) + 1);
 
         const targetTotal = TARGET_HOURS * daysInWeek;

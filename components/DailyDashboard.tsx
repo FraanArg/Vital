@@ -46,14 +46,24 @@ export default function DailyDashboard({
     onTrackerChange,
     onEdit
 }: DailyDashboardProps) {
-    const [showTip, setShowTip] = useState(true);
+    // Check if tip was dismissed today
+    const today = new Date().toDateString();
+    const [showTip, setShowTip] = useState(() => {
+        if (typeof window === 'undefined') return true;
+        return localStorage.getItem('tipDismissedDate') !== today;
+    });
+
+    const handleDismissTip = () => {
+        setShowTip(false);
+        localStorage.setItem('tipDismissedDate', today);
+    };
 
     return (
         <div className="space-y-6">
             {/* Tip of the Day - Nike Training Club style */}
             <AnimatePresence>
                 {showTip && (
-                    <TipOfTheDay onDismiss={() => setShowTip(false)} />
+                    <TipOfTheDay onDismiss={handleDismissTip} />
                 )}
             </AnimatePresence>
 
