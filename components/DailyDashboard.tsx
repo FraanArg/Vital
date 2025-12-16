@@ -9,6 +9,7 @@ import TodaySummary from "./TodaySummary";
 import StreakBadge from "./StreakBadge";
 import { TipOfTheDay } from "./TipOfTheDay";
 import { QuickAddRow } from "./QuickAddRow";
+import { AchievementBadges } from "./AchievementBadges";
 import { Doc } from "../convex/_generated/dataModel";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -58,6 +59,9 @@ export default function DailyDashboard({
 
             {/* Quick Add Row - Apple Fitness+ style */}
             <QuickAddRow selectedDate={selectedDate} onTrackerOpen={onTrackerChange} />
+
+            {/* Achievement Badges - Zero app style */}
+            <AchievementBadges />
 
             {/* Summary Stats - Full Width */}
             <section aria-label="Today's progress">

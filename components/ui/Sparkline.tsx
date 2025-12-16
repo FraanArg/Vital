@@ -7,128 +7,80 @@ interface SparklineProps {
     width?: number;
     height?: number;
     color?: string;
-    showDots?: boolean;
-    showArea?: boolean;
     className?: string;
 }
 
 /**
- * Tiny inline sparkline chart for showing trends
+ * Apple Stocks-style mini sparkline chart
+ * Shows 7-day trend visualization
  */
-export default function Sparkline({
+export function Sparkline({
     data,
     width = 60,
-    height = 20,
+    height = 24,
     color = "currentColor",
-    showDots = false,
-    showArea = true,
-    className = "",
+    className
 }: SparklineProps) {
-    if (!data || data.length < 2) {
-        return <div className={`inline-block ${className}`} style={{ width, height }} />;
-    }
+    if (!data || data.length < 2) return null;
 
-    const min = Math.min(...data);
     const max = Math.max(...data);
+    const min = Math.min(...data);
     const range = max - min || 1;
 
-    const padding = 2;
-    const drawWidth = width - padding * 2;
-    const drawHeight = height - padding * 2;
+    // Normalize data to fit within height
+    const normalizedData = data.map(value =>
+        ((value - min) / range) * (height - 4) + 2
+    );
 
-    // Normalize points to SVG coordinates
-    const points = data.map((value, index) => {
-        const x = padding + (index / (data.length - 1)) * drawWidth;
-        const y = padding + drawHeight - ((value - min) / range) * drawHeight;
-        return { x, y, value };
-    });
+    // Create SVG path
+    const points = normalizedData.map((y, i) => ({
+        x: (i / (data.length - 1)) * width,
+        y: height - y,
+    }));
 
-    // Create path for the line
-    const linePath = points
-        .map((point, index) => `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`)
-        .join(" ");
+    // Create smooth path using quadratic curves
+    let path = `M ${points[0].x} ${points[0].y}`;
+    for (let i = 1; i < points.length; i++) {
+        const prev = points[i - 1];
+        const curr = points[i];
+        const midX = (prev.x + curr.x) / 2;
+        path += ` Q ${prev.x} ${prev.y} ${midX} ${(prev.y + curr.y) / 2}`;
+    }
+    const lastPoint = points[points.length - 1];
+    path += ` T ${lastPoint.x} ${lastPoint.y}`;
 
-    // Create path for the area (closed shape)
-    const areaPath = `${linePath} L ${points[points.length - 1].x} ${height - padding} L ${padding} ${height - padding} Z`;
-
-    // Determine trend color based on first vs last value
-    const trendUp = data[data.length - 1] > data[0];
-    const trendColor = color === "currentColor"
-        ? (trendUp ? "#22c55e" : "#ef4444")
-        : color;
+    // Determine trend direction
+    const isUp = data[data.length - 1] > data[0];
+    const isFlat = Math.abs(data[data.length - 1] - data[0]) < range * 0.1;
 
     return (
         <svg
             width={width}
             height={height}
-            className={`inline-block align-middle ${className}`}
+            className={className}
             viewBox={`0 0 ${width} ${height}`}
         >
-            {/* Area fill */}
-            {showArea && (
-                <motion.path
-                    d={areaPath}
-                    fill={trendColor}
-                    fillOpacity={0.1}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5 }}
-                />
-            )}
-
-            {/* Line */}
             <motion.path
-                d={linePath}
+                d={path}
                 fill="none"
-                stroke={trendColor}
-                strokeWidth={1.5}
+                stroke={color}
+                strokeWidth={2}
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: 1 }}
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ pathLength: 1, opacity: 0.6 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
             />
-
             {/* End dot */}
-            {showDots && (
-                <motion.circle
-                    cx={points[points.length - 1].x}
-                    cy={points[points.length - 1].y}
-                    r={2}
-                    fill={trendColor}
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.6, duration: 0.2 }}
-                />
-            )}
+            <motion.circle
+                cx={lastPoint.x}
+                cy={lastPoint.y}
+                r={3}
+                fill={color}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.6 }}
+            />
         </svg>
-    );
-}
-
-/**
- * Sparkline with trend indicator
- */
-export function SparklineWithTrend({
-    data,
-    label,
-    className = "",
-}: {
-    data: number[];
-    label?: string;
-    className?: string;
-}) {
-    if (!data || data.length < 2) return null;
-
-    const trend = data[data.length - 1] - data[0];
-    const trendPercent = data[0] !== 0 ? Math.round((trend / data[0]) * 100) : 0;
-
-    return (
-        <div className={`flex items-center gap-2 ${className}`}>
-            <Sparkline data={data} showDots />
-            <span className={`text-xs font-medium ${trend >= 0 ? "text-green-500" : "text-red-500"}`}>
-                {trend >= 0 ? "+" : ""}{trendPercent}%
-            </span>
-            {label && <span className="text-xs text-muted-foreground">{label}</span>}
-        </div>
     );
 }
