@@ -22,6 +22,7 @@ import { Doc } from "../convex/_generated/dataModel";
 import { Plus, RefreshCw } from "lucide-react";
 import { Button } from "../components/ui/Button";
 import { IconButton } from "../components/ui/IconButton";
+import { StreakInline } from "../components/StreakInline";
 
 // Prefetch adjacent days
 function PrefetchDays({ date }: { date: Date }) {
@@ -152,9 +153,12 @@ export default function Home() {
           <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-2 pt-safe">
             <div className="flex items-center gap-3">
               <div>
-                <h1 className="text-2xl md:text-4xl font-black tracking-tighter">
-                  {getGreeting(currentHour)}, {userName}
-                </h1>
+                <div className="flex items-center gap-3">
+                  <h1 className="text-2xl md:text-4xl font-black tracking-tighter">
+                    {getGreeting(currentHour)}, {userName}
+                  </h1>
+                  <StreakInline />
+                </div>
                 <p className="text-muted-foreground text-sm">
                   {allGoalsComplete ? "🎉 All goals complete! Amazing!" : motivationalMessage}
                 </p>

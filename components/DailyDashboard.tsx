@@ -1,13 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import { format } from "date-fns";
 import LogEntry from "./LogEntry";
 import LogList from "./LogList";
 import dynamic from "next/dynamic";
 import TodaySummary from "./TodaySummary";
 import StreakBadge from "./StreakBadge";
+import { TipOfTheDay } from "./TipOfTheDay";
+import { QuickAddRow } from "./QuickAddRow";
 import { Doc } from "../convex/_generated/dataModel";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 const WeeklyDigest = dynamic(() => import("./insights/WeeklyDigest"), { ssr: false });
 const SmartReminders = dynamic(() => import("./SmartReminders"), { ssr: false });
@@ -42,8 +45,20 @@ export default function DailyDashboard({
     onTrackerChange,
     onEdit
 }: DailyDashboardProps) {
+    const [showTip, setShowTip] = useState(true);
+
     return (
-        <div className="space-y-8">
+        <div className="space-y-6">
+            {/* Tip of the Day - Nike Training Club style */}
+            <AnimatePresence>
+                {showTip && (
+                    <TipOfTheDay onDismiss={() => setShowTip(false)} />
+                )}
+            </AnimatePresence>
+
+            {/* Quick Add Row - Apple Fitness+ style */}
+            <QuickAddRow selectedDate={selectedDate} onTrackerOpen={onTrackerChange} />
+
             {/* Summary Stats - Full Width */}
             <section aria-label="Today's progress">
                 <TodaySummary selectedDate={selectedDate} onQuickAdd={onTrackerChange} />
@@ -72,7 +87,7 @@ export default function DailyDashboard({
                         className="space-y-3"
                     >
                         <StreakBadge />
-                        <SmartReminders />
+                        <SmartReminders selectedDate={selectedDate} />
                         <SleepDebt />
                         <WeeklyDigest />
                     </motion.div>
