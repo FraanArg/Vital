@@ -262,7 +262,7 @@ function LogList({ selectedDate, onEdit }: LogListProps) {
                             {/* Time badge in top-right corner */}
                             {timeDisplay && (
                                 <div className="absolute top-2 right-2 z-10">
-                                    <span className="text-[9px] font-medium text-muted-foreground bg-secondary/80 px-1.5 py-0.5 rounded-md">
+                                    <span className="text-[11px] font-semibold text-muted-foreground bg-secondary px-2 py-0.5 rounded-lg">
                                         {timeDisplay}
                                     </span>
                                 </div>

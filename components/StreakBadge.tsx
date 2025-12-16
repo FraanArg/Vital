@@ -88,9 +88,29 @@ function StreakBadge() {
     const nextMilestone = MILESTONES.find(m => m.days > streak.currentStreak);
     const achievedMilestone = [...MILESTONES].reverse().find(m => m.days <= streak.currentStreak);
 
+    // Loading state - show minimal skeleton
     if (!logs) {
+        return null; // Don't show anything while loading
+    }
+
+    // Empty state - no streak yet
+    if (streak.currentStreak === 0 && !streak.todayLogged) {
         return (
-            <div className="h-20 bg-card rounded-2xl border border-border/50 animate-pulse" />
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-gradient-to-r from-orange-500/10 to-amber-500/5 border border-orange-500/20 rounded-2xl p-4"
+            >
+                <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-xl bg-orange-500/10">
+                        <Flame className="w-6 h-6 text-orange-400" />
+                    </div>
+                    <div>
+                        <h4 className="font-semibold text-sm">Start your streak!</h4>
+                        <p className="text-xs text-muted-foreground">Log an activity today to begin 🔥</p>
+                    </div>
+                </div>
+            </motion.div>
         );
     }
 

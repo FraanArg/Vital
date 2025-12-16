@@ -155,8 +155,8 @@ function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
                             </span>
                         </div>
 
-                        {/* Value */}
-                        <div className="flex items-baseline gap-1">
+                        {/* Value with inline goal */}
+                        <div className="flex items-baseline gap-0.5 flex-wrap">
                             <motion.span
                                 className="text-3xl font-bold tabular-nums"
                                 initial={{ opacity: 0 }}
@@ -168,7 +168,7 @@ function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
                             <span className="text-sm text-muted-foreground font-medium">
                                 {kpi.unit}
                             </span>
-                            <span className="text-xs text-muted-foreground/60 ml-auto">
+                            <span className="text-sm text-muted-foreground/50 font-medium">
                                 / {kpi.goal}{kpi.unit}
                             </span>
                         </div>

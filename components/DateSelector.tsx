@@ -240,19 +240,19 @@ function DateSelector({ selectedDate, onDateChange }: DateSelectorProps) {
                                         </div>
                                     </div>
 
-                                    {/* Activity Dots */}
-                                    <div className="flex items-center gap-1 mb-1">
+                                    {/* Activity Dots - Larger for visibility */}
+                                    <div className="flex items-center gap-1.5 mb-1">
                                         {status.activities.includes("sleep") && (
-                                            <div className="w-1.5 h-1.5 rounded-full bg-purple-500" title="Sleep" />
+                                            <div className="w-2.5 h-2.5 rounded-full bg-purple-500" title="Sleep" />
                                         )}
                                         {status.activities.includes("food") && (
-                                            <div className="w-1.5 h-1.5 rounded-full bg-orange-500" title="Food" />
+                                            <div className="w-2.5 h-2.5 rounded-full bg-orange-500" title="Food" />
                                         )}
                                         {status.activities.includes("exercise") && (
-                                            <div className="w-1.5 h-1.5 rounded-full bg-red-500" title="Exercise" />
+                                            <div className="w-2.5 h-2.5 rounded-full bg-red-500" title="Exercise" />
                                         )}
                                         {status.activities.includes("water") && (
-                                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500" title="Water" />
+                                            <div className="w-2.5 h-2.5 rounded-full bg-blue-500" title="Water" />
                                         )}
                                     </div>
 
