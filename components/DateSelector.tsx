@@ -163,8 +163,8 @@ function DateSelector({ selectedDate, onDateChange }: DateSelectorProps) {
                         onClick={() => onDateChange(new Date())}
                         aria-label="Go to today"
                         className={`text-sm font-bold px-4 py-2 rounded-full transition-all ${isToday(selectedDate)
-                            ? "bg-primary text-primary-foreground shadow-md"
-                            : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                            ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 ring-2 ring-primary/20"
+                            : "bg-secondary text-secondary-foreground hover:bg-secondary/80 hover:shadow-md"
                             }`}
                     >
                         Today
