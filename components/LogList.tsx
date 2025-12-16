@@ -6,6 +6,7 @@ import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, Search, ClipboardList } from "lucide-react";
+import { formatDistanceToNowStrict } from "date-fns";
 import { Skeleton } from "./ui/Skeleton";
 import { TRACKERS } from "../lib/tracker-registry";
 import { useToast } from "./ui/ToastContext";
@@ -207,7 +208,7 @@ function LogList({ selectedDate, onEdit }: LogListProps) {
                     const Icon = tracker.getIcon ? tracker.getIcon(log, iconMappings) : tracker.icon;
                     const isMostRecent = index === 0;
 
-                    // Get time for display
+                    // Get time for display and relative time
                     let timeDisplay = "";
                     if (log.sleep_end) {
                         timeDisplay = log.sleep_end;
@@ -216,6 +217,9 @@ function LogList({ selectedDate, onEdit }: LogListProps) {
                     } else if (log.exercise?.time) {
                         timeDisplay = log.exercise.time;
                     }
+
+                    // Calculate relative time ("2h ago")
+                    const relativeTime = formatDistanceToNowStrict(new Date(log._creationTime), { addSuffix: true });
 
                     // Extract border color from bgColor (e.g., "bg-orange-100" -> "border-l-orange-500")
                     const borderColor = tracker.bgColor
@@ -260,13 +264,14 @@ function LogList({ selectedDate, onEdit }: LogListProps) {
                             </div>
 
                             {/* Time badge in top-right corner */}
-                            {timeDisplay && (
-                                <div className="absolute top-2 right-2 z-10">
-                                    <span className="text-[11px] font-semibold text-muted-foreground bg-secondary px-2 py-0.5 rounded-lg">
-                                        {timeDisplay}
-                                    </span>
-                                </div>
-                            )}
+                            <div className="absolute top-2 right-2 z-10">
+                                <span
+                                    className="text-[11px] font-semibold text-muted-foreground bg-secondary px-2 py-0.5 rounded-lg"
+                                    title={relativeTime}
+                                >
+                                    {timeDisplay || relativeTime.replace(' ago', '')}
+                                </span>
+                            </div>
 
                             {/* Hover action buttons (desktop) */}
                             <div className="absolute bottom-2 right-2 hidden sm:flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
