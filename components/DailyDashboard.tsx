@@ -17,12 +17,24 @@ const WeeklyDigest = dynamic(() => import("./insights/WeeklyDigest"), { ssr: fal
 const SmartReminders = dynamic(() => import("./SmartReminders"), { ssr: false });
 const SleepDebt = dynamic(() => import("./SleepDebt"), { ssr: false });
 
+// Dashboard data type (from consolidated query)
+interface DashboardData {
+    goals: { goalWater: number; goalSleep: number; goalExercise: number; goalMeals: number };
+    todayTotals: { water: number; sleep: number; exercise: number; meals: number };
+    sparklineData: { water: number[]; sleep: number[]; exercise: number[]; meals: number[] };
+    comparison: { water: number | null; sleep: number | null; exercise: number | null; meals: number | null };
+    streak: { current: number; todayLogged: boolean };
+    todayLogIds: string[];
+}
+
 interface DailyDashboardProps {
     selectedDate: Date;
     activeTracker: string | null;
     editingLog: Doc<"logs"> | null;
     onTrackerChange: (trackerId: string | null) => void;
     onEdit: (log: Doc<"logs">) => void;
+    // OPTIMIZED: Accept pre-fetched dashboard data
+    dashboardData?: DashboardData | null;
 }
 
 /**
@@ -44,7 +56,8 @@ export default function DailyDashboard({
     activeTracker,
     editingLog,
     onTrackerChange,
-    onEdit
+    onEdit,
+    dashboardData
 }: DailyDashboardProps) {
     // Check if tip was dismissed today
     const today = new Date().toDateString();
@@ -67,15 +80,23 @@ export default function DailyDashboard({
                 )}
             </AnimatePresence>
 
-            {/* Quick Add Row - Apple Fitness+ style */}
-            <QuickAddRow selectedDate={selectedDate} onTrackerOpen={onTrackerChange} />
+            {/* Quick Add Row - Apple Fitness+ style (uses dashboardData for goal checking) */}
+            <QuickAddRow
+                selectedDate={selectedDate}
+                onTrackerOpen={onTrackerChange}
+                dashboardData={dashboardData}
+            />
 
-            {/* Achievement Badges - Zero app style */}
-            <AchievementBadges />
+            {/* Achievement Badges - Zero app style (uses dashboardData for streak) */}
+            <AchievementBadges streakCount={dashboardData?.streak?.current} />
 
-            {/* Summary Stats - Full Width */}
+            {/* Summary Stats - Full Width (uses dashboardData directly) */}
             <section aria-label="Today's progress">
-                <TodaySummary selectedDate={selectedDate} onQuickAdd={onTrackerChange} />
+                <TodaySummary
+                    selectedDate={selectedDate}
+                    onQuickAdd={onTrackerChange}
+                    dashboardData={dashboardData ?? undefined}
+                />
             </section>
 
             {/* Main Content Grid */}
@@ -100,7 +121,7 @@ export default function DailyDashboard({
                         transition={{ delay: 0.2 }}
                         className="space-y-3"
                     >
-                        <StreakBadge />
+                        <StreakBadge streakCount={dashboardData?.streak?.current} />
                         <SmartReminders selectedDate={selectedDate} />
                         <SleepDebt />
                         <WeeklyDigest />

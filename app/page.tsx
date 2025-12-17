@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useQuery } from "convex/react";
 import { useUser } from "@clerk/nextjs";
 import { api } from "../convex/_generated/api";
-import { startOfDay, endOfDay, isSameDay } from "date-fns";
+import { isSameDay } from "date-fns";
 import DailyDashboard from "../components/DailyDashboard";
 import WeeklyDashboard from "../components/WeeklyDashboard";
 import { SegmentedControl } from "../components/ui/SegmentedControl";
@@ -23,19 +23,6 @@ import { Plus, RefreshCw } from "lucide-react";
 import { Button } from "../components/ui/Button";
 import { IconButton } from "../components/ui/IconButton";
 import { StreakInline } from "../components/StreakInline";
-
-// Prefetch adjacent days
-function PrefetchDays({ date }: { date: Date }) {
-  const prev = new Date(date);
-  prev.setDate(prev.getDate() - 1);
-  const next = new Date(date);
-  next.setDate(next.getDate() + 1);
-
-  useQuery(api.logs.getLogs, { from: startOfDay(prev).toISOString(), to: endOfDay(prev).toISOString() });
-  useQuery(api.logs.getLogs, { from: startOfDay(next).toISOString(), to: endOfDay(next).toISOString() });
-
-  return null;
-}
 
 // Get time-based greeting
 function getGreeting(hour: number): string {
@@ -66,33 +53,22 @@ export default function Home() {
   const { showOnboarding, completeOnboarding } = useOnboarding();
   const { user } = useUser();
 
-  // Get goals for celebration trigger
-  const goals = useQuery(api.userProfile.getGoals);
-
-  // Get today's logs for celebration trigger
-  const todayLogs = useQuery(api.logs.getStats, {
-    from: startOfDay(new Date()).toISOString(),
-    to: endOfDay(new Date()).toISOString(),
+  // OPTIMIZED: Use consolidated dashboard query instead of separate queries
+  const dashboardData = useQuery(api.dashboard.getDashboardData, {
+    date: selectedDate.toISOString(),
   });
 
-  // Calculate if all goals are complete
+  // Calculate if all goals are complete using dashboard data
   const allGoalsComplete = useMemo(() => {
-    if (!todayLogs || !goals) return false;
-
-    const totals = todayLogs.reduce((acc, log) => ({
-      sleep: acc.sleep + (log.sleep || 0),
-      water: acc.water + (log.water || 0),
-      exercise: acc.exercise + (log.exercise?.duration || 0),
-      meals: acc.meals + (log.meal ? 1 : 0),
-    }), { sleep: 0, water: 0, exercise: 0, meals: 0 });
-
+    if (!dashboardData) return false;
+    const { goals, todayTotals } = dashboardData;
     return (
-      totals.sleep >= goals.goalSleep &&
-      totals.water >= goals.goalWater &&
-      totals.exercise >= goals.goalExercise &&
-      totals.meals >= goals.goalMeals
+      todayTotals.sleep >= goals.goalSleep &&
+      todayTotals.water >= goals.goalWater &&
+      todayTotals.exercise >= goals.goalExercise &&
+      todayTotals.meals >= goals.goalMeals
     );
-  }, [todayLogs, goals]);
+  }, [dashboardData]);
 
   // Trigger celebration when all goals complete (only once per day)
   useEffect(() => {
@@ -157,7 +133,7 @@ export default function Home() {
                   <h1 className="text-2xl md:text-4xl font-black tracking-tighter">
                     {getGreeting(currentHour)}, {userName}
                   </h1>
-                  <StreakInline />
+                  <StreakInline streakCount={dashboardData?.streak?.current} />
                 </div>
                 <p className="text-muted-foreground text-sm">
                   {allGoalsComplete ? "🎉 All goals complete! Amazing!" : motivationalMessage}
@@ -188,7 +164,10 @@ export default function Home() {
                 >
                   <RefreshCw className="w-4 h-4" />
                 </IconButton>
-                <DailyProgress selectedDate={selectedDate} />
+                <DailyProgress
+                  selectedDate={selectedDate}
+                  dashboardData={dashboardData}
+                />
                 <NotificationCenter />
                 <OfflineIndicator />
               </div>
@@ -204,6 +183,7 @@ export default function Home() {
               editingLog={editingLog}
               onTrackerChange={handleTrackerChange}
               onEdit={handleEdit}
+              dashboardData={dashboardData}
             />
           ) : (
             <WeeklyDashboard selectedDate={selectedDate} onTrackerSelect={handleTrackerChange} />
@@ -211,7 +191,7 @@ export default function Home() {
         </div>
       </PullToRefresh>
 
-      <PrefetchDays date={selectedDate} />
+      {/* REMOVED PrefetchDays - causes extra queries */}
       <QuickAddFAB selectedDate={selectedDate} onTrackerSelect={handleTrackerChange} />
       <UndoToast />
       {showOnboarding && <Onboarding onComplete={completeOnboarding} />}

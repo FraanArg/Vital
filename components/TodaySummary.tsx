@@ -1,9 +1,6 @@
 "use client";
 
-import { memo, useMemo } from "react";
-import { useQuery } from "convex/react";
-import { api } from "../convex/_generated/api";
-import { startOfDay, endOfDay, subDays, isSameDay } from "date-fns";
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { Moon, Droplets, Dumbbell, Utensils, TrendingUp, TrendingDown } from "lucide-react";
 import { Skeleton } from "./ui/Skeleton";
@@ -13,101 +10,27 @@ import { Sparkline } from "./ui/Sparkline";
 interface TodaySummaryProps {
     selectedDate: Date;
     onQuickAdd?: (trackerId: string) => void;
-}
-
-interface KPIData {
-    sleep: number;
-    water: number;
-    exercise: number;
-    meals: number;
+    // OPTIMIZED: Accept pre-calculated data from parent instead of querying
+    dashboardData?: {
+        goals: { goalWater: number; goalSleep: number; goalExercise: number; goalMeals: number };
+        todayTotals: { water: number; sleep: number; exercise: number; meals: number };
+        sparklineData: { water: number[]; sleep: number[]; exercise: number[]; meals: number[] };
+        comparison: { water: number | null; sleep: number | null; exercise: number | null; meals: number | null };
+    } | null;
 }
 
 /**
  * Today Summary with Apple Watch-style activity rings
- * Includes sparklines and weekly comparison
+ * 
+ * OPTIMIZED: Now accepts pre-calculated data from parent via props
+ * instead of making 4 separate Convex queries.
+ * 
+ * Before: 4 useQuery calls (today, week, lastWeek, goals) = 4 subscriptions
+ * After: 0 useQuery calls - uses data from single getDashboardData query
  */
-function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
-    const start = startOfDay(selectedDate);
-    const end = endOfDay(selectedDate);
-
-    // Get today's logs
-    const logs = useQuery(api.logs.getStats, {
-        from: start.toISOString(),
-        to: end.toISOString()
-    });
-
-    // Get last 7 days for sparkline
-    const weekLogs = useQuery(api.logs.getStats, {
-        from: subDays(start, 7).toISOString(),
-        to: end.toISOString()
-    });
-
-    // Get last week for comparison
-    const lastWeekLogs = useQuery(api.logs.getStats, {
-        from: subDays(start, 14).toISOString(),
-        to: subDays(start, 7).toISOString()
-    });
-
-    const goals = useQuery(api.userProfile.getGoals);
-
-    // Calculate weekly sparkline data
-    const sparklineData = useMemo(() => {
-        if (!weekLogs) return { sleep: [], water: [], exercise: [], meals: [] };
-
-        const days = Array.from({ length: 7 }, (_, i) => subDays(start, 6 - i));
-
-        return {
-            sleep: days.map(day =>
-                weekLogs
-                    .filter(l => isSameDay(new Date(l.date), day))
-                    .reduce((sum, l) => sum + (l.sleep || 0), 0)
-            ),
-            water: days.map(day =>
-                weekLogs
-                    .filter(l => isSameDay(new Date(l.date), day))
-                    .reduce((sum, l) => sum + (l.water || 0), 0)
-            ),
-            exercise: days.map(day =>
-                weekLogs
-                    .filter(l => isSameDay(new Date(l.date), day))
-                    .reduce((sum, l) => sum + (l.exercise?.duration || 0), 0)
-            ),
-            meals: days.map(day =>
-                weekLogs
-                    .filter(l => isSameDay(new Date(l.date), day))
-                    .reduce((sum, l) => sum + (l.meal ? 1 : 0), 0)
-            ),
-        };
-    }, [weekLogs, start]);
-
-    // Calculate weekly comparison (null = no data for comparison)
-    const weeklyComparison = useMemo(() => {
-        if (!weekLogs || !lastWeekLogs) return { sleep: null, water: null, exercise: null, meals: null };
-
-        const thisWeek = {
-            sleep: weekLogs.reduce((s, l) => s + (l.sleep || 0), 0),
-            water: weekLogs.reduce((s, l) => s + (l.water || 0), 0),
-            exercise: weekLogs.reduce((s, l) => s + (l.exercise?.duration || 0), 0),
-            meals: weekLogs.reduce((s, l) => s + (l.meal ? 1 : 0), 0),
-        };
-
-        const lastWeek = {
-            sleep: lastWeekLogs.reduce((s, l) => s + (l.sleep || 0), 0),
-            water: lastWeekLogs.reduce((s, l) => s + (l.water || 0), 0),
-            exercise: lastWeekLogs.reduce((s, l) => s + (l.exercise?.duration || 0), 0),
-            meals: lastWeekLogs.reduce((s, l) => s + (l.meal ? 1 : 0), 0),
-        };
-
-        // Return null if no data last week (first week of use)
-        return {
-            sleep: lastWeek.sleep > 0 ? Math.round(((thisWeek.sleep - lastWeek.sleep) / lastWeek.sleep) * 100) : null,
-            water: lastWeek.water > 0 ? Math.round(((thisWeek.water - lastWeek.water) / lastWeek.water) * 100) : null,
-            exercise: lastWeek.exercise > 0 ? Math.round(((thisWeek.exercise - lastWeek.exercise) / lastWeek.exercise) * 100) : null,
-            meals: lastWeek.meals > 0 ? Math.round(((thisWeek.meals - lastWeek.meals) / lastWeek.meals) * 100) : null,
-        };
-    }, [weekLogs, lastWeekLogs]);
-
-    if (logs === undefined || goals === undefined) {
+function TodaySummary({ selectedDate, onQuickAdd, dashboardData }: TodaySummaryProps) {
+    // Loading state
+    if (!dashboardData) {
         return (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {[1, 2, 3, 4].map((i) => (
@@ -117,19 +40,13 @@ function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
         );
     }
 
-    // Calculate totals
-    const totals: KPIData = logs.reduce((acc, log) => ({
-        sleep: acc.sleep + (log.sleep || 0),
-        water: acc.water + (log.water || 0),
-        exercise: acc.exercise + (log.exercise?.duration || 0),
-        meals: acc.meals + (log.meal ? 1 : 0),
-    }), { sleep: 0, water: 0, exercise: 0, meals: 0 });
+    const { goals, todayTotals, sparklineData, comparison } = dashboardData;
 
     const kpis = [
         {
             id: "sleep",
             label: "Sleep",
-            value: totals.sleep,
+            value: todayTotals.sleep,
             unit: "h",
             goal: goals.goalSleep,
             icon: Moon,
@@ -137,12 +54,12 @@ function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
             bgGradient: "from-violet-500/20 to-violet-600/5",
             trackerId: "sleep",
             sparkline: sparklineData.sleep,
-            comparison: weeklyComparison.sleep,
+            comparison: comparison.sleep,
         },
         {
             id: "water",
             label: "Water",
-            value: totals.water,
+            value: todayTotals.water,
             unit: "ml",
             goal: goals.goalWater,
             icon: Droplets,
@@ -150,12 +67,12 @@ function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
             bgGradient: "from-cyan-500/20 to-cyan-600/5",
             trackerId: "water",
             sparkline: sparklineData.water,
-            comparison: weeklyComparison.water,
+            comparison: comparison.water,
         },
         {
             id: "exercise",
             label: "Exercise",
-            value: totals.exercise,
+            value: todayTotals.exercise,
             unit: "min",
             goal: goals.goalExercise,
             icon: Dumbbell,
@@ -163,12 +80,12 @@ function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
             bgGradient: "from-emerald-500/20 to-emerald-600/5",
             trackerId: "exercise",
             sparkline: sparklineData.exercise,
-            comparison: weeklyComparison.exercise,
+            comparison: comparison.exercise,
         },
         {
             id: "meals",
             label: "Meals",
-            value: totals.meals,
+            value: todayTotals.meals,
             unit: "",
             goal: goals.goalMeals,
             icon: Utensils,
@@ -176,7 +93,7 @@ function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
             bgGradient: "from-orange-500/20 to-orange-600/5",
             trackerId: "food",
             sparkline: sparklineData.meals,
-            comparison: weeklyComparison.meals,
+            comparison: comparison.meals,
         },
     ];
 
@@ -186,9 +103,8 @@ function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
                 const Icon = kpi.icon;
                 const progress = Math.min((kpi.value / kpi.goal) * 100, 100);
                 const isComplete = kpi.value >= kpi.goal;
-                const comparison = kpi.comparison;
-                const hasComparison = comparison !== null && comparison !== 0;
-                const comparisonUp = hasComparison && comparison > 0;
+                const hasComparison = kpi.comparison !== null && kpi.comparison !== 0;
+                const comparisonUp = hasComparison && kpi.comparison! > 0;
 
                 return (
                     <motion.button
@@ -275,7 +191,7 @@ function TodaySummary({ selectedDate, onQuickAdd }: TodaySummaryProps) {
                                 ) : (
                                     <TrendingDown className="w-3 h-3" />
                                 )}
-                                <span>{comparisonUp ? "+" : ""}{comparison}% vs last week</span>
+                                <span>{comparisonUp ? "+" : ""}{kpi.comparison}% vs last week</span>
                             </div>
                         )}
                     </motion.button>

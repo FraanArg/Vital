@@ -1,8 +1,7 @@
 "use client";
 
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
 import { api } from "../convex/_generated/api";
-import { startOfDay, endOfDay } from "date-fns";
 import { motion } from "framer-motion";
 import { Coffee, Droplets, Dumbbell, Utensils, Check } from "lucide-react";
 import { useHaptic } from "../hooks/useHaptic";
@@ -13,7 +12,6 @@ interface QuickAction {
     icon: React.ReactNode;
     label: string;
     color: string;
-    completedColor?: string;
     isComplete?: boolean;
     action: () => Promise<void>;
 }
@@ -21,36 +19,31 @@ interface QuickAction {
 interface QuickAddRowProps {
     selectedDate: Date;
     onTrackerOpen?: (trackerId: string) => void;
+    // OPTIMIZED: Accept pre-fetched dashboard data instead of querying
+    dashboardData?: {
+        goals: { goalWater: number; goalSleep: number; goalExercise: number; goalMeals: number };
+        todayTotals: { water: number; sleep: number; exercise: number; meals: number };
+    } | null;
 }
 
 /**
  * Apple Fitness+ style horizontal scrolling quick actions
  * One-tap common logging actions
- * Hides/modifies actions when goals are met
+ * 
+ * OPTIMIZED: Now accepts dashboardData as prop instead of making 2 separate queries
  */
-export function QuickAddRow({ selectedDate, onTrackerOpen }: QuickAddRowProps) {
+export function QuickAddRow({ selectedDate, onTrackerOpen, dashboardData }: QuickAddRowProps) {
     const createLog = useMutation(api.logs.createLog);
     const { trigger } = useHaptic();
     const { toast } = useToast();
 
-    // Get today's logs to check goal completion
-    const todayLogs = useQuery(api.logs.getStats, {
-        from: startOfDay(selectedDate).toISOString(),
-        to: endOfDay(selectedDate).toISOString(),
-    });
+    // Use dashboard data if available, otherwise assume goals not met
+    const goals = dashboardData?.goals;
+    const totals = dashboardData?.todayTotals;
 
-    const goals = useQuery(api.userProfile.getGoals);
-
-    // Calculate current totals
-    const totals = todayLogs?.reduce((acc, log) => ({
-        water: acc.water + (log.water || 0),
-        exercise: acc.exercise + (log.exercise?.duration || 0),
-        meals: acc.meals + (log.meal ? 1 : 0),
-    }), { water: 0, exercise: 0, meals: 0 }) ?? { water: 0, exercise: 0, meals: 0 };
-
-    const waterGoalMet = goals ? totals.water >= goals.goalWater : false;
-    const exerciseGoalMet = goals ? totals.exercise >= goals.goalExercise : false;
-    const mealsGoalMet = goals ? totals.meals >= goals.goalMeals : false;
+    const waterGoalMet = goals && totals ? totals.water >= goals.goalWater : false;
+    const exerciseGoalMet = goals && totals ? totals.exercise >= goals.goalExercise : false;
+    const mealsGoalMet = goals && totals ? totals.meals >= goals.goalMeals : false;
 
     const quickActions: QuickAction[] = [
         // Only show water buttons if goal not met

@@ -5,7 +5,6 @@ import { api } from "../convex/_generated/api";
 import { motion } from "framer-motion";
 import { subDays } from "date-fns";
 import { Trophy, Flame, Droplets, Moon, Dumbbell, Target, Zap, Star } from "lucide-react";
-import { useStreak } from "../hooks/useStreak";
 
 interface Badge {
     id: string;
@@ -15,16 +14,20 @@ interface Badge {
     earned: boolean;
 }
 
+interface AchievementBadgesProps {
+    // OPTIMIZED: Accept streak from parent instead of querying
+    streakCount?: number;
+}
+
 /**
  * Zero app-style horizontal scrolling achievement badges
  * Shows recently earned achievements
- * Uses unified useStreak hook for consistent streak calculation
+ * 
+ * OPTIMIZED: Now accepts streakCount as prop from parent's consolidated query
+ * Only makes 1 query for log-based achievements (instead of 2)
  */
-export function AchievementBadges() {
-    // Use unified streak hook
-    const { currentStreak } = useStreak();
-
-    // Get logs for other achievement calculations
+export function AchievementBadges({ streakCount = 0 }: AchievementBadgesProps) {
+    // Get logs for other achievement calculations (still needed for non-streak achievements)
     const logs = useQuery(api.logs.getStats, {
         from: subDays(new Date(), 30).toISOString(),
         to: new Date().toISOString(),
@@ -44,14 +47,14 @@ export function AchievementBadges() {
             icon: <Flame className="w-4 h-4" />,
             label: "7 Day Streak",
             color: "bg-orange-500/10 text-orange-500 border-orange-500/20",
-            earned: currentStreak >= 7,
+            earned: streakCount >= 7,
         },
         {
             id: "streak-30",
             icon: <Flame className="w-4 h-4" />,
             label: "30 Day Streak",
             color: "bg-red-500/10 text-red-500 border-red-500/20",
-            earned: currentStreak >= 30,
+            earned: streakCount >= 30,
         },
         {
             id: "hydration-hero",

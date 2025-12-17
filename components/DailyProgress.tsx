@@ -1,42 +1,34 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useQuery } from "convex/react";
-import { api } from "../convex/_generated/api";
-import { startOfDay, endOfDay } from "date-fns";
 
 interface DailyProgressProps {
     selectedDate: Date;
+    // OPTIMIZED: Accept pre-fetched dashboard data instead of querying
+    dashboardData?: {
+        goals: { goalWater: number; goalSleep: number; goalExercise: number; goalMeals: number };
+        todayTotals: { water: number; sleep: number; exercise: number; meals: number };
+    } | null;
 }
 
-export default function DailyProgress({ selectedDate }: DailyProgressProps) {
-    const start = startOfDay(selectedDate).toISOString();
-    const end = endOfDay(selectedDate).toISOString();
+/**
+ * Daily progress ring showing % of goals completed
+ * 
+ * OPTIMIZED: Now accepts dashboardData as prop instead of making its own query
+ * This eliminates a redundant logs.getLogs query.
+ */
+export default function DailyProgress({ selectedDate, dashboardData }: DailyProgressProps) {
+    if (!dashboardData) return null;
 
-    const logs = useQuery(api.logs.getLogs, { from: start, to: end });
+    const { goals, todayTotals } = dashboardData;
 
-    if (!logs) return null;
-
-    // Calculate progress
-    const waterGoal = 2.0; // Liters
-    const sleepGoal = 7.0; // Hours
-    const workoutGoal = 1; // Count
-    const moodGoal = 1; // Count (just logging it)
-    const foodGoal = 3; // Count (3 meals)
-
-    const waterCurrent = logs.reduce((acc, l) => acc + (l.water || 0), 0);
-    const sleepCurrent = logs.reduce((acc, l) => acc + (l.sleep || 0), 0);
-    const workoutCurrent = logs.filter(l => l.exercise).length;
-    const moodCurrent = logs.filter(l => l.mood).length;
-    const foodCurrent = logs.filter(l => l.meal || l.food).length;
-
-    const totalGoals = 5;
+    // Calculate progress using actual goals
+    const totalGoals = 4;
     let completedGoals = 0;
-    if (waterCurrent >= waterGoal) completedGoals++;
-    if (sleepCurrent >= sleepGoal) completedGoals++;
-    if (workoutCurrent >= workoutGoal) completedGoals++;
-    if (moodCurrent >= moodGoal) completedGoals++;
-    if (foodCurrent >= foodGoal) completedGoals++;
+    if (todayTotals.water >= goals.goalWater) completedGoals++;
+    if (todayTotals.sleep >= goals.goalSleep) completedGoals++;
+    if (todayTotals.exercise >= goals.goalExercise) completedGoals++;
+    if (todayTotals.meals >= goals.goalMeals) completedGoals++;
 
     const progress = completedGoals / totalGoals;
 
