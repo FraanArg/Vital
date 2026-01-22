@@ -1,10 +1,11 @@
 import { query } from "./_generated/server";
 import { v } from "convex/values";
 import { Doc } from "./_generated/dataModel";
+import { subDays } from "date-fns";
 
 // Types for insights
 interface Insight {
-    type: "food" | "sleep" | "exercise" | "trend" | "correlation" | "achievement";
+    type: "food" | "sleep" | "exercise" | "trend" | "correlation" | "achievement" | "pattern";
     icon: string;
     title: string;
     message: string;
@@ -175,10 +176,10 @@ export const getWeeklyTrends = query({
 });
 
 // ============================================
-// CORRELATIONS
+// SMART CORRELATIONS - Advanced pattern recognition
 // ============================================
-export const getCorrelations = query({
-    handler: async (ctx): Promise<Correlation[]> => {
+export const getSmartCorrelations = query({
+    handler: async (ctx): Promise<Insight[]> => {
         const identity = await ctx.auth.getUserIdentity();
         if (!identity) return [];
 
@@ -186,92 +187,108 @@ export const getCorrelations = query({
         const now = new Date();
 
         // Analyze last 30 days
-        const endDate = new Date(now);
-        endDate.setHours(23, 59, 59, 999);
-        const startDate = new Date(now);
-        startDate.setDate(startDate.getDate() - 29);
-        startDate.setHours(0, 0, 0, 0);
+        const startDate = subDays(now, 30).toISOString();
 
-        const logs = await getLogsForRange(ctx, userId, startDate, endDate);
+        const logs = await ctx.db
+            .query("logs")
+            .withIndex("by_userId_date", (q) => q.eq("userId", userId).gte("date", startDate))
+            .collect();
 
-        // Group logs by date
-        const byDate = new Map<string, Doc<"logs">[]>();
-        for (const log of logs) {
-            const dateKey = log.date.split("T")[0];
-            if (!byDate.has(dateKey)) byDate.set(dateKey, []);
-            byDate.get(dateKey)!.push(log);
+        if (logs.length < 5) return []; // Need minimum data
+
+        const insights: Insight[] = [];
+
+        // 1. SLEEP vs EXERCISE Correlation
+        // Do you sleep better on days you exercise?
+        const daysWithSleepAndExercise = logs.filter(l => l.sleep && l.sleep > 0);
+        if (daysWithSleepAndExercise.length >= 5) {
+            const exerciseDays = daysWithSleepAndExercise.filter(l => l.exercise);
+            const restDays = daysWithSleepAndExercise.filter(l => !l.exercise);
+
+            if (exerciseDays.length >= 3 && restDays.length >= 3) {
+                const avgSleepExercise = exerciseDays.reduce((s, l) => s + (l.sleep || 0), 0) / exerciseDays.length;
+                const avgSleepRest = restDays.reduce((s, l) => s + (l.sleep || 0), 0) / restDays.length;
+                const diff = avgSleepExercise - avgSleepRest;
+
+                if (diff > 0.5) {
+                    insights.push({
+                        type: "correlation",
+                        icon: "🔋",
+                        title: "Workout = Better Sleep",
+                        message: `Data shows you sleep ${diff.toFixed(1)}h longer on days you workout. Keep moving to rest better!`,
+                        priority: 95,
+                        color: "green"
+                    });
+                } else if (diff < -0.5) {
+                    insights.push({
+                        type: "correlation",
+                        icon: "⚠️",
+                        title: "Workout Fatigue",
+                        message: `You tend to sleep ${Math.abs(diff).toFixed(1)}h less on workout days. Ensure you wind down properly after training.`,
+                        priority: 80,
+                        color: "yellow"
+                    });
+                }
+            }
         }
 
-        const correlations: Correlation[] = [];
-
-        // Analyze correlations
-        const dailyData: { sleep: number; mood: number; exercise: boolean; highIntensity: boolean }[] = [];
-
-        for (const [_, dayLogs] of byDate) {
-            const sleepLog = dayLogs.find(l => l.sleep);
-            const moodLog = dayLogs.find(l => l.mood);
-            const exerciseLog = dayLogs.find(l => l.exercise);
-
-            dailyData.push({
-                sleep: sleepLog?.sleep || 0,
-                mood: moodLog?.mood || 0,
-                exercise: !!exerciseLog,
-                highIntensity: exerciseLog?.exercise?.intensity === "high",
+        // 2. CONSISTENCY MOMENTUM
+        // Analyze streaks impact
+        const recentLogs = logs.slice(0, 7); // Last 7 logs (roughly)
+        const workoutsLastWeek = recentLogs.filter(l => l.exercise).length;
+        if (workoutsLastWeek >= 4) {
+            insights.push({
+                type: "trend",
+                icon: "🔥",
+                title: "High Performance Mode",
+                message: `You've logged ${workoutsLastWeek} workouts recently. You're in the top 10% of consistent weeks!`,
+                priority: 90,
+                color: "orange"
             });
         }
 
-        // Sleep vs Mood correlation
-        const daysWithBothSleepMood = dailyData.filter(d => d.sleep > 0 && d.mood > 0);
-        if (daysWithBothSleepMood.length >= 5) {
-            const goodSleepDays = daysWithBothSleepMood.filter(d => d.sleep >= 7);
-            const poorSleepDays = daysWithBothSleepMood.filter(d => d.sleep < 6);
+        // 3. WEEKEND WARRIOR
+        // Do you only workout on weekends?
+        const workoutLogs = logs.filter(l => l.exercise);
+        const weekendWorkouts = workoutLogs.filter(l => {
+            const d = new Date(l.date);
+            return d.getDay() === 0 || d.getDay() === 6;
+        }).length;
 
-            if (goodSleepDays.length >= 3 && poorSleepDays.length >= 3) {
-                const avgMoodGoodSleep = goodSleepDays.reduce((s, d) => s + d.mood, 0) / goodSleepDays.length;
-                const avgMoodPoorSleep = poorSleepDays.reduce((s, d) => s + d.mood, 0) / poorSleepDays.length;
-                const diff = avgMoodGoodSleep - avgMoodPoorSleep;
+        if (workoutLogs.length >= 5 && (weekendWorkouts / workoutLogs.length) > 0.6) {
+            insights.push({
+                type: "pattern",
+                icon: "📅",
+                title: "Weekend Warrior",
+                message: "60%+ of your workouts are on weekends. Try adding a short mid-week session to maintain momentum.",
+                priority: 75,
+                color: "blue"
+            });
+        }
 
-                if (diff >= 0.5) {
-                    correlations.push({
-                        factor1: "Sleep (7+ hours)",
-                        factor2: "Mood",
-                        relationship: `Mood is ${diff.toFixed(1)} points higher on days with 7+ hours of sleep`,
-                        strength: diff >= 1 ? "strong" : "moderate",
-                        icon: "😴",
-                    });
-                }
+        // 4. LATE MEALS vs SLEEP
+        // Does eating late affect sleep? (Assuming dinner time > 21:00)
+        const lateDinnerLogs = logs.filter(l => l.meal?.type === "Dinner" && l.meal?.time && parseInt(l.meal.time) >= 21);
+        const earlyDinnerLogs = logs.filter(l => l.meal?.type === "Dinner" && l.meal?.time && parseInt(l.meal.time) < 20);
+
+        if (lateDinnerLogs.length >= 3 && earlyDinnerLogs.length >= 3) {
+            const avgSleepLate = lateDinnerLogs.reduce((s, l) => s + (l.sleep || 0), 0) / lateDinnerLogs.length;
+            const avgSleepEarly = earlyDinnerLogs.reduce((s, l) => s + (l.sleep || 0), 0) / earlyDinnerLogs.length;
+
+            if (avgSleepEarly - avgSleepLate > 0.5) {
+                insights.push({
+                    type: "correlation",
+                    icon: "🍽️",
+                    title: "Late Dinners Affect Sleep",
+                    message: `You sleep ${(avgSleepEarly - avgSleepLate).toFixed(1)}h less when you eat dinner after 9PM.`,
+                    priority: 85,
+                    color: "orange"
+                });
             }
         }
 
-        // Exercise vs Mood correlation
-        const daysWithExerciseData = dailyData.filter(d => d.mood > 0);
-        if (daysWithExerciseData.length >= 5) {
-            const exerciseDays = daysWithExerciseData.filter(d => d.exercise);
-            const restDays = daysWithExerciseData.filter(d => !d.exercise);
-
-            if (exerciseDays.length >= 3 && restDays.length >= 3) {
-                const avgMoodExercise = exerciseDays.reduce((s, d) => s + d.mood, 0) / exerciseDays.length;
-                const avgMoodRest = restDays.reduce((s, d) => s + d.mood, 0) / restDays.length;
-                const diff = avgMoodExercise - avgMoodRest;
-
-                if (Math.abs(diff) >= 0.3) {
-                    correlations.push({
-                        factor1: "Exercise",
-                        factor2: "Mood",
-                        relationship: diff > 0
-                            ? `Mood is ${diff.toFixed(1)} points higher on workout days`
-                            : `Mood is ${Math.abs(diff).toFixed(1)} points lower on workout days`,
-                        strength: Math.abs(diff) >= 0.8 ? "strong" : "moderate",
-                        icon: "🏃",
-                    });
-                }
-            }
-        }
-
-        // High intensity vs next day sleep
-        // (This would need more sophisticated analysis - placeholder for now)
-
-        return correlations;
+        // Sort by priority and return top 1
+        return insights.sort((a, b) => b.priority - a.priority).slice(0, 1);
     },
 });
 

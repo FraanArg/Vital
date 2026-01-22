@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 const WeeklyDigest = dynamic(() => import("./insights/WeeklyDigest"), { ssr: false });
 const SmartReminders = dynamic(() => import("./SmartReminders"), { ssr: false });
 const SleepDebt = dynamic(() => import("./SleepDebt"), { ssr: false });
+const SmartInsightCard = dynamic(() => import("./insights/SmartInsightCard"), { ssr: false });
 
 // Dashboard data type (from consolidated query)
 interface DashboardData {
@@ -122,6 +123,7 @@ export default function DailyDashboard({
                         className="space-y-3"
                     >
                         <StreakBadge streakCount={dashboardData?.streak?.current} />
+                        <SmartInsightCard />
                         <SmartReminders selectedDate={selectedDate} />
                         <SleepDebt />
                         <WeeklyDigest />

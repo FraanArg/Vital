@@ -43,7 +43,6 @@ export default function InsightsSection() {
     const trends = useQuery(api.insights.getWeeklyTrends) as TrendData[] | undefined;
     const comparisons = useQuery(api.insights.getComparisons) as Comparison[] | undefined;
     const goals = useQuery(api.insights.getGoalProgress) as GoalProgress[] | undefined;
-    const correlations = useQuery(api.insights.getCorrelations) as Correlation[] | undefined;
 
     return (
         <div className="space-y-6">
@@ -149,33 +148,7 @@ export default function InsightsSection() {
                 </div>
             )}
 
-            {/* Correlations */}
-            {correlations && correlations.length > 0 && (
-                <div>
-                    <h3 className="text-lg font-semibold mb-3">Patterns Discovered</h3>
-                    <div className="space-y-2">
-                        {correlations.map((corr, i) => (
-                            <div
-                                key={i}
-                                className="bg-gradient-to-r from-purple-500/10 to-purple-500/5 border border-purple-500/20 p-4 rounded-2xl"
-                            >
-                                <div className="flex items-start gap-3">
-                                    <span className="text-2xl">{corr.icon}</span>
-                                    <div>
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <span className="font-semibold text-sm">{corr.factor1} → {corr.factor2}</span>
-                                            <span className={`text-xs px-2 py-0.5 rounded-full ${corr.strength === "strong" ? "bg-green-500/20 text-green-400" : "bg-blue-500/20 text-blue-400"}`}>
-                                                {corr.strength}
-                                            </span>
-                                        </div>
-                                        <p className="text-sm text-muted-foreground">{corr.relationship}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+            {/* Correlations section removed - replaced by SmartInsightCard */}
         </div>
     );
 }

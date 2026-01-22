@@ -92,6 +92,8 @@ export default function SleepTracker({ onClose, selectedDate, initialData }: { o
                     label="Save Sleep"
                 />
             </div>
+            {/* Spacer for time picker dropdown */}
+            <div className="h-48" />
         </TrackerLayout>
     );
 }
