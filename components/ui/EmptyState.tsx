@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { LucideIcon } from "lucide-react";
+import { Button } from "./Button";
 
 interface EmptyStateProps {
     icon: LucideIcon;
@@ -38,12 +39,9 @@ export function EmptyState({
                 {description}
             </p>
             {action && (
-                <button
-                    onClick={action.onClick}
-                    className="px-4 py-2 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
-                >
+                <Button onClick={action.onClick} size="sm">
                     {action.label}
-                </button>
+                </Button>
             )}
         </motion.div>
     );
@@ -80,12 +78,9 @@ export function ErrorState({ message = "Something went wrong", onRetry }: ErrorS
                 </svg>
             </div>
             <p className="text-sm text-muted-foreground mb-3">{message}</p>
-            <button
-                onClick={onRetry}
-                className="px-4 py-2 rounded-xl bg-secondary hover:bg-secondary/80 font-medium text-sm transition-colors"
-            >
+            <Button onClick={onRetry} variant="secondary" size="sm">
                 Try Again
-            </button>
+            </Button>
         </motion.div>
     );
 }

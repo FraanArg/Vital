@@ -1,6 +1,7 @@
 "use client";
 import { useState } from 'react';
 import { db } from '../../lib/db';
+import { Button } from '../ui/Button';
 
 export default function JournalTracker({ onClose, selectedDate }: { onClose: () => void, selectedDate: Date }) {
     const [entry, setEntry] = useState('');
@@ -21,14 +22,9 @@ export default function JournalTracker({ onClose, selectedDate }: { onClose: () 
                 placeholder="Write about your day..."
                 className="w-full h-32 p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary resize-none"
             />
-            <button
-                type="button"
-                onClick={save}
-                disabled={!entry.trim()}
-                className="w-full p-3 bg-primary text-primary-foreground rounded-xl disabled:opacity-50"
-            >
+            <Button onClick={save} disabled={!entry.trim()} fullWidth>
                 Save Entry
-            </button>
+            </Button>
         </div>
     );
 }

@@ -5,6 +5,8 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Doc } from "../../convex/_generated/dataModel";
 import { Search, Plus, Trash2, X, GripVertical, Loader2, Pencil } from "lucide-react";
+import { Button } from "../ui/Button";
+import { IconButton } from "../ui/IconButton";
 
 interface RoutineBuilderProps {
     initialData?: Doc<"routines"> | null;
@@ -245,13 +247,13 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
                             </div>
                         </div>
 
-                        <button
+                        <Button
                             onClick={handleCreateExercise}
                             disabled={!newExerciseData.name || isCreatingExerciseLoading}
-                            className="w-full p-3 bg-primary text-primary-foreground rounded-xl font-bold disabled:opacity-50 flex items-center justify-center gap-2"
+                            fullWidth
                         >
                             {isCreatingExerciseLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Create & Add"}
-                        </button>
+                        </Button>
                     </div>
                 </div>
             );
@@ -316,19 +318,20 @@ export default function RoutineBuilder({ initialData, onClose }: RoutineBuilderP
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <button onClick={onClose} className="p-2 hover:bg-secondary rounded-full">
+                    <IconButton onClick={onClose} label="Close">
                         <X className="w-5 h-5" />
-                    </button>
+                    </IconButton>
                     <h3 className="font-semibold text-lg">{initialData ? "Edit Routine" : "New Routine"}</h3>
                 </div>
-                <button
+                <Button
                     onClick={handleSave}
                     disabled={!name || selectedExercises.length === 0 || isSaving}
-                    className="text-primary font-bold disabled:opacity-50 flex items-center gap-2"
+                    variant="ghost"
+                    size="sm"
                 >
                     {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
                     Save
-                </button>
+                </Button>
             </div>
 
             <div className="space-y-4">

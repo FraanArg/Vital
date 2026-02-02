@@ -123,14 +123,14 @@ export default function Home() {
     <div className="flex flex-col h-full bg-background">
       <PullToRefresh
         onRefresh={handleRefresh}
-        className="flex-1 overflow-y-auto pb-24 sm:pb-8"
+        className="flex-1 overflow-y-auto pb-24 md:pb-8"
       >
-        <div className="w-full max-w-[1600px] mx-auto p-4 lg:p-8 space-y-6">
-          <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-2 pt-safe">
+        <div className="container-mobile page-padding space-y-4 sm:space-y-6">
+          <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 pt-safe">
             <div className="flex items-center gap-3">
               <div>
-                <div className="flex items-center gap-3">
-                  <h1 className="text-2xl md:text-4xl font-black tracking-tighter">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <h1 className="text-page-title">
                     {getGreeting(currentHour)}, {userName}
                   </h1>
                   <StreakInline streakCount={dashboardData?.streak?.current} />

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from 'react';
 import { db } from '../../lib/db';
+import { Button } from '../ui/Button';
 
 export default function FoodTracker({ onClose, selectedDate }: { onClose: () => void, selectedDate: Date }) {
     const [food, setFood] = useState('');
@@ -21,9 +22,9 @@ export default function FoodTracker({ onClose, selectedDate }: { onClose: () => 
                 placeholder="What did you eat?"
                 className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary h-24"
             />
-            <button onClick={save} disabled={!food.trim()} className="w-full p-3 bg-primary text-primary-foreground rounded-xl disabled:opacity-50">
+            <Button onClick={save} disabled={!food.trim()} fullWidth>
                 Save Food
-            </button>
+            </Button>
         </div>
     );
 }

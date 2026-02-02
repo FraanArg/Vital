@@ -6,9 +6,12 @@ import { api } from "../../convex/_generated/api";
 import { motion } from "framer-motion";
 import {
     Scale, Ruler, TrendingUp, TrendingDown, Minus, Plus,
-    ChevronDown, ChevronUp, Calculator, Activity, Target
+    Calculator, Activity, Target
 } from "lucide-react";
 import { format } from "date-fns";
+import { PageHeader } from "../../components/ui/PageHeader";
+import { Button } from "../../components/ui/Button";
+import { IconButton } from "../../components/ui/IconButton";
 
 export default function BodyCompositionPage() {
     const [showForm, setShowForm] = useState(false);
@@ -53,26 +56,22 @@ export default function BodyCompositionPage() {
     };
 
     return (
-        <div className="min-h-screen p-4 sm:p-8 pb-24 flex flex-col items-center">
-            <div className="w-full max-w-4xl space-y-6">
+        <div className="min-h-screen page-padding flex flex-col items-center">
+            <div className="container-mobile space-y-6">
                 {/* Header */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20">
-                            <Scale className="w-6 h-6 text-blue-500" />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-bold">Body Composition</h1>
-                            <p className="text-sm text-muted-foreground">Track your progress over time</p>
-                        </div>
-                    </div>
-                    <button
-                        onClick={() => setShowForm(!showForm)}
-                        className="p-3 bg-primary text-primary-foreground rounded-full hover:scale-105 active:scale-95 transition-transform"
-                    >
-                        {showForm ? <ChevronUp className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
-                    </button>
-                </div>
+                <PageHeader
+                    title="Body Composition"
+                    subtitle="Track your progress over time"
+                    actions={
+                        <IconButton
+                            onClick={() => setShowForm(!showForm)}
+                            label={showForm ? "Close form" : "Add measurement"}
+                            className="bg-primary text-primary-foreground"
+                        >
+                            <Plus className={`w-5 h-5 transition-transform ${showForm ? 'rotate-45' : ''}`} />
+                        </IconButton>
+                    }
+                />
 
                 {/* Add Measurement Form */}
                 {showForm && (
@@ -172,12 +171,9 @@ export default function BodyCompositionPage() {
                                 />
                             </div>
                         </div>
-                        <button
-                            type="submit"
-                            className="mt-4 w-full py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90"
-                        >
+                        <Button type="submit" fullWidth>
                             Save Measurement
-                        </button>
+                        </Button>
                     </motion.form>
                 )}
 
@@ -246,10 +242,10 @@ export default function BodyCompositionPage() {
                                 <span className="text-xs text-muted-foreground">30d Change</span>
                             </div>
                             <div className={`text-2xl font-bold ${bodyStats.weightChange !== null && bodyStats.weightChange > 0
-                                    ? "text-green-500"
-                                    : bodyStats.weightChange !== null && bodyStats.weightChange < 0
-                                        ? "text-blue-500"
-                                        : ""
+                                ? "text-green-500"
+                                : bodyStats.weightChange !== null && bodyStats.weightChange < 0
+                                    ? "text-blue-500"
+                                    : ""
                                 }`}>
                                 {bodyStats.weightChange !== null
                                     ? `${bodyStats.weightChange > 0 ? "+" : ""}${bodyStats.weightChange}`

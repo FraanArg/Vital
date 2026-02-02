@@ -15,6 +15,7 @@ import {
     ChevronRight,
     Utensils
 } from "lucide-react";
+import { Button } from "./ui/Button";
 
 interface OnboardingProps {
     onComplete: () => void;
@@ -181,22 +182,20 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                         )}
 
                         {/* Continue Button */}
-                        <button
-                            onClick={handleNext}
-                            className="w-full py-4 px-6 bg-primary text-primary-foreground rounded-2xl font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors"
-                        >
+                        <Button onClick={handleNext} fullWidth size="lg">
                             {step === steps.length - 1 ? "Get Started" : "Continue"}
                             <ChevronRight className="w-5 h-5" />
-                        </button>
+                        </Button>
 
                         {/* Skip Button */}
                         {step < steps.length - 1 && (
-                            <button
+                            <Button
                                 onClick={onComplete}
-                                className="mt-4 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                                variant="ghost"
+                                className="mt-4 text-sm"
                             >
                                 Skip for now
-                            </button>
+                            </Button>
                         )}
                     </motion.div>
                 </AnimatePresence>

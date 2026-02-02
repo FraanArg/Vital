@@ -1,6 +1,7 @@
 "use client";
 import { useState } from 'react';
 import { db } from '../../lib/db';
+import { Button } from '../ui/Button';
 
 export default function CustomTracker({ onClose, selectedDate }: { onClose: () => void, selectedDate: Date }) {
     const [name, setName] = useState('');
@@ -48,14 +49,9 @@ export default function CustomTracker({ onClose, selectedDate }: { onClose: () =
                     />
                 </div>
             </div>
-            <button
-                type="button"
-                onClick={save}
-                disabled={!name || !value}
-                className="w-full p-3 bg-primary text-primary-foreground rounded-xl disabled:opacity-50"
-            >
+            <Button onClick={save} disabled={!name || !value} fullWidth>
                 Save Custom Log
-            </button>
+            </Button>
         </div>
     );
 }

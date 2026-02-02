@@ -79,6 +79,29 @@
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
 
+  /* Spacing Scale (8pt grid) */
+  --space-0: 0;
+  --space-1: 0.25rem;
+  /* 4px */
+  --space-2: 0.5rem;
+  /* 8px */
+  --space-3: 0.75rem;
+  /* 12px */
+  --space-4: 1rem;
+  /* 16px */
+  --space-5: 1.25rem;
+  /* 20px */
+  --space-6: 1.5rem;
+  /* 24px */
+  --space-8: 2rem;
+  /* 32px */
+  --space-10: 2.5rem;
+  /* 40px */
+  --space-12: 3rem;
+  /* 48px */
+  --space-16: 4rem;
+  /* 64px */
+
   /* Separator */
   --separator: rgba(60, 60, 67, 0.12);
 }
@@ -834,4 +857,541 @@ button {
 
 .dark ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================ */
+/* MOBILE-FIRST RESPONSIVE UTILITIES            */
+/* Step A: Layout Primitives + Touch + Safe Areas */
+/* ============================================ */
+
+/* Mobile Container System */
+.container-mobile {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding-left: var(--space-4);
+  /* 16px mobile */
+  padding-right: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .container-mobile {
+    max-width: 600px;
+    padding-left: var(--space-6);
+    /* 24px tablet */
+    padding-right: var(--space-6);
+  }
+}
+
+@media (min-width: 768px) {
+  .container-mobile {
+    max-width: 700px;
+    padding-left: var(--space-8);
+    /* 32px desktop */
+    padding-right: var(--space-8);
+  }
+}
+
+/* Page Padding - Responsive */
+.page-padding {
+  padding: var(--space-4);
+  /* 16px mobile */
+  padding-bottom: calc(var(--space-16) + env(safe-area-inset-bottom, 0px));
+  /* 64px + safe area for nav */
+}
+
+@media (min-width: 640px) {
+  .page-padding {
+    padding: var(--space-6);
+    /* 24px tablet */
+    padding-bottom: var(--space-16);
+  }
+}
+
+@media (min-width: 768px) {
+  .page-padding {
+    padding: var(--space-8);
+    /* 32px desktop */
+    padding-bottom: var(--space-8);
+  }
+}
+
+/* Section Spacing - Responsive */
+.section-gap {
+  gap: var(--space-4);
+  /* 16px mobile */
+}
+
+@media (min-width: 640px) {
+  .section-gap {
+    gap: var(--space-6);
+    /* 24px tablet+ */
+  }
+}
+
+/* Stack Spacing - Responsive */
+.stack-gap {
+  gap: var(--space-3);
+  /* 12px mobile */
+}
+
+@media (min-width: 640px) {
+  .stack-gap {
+    gap: var(--space-4);
+    /* 16px tablet+ */
+  }
+}
+
+/* Touch Target Utilities */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.touch-target-lg {
+  min-width: 48px;
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Touch-friendly spacing between interactive elements */
+.touch-spacing>*+* {
+  margin-left: var(--space-2);
+  /* 8px minimum */
+}
+
+.touch-spacing-lg>*+* {
+  margin-left: var(--space-3);
+  /* 12px comfortable */
+}
+
+/* Safe Area Utilities - Enhanced */
+@supports (padding: max(0px)) {
+  .safe-top {
+    padding-top: max(var(--space-4), env(safe-area-inset-top, 0px));
+  }
+
+  .safe-bottom {
+    padding-bottom: max(var(--space-4), env(safe-area-inset-bottom, 0px));
+  }
+
+  .safe-x {
+    padding-left: max(var(--space-4), env(safe-area-inset-left, 0px));
+    padding-right: max(var(--space-4), env(safe-area-inset-right, 0px));
+  }
+
+  .safe-all {
+    padding-top: max(var(--space-4), env(safe-area-inset-top, 0px));
+    padding-bottom: max(var(--space-4), env(safe-area-inset-bottom, 0px));
+    padding-left: max(var(--space-4), env(safe-area-inset-left, 0px));
+    padding-right: max(var(--space-4), env(safe-area-inset-right, 0px));
+  }
+}
+
+/* Mobile Typography Adjustments */
+.text-page-title {
+  font-size: var(--text-3xl);
+  /* 28px mobile */
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+@media (min-width: 640px) {
+  .text-page-title {
+    font-size: var(--text-4xl);
+    /* 34px tablet+ */
+  }
+}
+
+.text-section-title {
+  font-size: var(--text-xl);
+  /* 20px mobile */
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+@media (min-width: 640px) {
+  .text-section-title {
+    font-size: var(--text-2xl);
+    /* 22px tablet+ */
+  }
+}
+
+/* Card Padding - Responsive */
+.card-padding {
+  padding: var(--space-3);
+  /* 12px mobile */
+}
+
+@media (min-width: 640px) {
+  .card-padding {
+    padding: var(--space-4);
+    /* 16px tablet+ */
+  }
+}
+
+.card-padding-lg {
+  padding: var(--space-4);
+  /* 16px mobile */
+}
+
+@media (min-width: 640px) {
+  .card-padding-lg {
+    padding: var(--space-6);
+    /* 24px tablet+ */
+  }
+}
+
+/* Sticky Bottom Action Bar */
+.sticky-bottom-bar {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--space-4);
+  padding-bottom: max(var(--space-4), env(safe-area-inset-bottom, 0px));
+  background: var(--background);
+  border-top: 1px solid var(--separator);
+  z-index: 40;
+}
+
+/* Hide on desktop, show on mobile */
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+/* Hide on mobile, show on desktop */
+@media (max-width: 767px) {
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+/* Thumb-friendly bottom area indicator */
+.thumb-zone {
+  /* Bottom 1/3 of screen - optimal thumb reach */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+}
+
+/* Full-width button on mobile */
+.btn-full-mobile {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .btn-full-mobile {
+    width: auto;
+  }
+}
+
+/* Responsive grid - 2 cols mobile, 4 cols tablet+ */
+.grid-responsive-4 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+}
+
+@media (min-width: 640px) {
+  .grid-responsive-4 {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-4);
+  }
+}
+
+/* Responsive grid - 1 col mobile, 2 cols tablet+ */
+.grid-responsive-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+}
+
+@media (min-width: 640px) {
+  .grid-responsive-2 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+}
+
+/* Bottom sheet backdrop */
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 50;
+}
+
+.dark .sheet-backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* Prevent body scroll when modal is open */
+.body-scroll-lock {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+/* Input optimizations for mobile - larger touch targets */
+input[type="number"],
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="date"],
+input[type="time"],
+textarea,
+select {
+  font-size: 16px;
+  /* Prevents iOS zoom on focus */
+  min-height: 44px;
+}
+
+/* Stepper buttons - ensure touch-friendly */
+.stepper-btn {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--secondary);
+  color: var(--foreground);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  transition: background-color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.stepper-btn:active {
+  transform: scale(0.92);
+  background: var(--border);
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .stepper-btn:active {
+    transform: none;
+  }
+
+  .card-interactive:hover,
+  .card-interactive:active {
+    transform: none;
+  }
+
+  .lift:hover {
+    transform: none;
+  }
+}
+
+/* ============================================ */
+/* STEP D: Charts + Lists + Performance         */
+/* ============================================ */
+
+/* Chart Container - Responsive Height */
+.chart-container {
+  height: 200px;
+  /* Mobile: compact */
+  min-height: 180px;
+}
+
+@media (min-width: 640px) {
+  .chart-container {
+    height: 280px;
+    /* Tablet: taller */
+  }
+}
+
+@media (min-width: 768px) {
+  .chart-container {
+    height: 320px;
+    /* Desktop: full height */
+  }
+}
+
+/* Horizontal Scroll Container */
+.scroll-x {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE/Edge */
+}
+
+.scroll-x::-webkit-scrollbar {
+  display: none;
+  /* Chrome/Safari */
+}
+
+/* Scroll Snap for carousels */
+.scroll-snap-x {
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+}
+
+.scroll-snap-item {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+/* Chart labels - ensure readability on mobile */
+.chart-label {
+  font-size: 11px;
+  fill: var(--muted-foreground);
+}
+
+@media (min-width: 640px) {
+  .chart-label {
+    font-size: 12px;
+  }
+}
+
+/* KPI Row - Compact summary above charts */
+.kpi-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-3);
+  background: var(--secondary);
+  border-radius: var(--radius-xl);
+  gap: var(--space-2);
+}
+
+.kpi-row>* {
+  flex: 1;
+  text-align: center;
+}
+
+/* List Performance Optimizations */
+.list-virtualized {
+  contain: content;
+  /* Isolate for better paint performance */
+  will-change: transform;
+  /* Hint for GPU acceleration */
+}
+
+/* Skeleton Animation - Performance Optimized */
+.skeleton-pulse {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  background: linear-gradient(90deg,
+      var(--secondary) 0%,
+      var(--muted) 50%,
+      var(--secondary) 100%);
+  background-size: 200% 100%;
+}
+
+@keyframes skeleton-pulse {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Reduce CLS (Cumulative Layout Shift) */
+.aspect-chart {
+  aspect-ratio: 16 / 9;
+}
+
+.aspect-square {
+  aspect-ratio: 1 / 1;
+}
+
+.aspect-card {
+  aspect-ratio: 4 / 3;
+}
+
+/* Fade-in skeleton replacement */
+.fade-in-content {
+  animation: fade-in-content 0.2s ease-out;
+}
+
+@keyframes fade-in-content {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Card list with proper spacing */
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@media (min-width: 640px) {
+  .card-list {
+    gap: var(--space-4);
+  }
+}
+
+/* Compact card variant for lists */
+.card-compact {
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+}
+
+/* Inline KPI stat */
+.kpi-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.kpi-stat-label {
+  font-size: var(--text-xs);
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kpi-stat-value {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Touch-friendly chart tooltip */
+.chart-tooltip {
+  position: absolute;
+  padding: var(--space-2) var(--space-3);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  pointer-events: none;
+  z-index: 50;
+  min-width: 80px;
+  text-align: center;
+}
+
+/* Data point highlight for touch */
+.data-point-active {
+  transform: scale(1.5);
+  transition: transform 0.15s var(--ease-spring);
 }

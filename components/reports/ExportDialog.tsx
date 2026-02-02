@@ -7,6 +7,8 @@ import { X, Printer, FileText, Loader2, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReportView from "./ReportView";
 import { format, subDays } from "date-fns";
+import { Button } from "../ui/Button";
+import { IconButton } from "../ui/IconButton";
 
 interface ExportDialogProps {
     isOpen: boolean;
@@ -64,9 +66,9 @@ export default function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
                                     <p className="text-xs text-muted-foreground">Generate a summary for your nutritionist</p>
                                 </div>
                             </div>
-                            <button onClick={handleClose} className="p-2 hover:bg-muted rounded-full transition-colors">
+                            <IconButton onClick={handleClose} label="Close">
                                 <X className="w-5 h-5 text-muted-foreground" />
-                            </button>
+                            </IconButton>
                         </div>
 
                         <div className="p-6 space-y-6">
@@ -124,13 +126,14 @@ export default function ExportDialog({ isOpen, onClose }: ExportDialogProps) {
                         </div>
 
                         <div className="p-6 border-t border-border/50 bg-muted/30">
-                            <button
+                            <Button
                                 onClick={handleGenerate}
                                 disabled={selectedTypes.length === 0}
-                                className="w-full py-3.5 bg-primary text-primary-foreground rounded-xl font-bold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+                                fullWidth
+                                size="lg"
                             >
                                 Generate Report
-                            </button>
+                            </Button>
                         </div>
                     </motion.div>
                 </div>

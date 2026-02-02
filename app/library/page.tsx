@@ -2,15 +2,16 @@
 
 import Link from "next/link";
 import { Dumbbell, Utensils, ChevronRight } from "lucide-react";
+import { PageHeader } from "../../components/ui/PageHeader";
 
 export default function LibraryPage() {
     return (
-        <div className="min-h-screen p-4 sm:p-8 pb-24 flex flex-col items-center">
-            <div className="w-full max-w-2xl animate-fade-in">
-                <header className="mb-8">
-                    <h1 className="text-3xl font-bold tracking-tight">Library</h1>
-                    <p className="text-muted-foreground mt-2">Manage your exercises and food database.</p>
-                </header>
+        <div className="min-h-screen page-padding flex flex-col items-center">
+            <div className="container-mobile animate-fade-in space-y-6">
+                <PageHeader
+                    title="Library"
+                    subtitle="Manage your exercises and food database"
+                />
 
                 <div className="grid gap-4">
                     <Link href="/workouts" className="group relative overflow-hidden bg-card border border-border/50 rounded-3xl p-6 hover:shadow-lg transition-all hover:border-primary/50">

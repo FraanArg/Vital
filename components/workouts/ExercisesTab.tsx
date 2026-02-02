@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Search, Plus, Dumbbell, Loader2 } from "lucide-react";
+import { Button } from "../ui/Button";
+import { IconButton } from "../ui/IconButton";
 
 export default function ExercisesTab() {
     const exercises = useQuery(api.exercises.getExercises);
@@ -115,13 +117,14 @@ export default function ExercisesTab() {
                     </div>
                 </div>
 
-                <button
+                <Button
                     onClick={handleCreate}
                     disabled={!newExercise.name || isSubmitting}
-                    className="w-full p-3 bg-primary text-primary-foreground rounded-xl font-bold disabled:opacity-50 mt-4 flex items-center justify-center gap-2"
+                    fullWidth
+                    className="mt-4"
                 >
                     {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Create Exercise"}
-                </button>
+                </Button>
             </div>
         );
     }
@@ -139,12 +142,13 @@ export default function ExercisesTab() {
                         className="w-full pl-9 pr-4 py-2 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary"
                     />
                 </div>
-                <button
+                <IconButton
                     onClick={() => setIsCreating(true)}
-                    className="p-2 bg-primary text-primary-foreground rounded-xl hover:opacity-90 transition-opacity"
+                    label="Add exercise"
+                    className="bg-primary text-primary-foreground"
                 >
                     <Plus className="w-6 h-6" />
-                </button>
+                </IconButton>
             </div>
 
             <div className="space-y-2">
@@ -187,11 +191,8 @@ export default function ExercisesTab() {
 function SeedButton() {
     const seed = useMutation(api.exercises.seedDefaults);
     return (
-        <button
-            onClick={() => seed()}
-            className="px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-lg text-sm font-medium transition-colors"
-        >
+        <Button onClick={() => seed()} variant="secondary" size="sm">
             Load Default Exercises
-        </button>
+        </Button>
     );
 }

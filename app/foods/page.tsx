@@ -7,11 +7,16 @@ import { Id } from "../../convex/_generated/dataModel";
 import { Search, Trash2, Utensils } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import IconPicker from "../../components/ui/IconPicker";
+import { PageHeader } from "../../components/ui/PageHeader";
+import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
+import { Button } from "../../components/ui/Button";
 
 export default function FoodDatabasePage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [mounted, setMounted] = useState(false);
     const [editingIconId, setEditingIconId] = useState<Id<"foodItems"> | null>(null);
+    const [deleteId, setDeleteId] = useState<Id<"foodItems"> | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const foods = useQuery(api.foodItems.list);
     const removeFood = useMutation(api.foodItems.remove);
@@ -26,9 +31,14 @@ export default function FoodDatabasePage() {
         food.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const handleDelete = async (id: Id<"foodItems">) => {
-        if (confirm("Are you sure you want to delete this food item?")) {
-            await removeFood({ id });
+    const handleDelete = async () => {
+        if (!deleteId) return;
+        setIsDeleting(true);
+        try {
+            await removeFood({ id: deleteId });
+        } finally {
+            setIsDeleting(false);
+            setDeleteId(null);
         }
     };
 
@@ -40,17 +50,17 @@ export default function FoodDatabasePage() {
     if (!mounted) return null;
 
     return (
-        <div className="min-h-screen p-4 sm:p-8 pb-24 flex flex-col items-center">
-            <div className="w-full max-w-2xl animate-fade-in space-y-8">
-                <header className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Food Database</h1>
-                        <p className="text-muted-foreground mt-1">Manage your saved food items.</p>
-                    </div>
-                    <div className="p-3 bg-primary/10 rounded-full">
-                        <Utensils className="w-6 h-6 text-primary" />
-                    </div>
-                </header>
+        <div className="min-h-screen page-padding flex flex-col items-center">
+            <div className="container-mobile animate-fade-in space-y-6">
+                <PageHeader
+                    title="Food Database"
+                    subtitle="Manage your saved food items"
+                    actions={
+                        <div className="p-3 bg-primary/10 rounded-full">
+                            <Utensils className="w-6 h-6 text-primary" />
+                        </div>
+                    }
+                />
 
                 <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -103,9 +113,10 @@ export default function FoodDatabasePage() {
                                 </div>
                                 {food.userId && ( // Only allow deleting user's own items
                                     <button
-                                        onClick={() => handleDelete(food._id)}
+                                        onClick={() => setDeleteId(food._id)}
                                         className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
                                         title="Delete Food"
+                                        aria-label={`Delete ${food.name}`}
                                     >
                                         <Trash2 className="w-5 h-5" />
                                     </button>
@@ -120,15 +131,25 @@ export default function FoodDatabasePage() {
                                 <p className="text-lg">No foods found.</p>
                                 <p className="text-sm">Try adding some via the Food Tracker!</p>
                             </div>
-                            <button
+                            <Button
                                 onClick={() => seedDefaults()}
-                                className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity"
                             >
                                 Load Default Foods
-                            </button>
+                            </Button>
                         </div>
                     )}
                 </div>
+
+                <ConfirmDialog
+                    isOpen={!!deleteId}
+                    onClose={() => setDeleteId(null)}
+                    onConfirm={handleDelete}
+                    title="Delete food item?"
+                    description="This item will be permanently removed from your food database."
+                    confirmLabel="Delete"
+                    variant="destructive"
+                    isLoading={isDeleting}
+                />
             </div>
         </div>
     );

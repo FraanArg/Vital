@@ -10,6 +10,9 @@ import { ICON_LIBRARY } from "../../../lib/icon-library";
 import IconPicker from "../../../components/IconPicker";
 import { useToast } from "../../../components/ui/ToastContext";
 import { AnimatePresence, motion } from "framer-motion";
+import { PageHeader } from "../../../components/ui/PageHeader";
+import { Button } from "../../../components/ui/Button";
+import { ConfirmDialog } from "../../../components/ui/ConfirmDialog";
 
 export default function ManagePage() {
     const { toast } = useToast();
@@ -20,6 +23,11 @@ export default function ManagePage() {
 
     const [isAddingFood, setIsAddingFood] = useState(false);
     const [newFoodName, setNewFoodName] = useState("");
+
+    // Delete confirmation state
+    const [deleteSportId, setDeleteSportId] = useState<Id<"sports"> | null>(null);
+    const [deleteFoodId, setDeleteFoodId] = useState<Id<"foodItems"> | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const sports = useQuery(api.sports.getSports);
     const createSport = useMutation(api.sports.createSport);
@@ -48,17 +56,27 @@ export default function ManagePage() {
         }
     };
 
-    const handleDelete = async (id: Id<"sports">) => {
-        if (confirm("Are you sure you want to delete this sport?")) {
-            await deleteSport({ id });
+    const handleDelete = async () => {
+        if (!deleteSportId) return;
+        setIsDeleting(true);
+        try {
+            await deleteSport({ id: deleteSportId });
             toast("Sport deleted", "info");
+        } finally {
+            setIsDeleting(false);
+            setDeleteSportId(null);
         }
     };
 
-    const handleDeleteFood = async (id: Id<"foodItems">) => {
-        if (confirm("Are you sure you want to delete this food item?")) {
-            await deleteFood({ id });
+    const handleDeleteFood = async () => {
+        if (!deleteFoodId) return;
+        setIsDeleting(true);
+        try {
+            await deleteFood({ id: deleteFoodId });
             toast("Food deleted", "info");
+        } finally {
+            setIsDeleting(false);
+            setDeleteFoodId(null);
         }
     };
 
@@ -69,7 +87,7 @@ export default function ManagePage() {
             {/* Header */}
             <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border/50">
                 <div className="max-w-md mx-auto px-4 h-16 flex items-center gap-4">
-                    <Link href="/settings" className="p-2 -ml-2 hover:bg-secondary rounded-full transition-colors">
+                    <Link href="/profile" className="p-2 -ml-2 hover:bg-secondary rounded-full transition-colors">
                         <ArrowLeft className="w-5 h-5" />
                     </Link>
                     <h1 className="font-bold text-lg">Manage Items</h1>
@@ -153,8 +171,9 @@ export default function ManagePage() {
                                             <span className="font-medium">{sport.name}</span>
                                         </div>
                                         <button
-                                            onClick={() => handleDelete(sport._id)}
+                                            onClick={() => setDeleteSportId(sport._id)}
                                             className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                                            aria-label={`Delete ${sport.name}`}
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </button>
@@ -232,8 +251,9 @@ export default function ManagePage() {
                                         <span className="font-medium">{food.name}</span>
                                     </div>
                                     <button
-                                        onClick={() => handleDeleteFood(food._id)}
+                                        onClick={() => setDeleteFoodId(food._id)}
                                         className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
+                                        aria-label={`Delete ${food.name}`}
                                     >
                                         <Trash2 className="w-4 h-4" />
                                     </button>
@@ -258,6 +278,28 @@ export default function ManagePage() {
                     onClose={() => setShowIconPicker(false)}
                 />
             )}
+
+            <ConfirmDialog
+                isOpen={!!deleteSportId}
+                onClose={() => setDeleteSportId(null)}
+                onConfirm={handleDelete}
+                title="Delete sport?"
+                description="This sport will be permanently removed."
+                confirmLabel="Delete"
+                variant="destructive"
+                isLoading={isDeleting}
+            />
+
+            <ConfirmDialog
+                isOpen={!!deleteFoodId}
+                onClose={() => setDeleteFoodId(null)}
+                onConfirm={handleDeleteFood}
+                title="Delete food?"
+                description="This food will be permanently removed."
+                confirmLabel="Delete"
+                variant="destructive"
+                isLoading={isDeleting}
+            />
         </div>
     );
 }

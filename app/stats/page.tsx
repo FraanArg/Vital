@@ -5,12 +5,14 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subDays, format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
-import { Activity, Moon, Dumbbell, Utensils, Sparkles, TrendingUp } from "lucide-react";
+import { Activity, Moon, Dumbbell, Utensils, Sparkles } from "lucide-react";
 import dynamic from "next/dynamic";
 
 import ConsistencyGrid from "../../components/stats/ConsistencyGrid";
 import { Skeleton } from "../../components/ui/Skeleton";
 import DataExport from "../../components/DataExport";
+import { PageHeader } from "../../components/ui/PageHeader";
+import { TimeframeSelector } from "../../components/ui/TimeframeSelector";
 
 // Lazy load all stat components
 const ActivityRings = dynamic(() => import("../../components/stats/ActivityRings"), { ssr: false });
@@ -165,31 +167,22 @@ export default function StatisticsPage() {
 
     return (
         <div className="min-h-screen p-4 sm:p-8 pb-24 flex flex-col items-center">
-            <div className="w-full max-w-5xl space-y-6">
+            <div className="w-full max-w-container space-y-6">
                 {/* Header with Range Selector */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Statistics</h1>
-                        <p className="text-sm text-muted-foreground">Track your progress over time</p>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <DataExport />
-                        <div className="flex items-center gap-1 p-1 bg-secondary/50 rounded-xl">
-                            {(["week", "month", "year"] as const).map((r) => (
-                                <button
-                                    key={r}
-                                    onClick={() => setRange(r)}
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${range === r
-                                        ? "bg-card shadow-sm text-foreground"
-                                        : "text-muted-foreground hover:text-foreground"
-                                        }`}
-                                >
-                                    {r.charAt(0).toUpperCase() + r.slice(1)}
-                                </button>
-                            ))}
+                <PageHeader
+                    title="Statistics"
+                    subtitle="Track your progress over time"
+                    actions={
+                        <div className="flex items-center gap-3">
+                            <DataExport />
+                            <TimeframeSelector
+                                value={range}
+                                options={["week", "month", "year"]}
+                                onChange={setRange}
+                            />
                         </div>
-                    </div>
-                </div>
+                    }
+                />
 
                 {/* Tab Navigation */}
                 <div className="flex gap-1 p-1 bg-secondary/30 rounded-2xl overflow-x-auto">

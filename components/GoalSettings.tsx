@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { Target, Moon, Droplets, Dumbbell, Utensils, Briefcase, Save } from "lucide-react";
 import { Skeleton } from "./ui/Skeleton";
 import { useToast } from "./ui/ToastContext";
+import { Button } from "./ui/Button";
 
 interface Goal {
     id: string;
@@ -143,14 +144,14 @@ export default function GoalSettings() {
                     animate={{ opacity: 1, y: 0 }}
                     className="mt-6"
                 >
-                    <button
+                    <Button
                         onClick={handleSave}
                         disabled={isSaving}
-                        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+                        fullWidth
                     >
                         <Save className="w-4 h-4" />
                         {isSaving ? "Saving..." : "Save Goals"}
-                    </button>
+                    </Button>
                 </motion.div>
             )}
         </div>

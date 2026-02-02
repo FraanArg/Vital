@@ -7,6 +7,8 @@ import { Trophy, Plus, Trash2, Circle, Swords, Target, Waves, Settings, X, Loade
 import { Skeleton } from "../ui/Skeleton";
 import { ICON_LIBRARY } from "../../lib/icon-library";
 import IconPicker from "../../components/IconPicker";
+import { Button } from "../ui/Button";
+import { IconButton } from "../ui/IconButton";
 
 const DEFAULT_SPORTS = [
     { id: "padel", label: "Padel", icon: Swords },
@@ -139,14 +141,14 @@ export default function SportsTab() {
                             className="flex-1 p-2 rounded-lg bg-secondary border-none"
                             autoFocus
                         />
-                        <button
+                        <Button
                             onClick={handleCreate}
                             disabled={!newSportName || isCreatingSport}
-                            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium disabled:opacity-50 flex items-center gap-2"
+                            size="sm"
                         >
                             {isCreatingSport && <Loader2 className="w-4 h-4 animate-spin" />}
                             Save
-                        </button>
+                        </Button>
                     </div>
                 )}
 
@@ -180,9 +182,9 @@ export default function SportsTab() {
                     <div className="w-full max-w-sm bg-card p-6 rounded-3xl border border-border shadow-xl space-y-4">
                         <div className="flex items-center justify-between">
                             <h3 className="font-bold text-lg">Customize Sport</h3>
-                            <button onClick={() => setEditingSport(null)} className="p-2 hover:bg-secondary rounded-full">
+                            <IconButton onClick={() => setEditingSport(null)} label="Close">
                                 <X className="w-5 h-5" />
-                            </button>
+                            </IconButton>
                         </div>
 
                         <div className="space-y-2">
@@ -212,14 +214,15 @@ export default function SportsTab() {
                             </button>
                         </div>
 
-                        <button
+                        <Button
                             onClick={handleSaveEdit}
                             disabled={isSavingEdit}
-                            className="w-full p-3 bg-primary text-primary-foreground rounded-xl font-bold mt-2 flex items-center justify-center gap-2"
+                            fullWidth
+                            className="mt-2"
                         >
                             {isSavingEdit && <Loader2 className="w-4 h-4 animate-spin" />}
                             Save Changes
-                        </button>
+                        </Button>
                     </div>
                 </div>
             )}

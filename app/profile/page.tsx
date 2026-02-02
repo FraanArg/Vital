@@ -14,12 +14,19 @@ import ExportDialog from "../../components/reports/ExportDialog";
 import NotificationSettings from "../../components/NotificationSettings";
 import GoalSettings from "../../components/GoalSettings";
 import { db } from "../../lib/db";
+import { PageHeader } from "../../components/ui/PageHeader";
+import { SectionHeader } from "../../components/ui/SectionHeader";
+import { ConfirmDialog } from "../../components/ui/ConfirmDialog";
+import Input from "../../components/ui/Input";
+import { Button } from "../../components/ui/Button";
 
 export default function ProfilePage() {
     const { user, isLoaded } = useUser();
     const { openUserProfile, openSignIn } = useClerk();
     const [isLoading, setIsLoading] = useState(false);
     const [showExportDialog, setShowExportDialog] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     // Biometrics state
     const [age, setAge] = useState<number | "">("");
@@ -64,10 +71,15 @@ export default function ProfilePage() {
     };
 
     const clearData = async () => {
-        if (confirm("Are you sure you want to delete ALL data? This cannot be undone.")) {
+        setIsDeleting(true);
+        try {
             await db.logs.clear();
-            alert("All data cleared.");
             window.location.reload();
+        } catch (error) {
+            console.error("Failed to clear data:", error);
+        } finally {
+            setIsDeleting(false);
+            setShowDeleteConfirm(false);
         }
     };
 
@@ -108,10 +120,10 @@ export default function ProfilePage() {
 
     return (
         <div className="p-4 sm:p-6 max-w-2xl mx-auto space-y-8 pb-24 sm:pb-8">
-            <div>
-                <h1 className="text-3xl font-bold tracking-tight mb-2">Profile</h1>
-                <p className="text-muted-foreground">Manage your account and preferences.</p>
-            </div>
+            <PageHeader
+                title="Profile"
+                subtitle="Manage your account and preferences"
+            />
 
             {/* Custom Profile Card */}
             <div className="bg-card border border-border/50 rounded-2xl p-6 shadow-sm flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
@@ -146,66 +158,52 @@ export default function ProfilePage() {
             <div className="grid gap-6">
                 {/* Health Profile */}
                 <section className="bg-card p-6 rounded-2xl border border-border/50 shadow-sm">
-                    <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                        <Heart className="w-5 h-5 text-red-500" />
-                        Health Profile
-                    </h2>
+                    <SectionHeader
+                        title="Health Profile"
+                        icon={<Heart className="w-5 h-5 text-red-500" />}
+                    />
                     <p className="text-sm text-muted-foreground mb-4">
                         Add your details for personalized AI insights on nutrition and recovery.
                     </p>
 
                     <div className="grid grid-cols-3 gap-4 mb-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-muted-foreground">Age</label>
-                            <input
-                                type="number"
-                                inputMode="numeric"
-                                value={age}
-                                onChange={(e) => setAge(e.target.value ? parseInt(e.target.value) : "")}
-                                placeholder="25"
-                                className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary text-center"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-muted-foreground">Weight (kg)</label>
-                            <input
-                                type="number"
-                                inputMode="decimal"
-                                value={weight}
-                                onChange={(e) => setWeight(e.target.value ? parseFloat(e.target.value) : "")}
-                                placeholder="70"
-                                className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary text-center"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-muted-foreground">Height (cm)</label>
-                            <input
-                                type="number"
-                                inputMode="numeric"
-                                value={height}
-                                onChange={(e) => setHeight(e.target.value ? parseInt(e.target.value) : "")}
-                                placeholder="175"
-                                className="w-full p-3 rounded-xl bg-secondary border-none focus:ring-2 focus:ring-primary text-center"
-                            />
-                        </div>
+                        <Input
+                            label="Age"
+                            type="number"
+                            inputMode="numeric"
+                            value={age}
+                            onChange={(e) => setAge(e.target.value ? parseInt(e.target.value) : "")}
+                            placeholder="25"
+                            className="text-center"
+                        />
+                        <Input
+                            label="Weight (kg)"
+                            type="number"
+                            inputMode="decimal"
+                            value={weight}
+                            onChange={(e) => setWeight(e.target.value ? parseFloat(e.target.value) : "")}
+                            placeholder="70"
+                            className="text-center"
+                        />
+                        <Input
+                            label="Height (cm)"
+                            type="number"
+                            inputMode="numeric"
+                            value={height}
+                            onChange={(e) => setHeight(e.target.value ? parseInt(e.target.value) : "")}
+                            placeholder="175"
+                            className="text-center"
+                        />
                     </div>
 
-                    <button
+                    <Button
                         onClick={handleSaveProfile}
-                        disabled={isSavingProfile}
-                        className="w-full p-3 bg-primary text-primary-foreground rounded-xl font-medium transition-all hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+                        isLoading={isSavingProfile}
+                        fullWidth
+                        leftIcon={profileSaved ? <Check className="w-4 h-4" /> : undefined}
                     >
-                        {isSavingProfile ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : profileSaved ? (
-                            <>
-                                <Check className="w-4 h-4" />
-                                Saved!
-                            </>
-                        ) : (
-                            "Save Profile"
-                        )}
-                    </button>
+                        {profileSaved ? "Saved!" : "Save Profile"}
+                    </Button>
 
                     <Link
                         href="/body"
@@ -284,8 +282,9 @@ export default function ProfilePage() {
                                 <p className="text-sm text-muted-foreground">Delete all your logs permanently</p>
                             </div>
                             <button
-                                onClick={clearData}
+                                onClick={() => setShowDeleteConfirm(true)}
                                 className="p-2 bg-destructive/10 text-destructive rounded-lg hover:bg-destructive/20 transition-colors"
+                                aria-label="Delete all data"
                             >
                                 <Trash2 className="w-5 h-5" />
                             </button>
@@ -295,7 +294,17 @@ export default function ProfilePage() {
             </div >
 
             <ExportDialog isOpen={showExportDialog} onClose={() => setShowExportDialog(false)} />
+
+            <ConfirmDialog
+                isOpen={showDeleteConfirm}
+                onClose={() => setShowDeleteConfirm(false)}
+                onConfirm={clearData}
+                title="Delete all data?"
+                description="This action cannot be undone. All your logs, tracked activities, and history will be permanently deleted."
+                confirmLabel="Delete Everything"
+                variant="destructive"
+                isLoading={isDeleting}
+            />
         </div >
     );
 }
-
