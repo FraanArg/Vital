@@ -251,6 +251,110 @@ a {
   box-shadow: var(--shadow);
 }
 
+/* Apple HIG Utilities */
+
+/* Apple-style card with pure elevation (no visible border) */
+.apple-card {
+  background: var(--card);
+  border-radius: var(--radius-2xl);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.dark .apple-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 0 0.5px rgba(255, 255, 255, 0.05);
+}
+
+/* Apple system button styles */
+.apple-button-filled {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  padding: 0.75rem 1.25rem;
+  font-size: var(--text-lg);
+}
+
+.apple-button-tinted {
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary);
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  padding: 0.75rem 1.25rem;
+  font-size: var(--text-lg);
+}
+
+.apple-button-gray {
+  background: var(--secondary);
+  color: var(--foreground);
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  padding: 0.75rem 1.25rem;
+  font-size: var(--text-lg);
+}
+
+/* Apple vibrancy effect (for sidebars, headers) */
+.apple-vibrancy {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+.dark .apple-vibrancy {
+  background: rgba(30, 30, 30, 0.72);
+}
+
+/* Apple separator (thinner than standard) */
+.apple-separator {
+  height: 0.5px;
+  background: var(--separator);
+}
+
+/* Apple grouped list inset */
+.apple-inset {
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .apple-inset {
+    margin-left: 1.25rem;
+    margin-right: 1.25rem;
+  }
+}
+
+/* Apple large title */
+.apple-large-title {
+  font-size: 2.125rem;
+  /* 34px */
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+/* Apple headline */
+.apple-headline {
+  font-size: 1.0625rem;
+  /* 17px */
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Apple subheadline */
+.apple-subhead {
+  font-size: 0.9375rem;
+  /* 15px */
+  color: var(--muted-foreground);
+}
+
+/* Apple caption */
+.apple-caption {
+  font-size: 0.75rem;
+  /* 12px */
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
 .container {
   max-width: 600px;
   margin: 0 auto;

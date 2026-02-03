@@ -19,7 +19,7 @@ export default function Sidebar() {
     const pathname = usePathname();
 
     return (
-        <aside className="hidden md:flex flex-col w-64 bg-card/80 dark:bg-card/60 backdrop-blur-xl border-r border-border/30 h-full">
+        <aside className="hidden md:flex flex-col w-64 apple-vibrancy border-r border-border/20 h-full">
             {/* Logo */}
             <div className="flex items-center gap-3 px-6 py-5">
                 <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-sm">

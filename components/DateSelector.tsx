@@ -220,9 +220,9 @@ function DateSelector({ selectedDate, onDateChange }: DateSelectorProps) {
                                     layout
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
-                                    className={`flex flex-col justify-center px-4 min-w-[100px] flex-1 h-24 rounded-[32px] transition-all relative border ${isSelected
-                                        ? "bg-primary text-primary-foreground border-primary shadow-md"
-                                        : "bg-card text-card-foreground hover:bg-secondary border-border/50"
+                                    className={`flex flex-col justify-center px-4 min-w-[100px] flex-1 h-24 rounded-[32px] transition-all relative ${isSelected
+                                        ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30"
+                                        : "bg-card text-card-foreground hover:bg-secondary/80 shadow-sm"
                                         }`}
                                 >
                                     <div className="w-full flex items-center justify-between mb-1">

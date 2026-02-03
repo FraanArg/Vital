@@ -3,7 +3,7 @@
 import { motion, HTMLMotionProps } from "framer-motion";
 import { forwardRef, ReactNode } from "react";
 
-type CardVariant = "default" | "interactive" | "glow" | "gradient";
+type CardVariant = "default" | "interactive" | "glow" | "gradient" | "apple" | "grouped";
 
 interface CardProps extends Omit<HTMLMotionProps<"div">, "children"> {
     children: ReactNode;
@@ -12,10 +12,14 @@ interface CardProps extends Omit<HTMLMotionProps<"div">, "children"> {
 }
 
 const variantClasses: Record<CardVariant, string> = {
-    default: "bg-card border border-border/50",
-    interactive: "bg-card border border-border/50 card-interactive cursor-pointer",
-    glow: "bg-card border border-border/50 glow-border",
-    gradient: "bg-card border border-border/50 gradient-border-animated",
+    default: "bg-card border border-border/30 shadow-sm",
+    interactive: "bg-card border border-border/30 shadow-sm card-interactive cursor-pointer",
+    glow: "bg-card border border-border/30 glow-border",
+    gradient: "bg-card border border-border/30 gradient-border-animated",
+    // Apple-style: No visible border, pure elevation
+    apple: "bg-card shadow-md border-0",
+    // iOS grouped list style
+    grouped: "bg-card/80 backdrop-blur-sm border border-border/20 shadow-sm",
 };
 
 /**
